@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Tier List — Zenless Zone Zero</title>
+<style>
+body {
+  margin: 0;
+  background: #0f1015;
+}
+table.tier-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-family: system-ui, -apple-system, sans-serif;
+  background: transparent;
+}
+table.tier-table th {
+  padding: 16px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  background: #11131b;
+  border-bottom: 1px solid #1f222f;
+  text-transform: uppercase;
+}
+table.tier-table td {
+  padding: 20px 10px;
+  vertical-align: top;
+  border-right: 1px solid #1f222f;
+  border-bottom: 1px solid #1f222f;
+}
+table.tier-table td:last-child {
+  border-right: none;
+}
+
+.tier-label-cell {
+  width: 50px;
+  font-weight: 800;
+  font-size: 16px;
+  text-align: center;
+  vertical-align: middle !important;
+  border-right: 1px solid #1f222f;
+}
+.t0-label { background: #2a1111 !important; color: #ff4d4d; }
+.t05-label { background: #22132b !important; color: #c084fc; }
+.t1-label { background: #111b2a !important; color: #60a5fa; }
+
+/* Contenedor vertical de los elementos */
+.column-grid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Grupo flexible horizontal para el balance visual */
+.row-flex {
+  display: flex;
+  gap: 16px;
+}
+
+/* El cuadro con personaje */
+.char-box {
+  width: 130px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.char-box .char-img-wrap {
+  width: 130px;
+  height: 110px;
+  background: #1c1e28;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.char-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  display: block;
+}
+.char-box span {
+  margin-top: 8px;
+  color: #e0e0e8;
+  font-size: 13px;
+  text-align: center;
+}
+
+/* El cuadro en blanco estilo botón */
+.empty-box {
+  width: 130px;
+  height: 110px;
+  background: #1c1e28;
+  border: 1px solid #2d3142;
+  border-radius: 8px;
+}
+</style>
+</head>
+<body>
+
+  <!-- ================= CUADRO TIER T0 ================= -->
+  <table class="tier-table">
+    <colgroup>
+      <col style="width: 60px;">
+      <col style="width: 23.5%;">
+      <col style="width: 23.5%;">
+      <col style="width: 23.5%;">
+      <col style="width: 23.5%;">
+    </colgroup>
+    <thead>
+      <tr>
+        <th style="width: 50px;"></th>
+        <th style="color:#ef4444;">CRIT DPS</th>
+        <th style="color:#a855f7;">ANOMALY DPS</th>
+        <th style="color:#22c55e;">SUPPORT</th>
+        <th style="color:#ef4444;">T0</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="tier-label-cell t0-label">T0</td>
+        <!-- CRIT DPS -->
+        <td>
+          <div class="column-grid">
+            <div class="char-box">
+              <div class="char-img-wrap"><img src="./ye-shunguang_card.webp" alt="Ye Shunguang"></div>
+              <span>Shunguang</span>
+            </div>
+            <div class="char-box">
+              <div class="char-img-wrap"><img src="./claret_card.webp" alt="Claret"></div>
+              <span>Claret</span>
+            </div>
+            <div class="char-box">
+              <div class="char-img-wrap"><img src="./sigrid_card.webp" alt="Sigrid"></div>
+              <span>Sigrid</span>
+            </div>
+            <div class="char-box">
+              <div class="char-img-wrap"><img src="./miyabi_card.webp" alt="Miyabi"></div>
+              <span>Miyabi</span>
+            </div>
+          </div>
+        </td>
+        <!-- ANOMALY DPS -->
+        <td>
+          <div class="column-grid">
+            <div class="char-box">
+              <div class="char-img-wrap"><img src="./yanagi_card.webp" alt="Yanagi"></div>
+              <span>Yanagi</span>
+            </div>
+            <div class="char-box">
+              <div class="char-img-wrap"><img src="./burnice_card.webp" alt="Burnice"></div>
+              <span>Burnice</span>
+            </div>
+          </div>
+        </td>
+        <!-- SUPPORT -->
+        <td>
+          <div class="column-grid">
+            <div class="row-flex">
+              <div class="char-box">
+                <div class="char-img-wrap"><img src="./lucia_card.webp" alt="Lucia"></div>
+                <span>Lucia</span>
+              </div>
+              <div class="char-box">
+                <div class="char-img-wrap"><img src="./velina_card.webp" alt="Velina"></div>
+                <span>Velina</span>
+              </div>
+            </div>
+            <div class="row-flex">
+              <div class="char-box">
+                <div class="char-img-wrap"><img src="./soukaku_card.webp" alt="Soukaku"></div>
+                <span>Soukaku</span>
+              </div>
+            </div>
+          </div>
+        </td>
+        <!-- T0 (nueva, vacía) -->
+        <td>
+          <div class="column-grid">
+            <div class="empty-box"></div>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ================= CUADRO TIER T0.5 ================= -->
+  <table class="tier-table">
+    <colgroup>
+      <col style="width: 60px;">
+      <col style="width: 23.5%;">
+      <col style="width: 23.5%;">
+      <col style="width: 23.5%;">
+      <col style="width: 23.5%;">
+    </colgroup>
+    <tbody>
+      <tr>
+        <td class="tier-label-cell t05-label">T0.5</td>
+        <!-- CRIT DPS -->
+        <td>
+          <div class="column-grid">
+            <div class="char-box">
+              <div class="char-img-wrap"><img src="./ellen_card.webp" alt="Ellen"></div>
+              <span>Ellen</span>
+            </div>
+            <div class="char-box">
+              <div class="char-img-wrap"><img src="./jane-doe_card.webp" alt="Jane Doe"></div>
+              <span>Jane Doe</span>
+            </div>
+            <div class="char-box">
+              <div class="char-img-wrap"><img src="./soldier-11_card.webp" alt="Soldier 11"></div>
+              <span>Soldier 11</span>
+            </div>
+          </div>
+        </td>
+        <!-- ANOMALY DPS -->
+        <td>
+          <div class="column-grid">
+            <div class="char-box">
+              <div class="char-img-wrap"><img src="./qingyi_card.webp" alt="Qingyi"></div>
+              <span>Qingyi</span>
+            </div>
+            <div class="char-box">
+              <div class="char-img-wrap"><img src="./grace-howard_card.webp" alt="Grace Howard"></div>
+              <span>Grace</span>
+            </div>
+          </div>
+        </td>
+        <!-- SUPPORT -->
+        <td>
+          <div class="column-grid">
+            <div class="row-flex">
+              <div class="char-box">
+                <div class="char-img-wrap"><img src="./nicole-demara_card.webp" alt="Nicole Demara"></div>
+                <span>Nicole</span>
+              </div>
+              <div class="char-box">
+                <div class="char-img-wrap"><img src="./rina_card.webp" alt="Rina"></div>
+                <span>Rina</span>
+              </div>
+            </div>
+            <div class="row-flex">
+              <div class="char-box">
+                <div class="char-img-wrap"><img src="./koleda_card.webp" alt="Koleda"></div>
+                <span>Koleda</span>
+              </div>
+            </div>
+          </div>
+        </td>
+        <!-- T0 (nueva, vacía) -->
+        <td>
+          <div class="column-grid">
+            <div class="empty-box"></div>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ================= CUADRO TIER T1 ================= -->
+  <table class="tier-table">
+    <colgroup>
+      <col style="width: 60px;">
+      <col style="width: 23.5%;">
+      <col style="width: 23.5%;">
+      <col style="width: 23.5%;">
+      <col style="width: 23.5%;">
+    </colgroup>
+    <tbody>
+      <tr>
+        <td class="tier-label-cell t1-label">T1</td>
+        <!-- CRIT DPS -->
+        <td>
+          <div class="column-grid">
+            <div class="char-box">
+              <div class="char-img-wrap"><img src="./anby-demara-soldier-0_card.webp" alt="Anby Demara"></div>
+              <span>Anby</span>
+            </div>
+            <div class="char-box">
+              <div class="char-img-wrap"><img src="./billy-starlight_card.webp" alt="Billy Starlight"></div>
+              <span>Billy</span>
+            </div>
+            <div class="char-box">
+              <div class="char-img-wrap"><img src="./nekomata_card.webp" alt="Nekomata"></div>
+              <span>Nekomata</span>
+            </div>
+          </div>
+        </td>
+        <!-- ANOMALY DPS -->
+        <td>
+          <div class="column-grid">
+            <div class="char-box">
+              <div class="char-img-wrap"><img src="./piper_card.webp" alt="Piper"></div>
+              <span>Piper</span>
+            </div>
+          </div>
+        </td>
+        <!-- SUPPORT -->
+        <td>
+          <div class="column-grid">
+            <div class="row-flex">
+              <div class="char-box">
+                <div class="char-img-wrap"><img src="./sunna_card.webp" alt="Sunna"></div>
+                <span>Sunna</span>
+              </div>
+              <div class="char-box">
+                <div class="char-img-wrap"><img src="./remielle_card.webp" alt="Remielle"></div>
+                <span>Remielle</span>
+              </div>
+            </div>
+            <div class="row-flex">
+              <div class="char-box">
+                <div class="char-img-wrap"><img src="./astra-yao_card.webp" alt="Astra Yao"></div>
+                <span>Astra Yao</span>
+              </div>
+              <div class="char-box">
+                <div class="char-img-wrap"><img src="./ukinami-yuzuha_card.webp" alt="Ukinami Yuzuha"></div>
+                <span>Yuzuha</span>
+              </div>
+            </div>
+            <div class="row-flex">
+              <div class="char-box">
+                <div class="char-img-wrap"><img src="./orphie-and-magus_card.webp" alt="Orphie and Magus"></div>
+                <span>Orphie</span>
+              </div>
+            </div>
+          </div>
+        </td>
+        <!-- T0 (nueva, vacía) -->
+        <td>
+          <div class="column-grid">
+            <div class="empty-box"></div>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+</body>
+</html>
