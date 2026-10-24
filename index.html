@@ -4,12 +4,48 @@
 <meta charset="UTF-8">
 <title>ArkanaBuilds</title>
 <style>
+  :root {
+    --bg: #0b0c10;
+    --text: #e5e7eb;
+    --text-muted: #9ca3af;
+    --text-faint: #8b8f99;
+    --heading-white: #f3f4f6;
+    --border: #1a1c23;
+    --border-card: #1f222c;
+    --card-bg: #14161d;
+    --btn-secondary-bg: #1c1e27;
+    --btn-secondary-border: #2a2d38;
+    --toggle-bg: #23252f;
+    --toggle-knob: #6b7280;
+    --icon-purple: #1e1b3a;
+    --icon-green: #0f2a22;
+    --icon-blue: #122236;
+  }
+  body.light {
+    --bg: #f7f7fa;
+    --text: #1f2230;
+    --text-muted: #5b5f6d;
+    --text-faint: #6b6f7a;
+    --heading-white: #1a1c23;
+    --border: #e4e4ea;
+    --border-card: #e4e4ea;
+    --card-bg: #ffffff;
+    --btn-secondary-bg: #ffffff;
+    --btn-secondary-border: #d9d9e1;
+    --toggle-bg: #d9d9e1;
+    --toggle-knob: #6366f1;
+    --icon-purple: #ece9fe;
+    --icon-green: #e3f6ee;
+    --icon-blue: #e5f0fb;
+  }
+
   * { box-sizing: border-box; }
   body {
     margin: 0;
-    background: #0b0c10;
-    color: #e5e7eb;
+    background: var(--bg);
+    color: var(--text);
     font-family: system-ui, -apple-system, sans-serif;
+    transition: background 0.2s ease, color 0.2s ease;
   }
 
   /* ===== Navbar ===== */
@@ -18,12 +54,12 @@
     align-items: center;
     justify-content: space-between;
     padding: 20px 40px;
-    border-bottom: 1px solid #1a1c23;
+    border-bottom: 1px solid var(--border);
   }
   .logo {
     font-weight: 600;
     font-size: 15px;
-    color: #e5e7eb;
+    color: var(--text);
     letter-spacing: 0.5px;
   }
   .nav-right {
@@ -32,7 +68,7 @@
     gap: 28px;
   }
   .nav-right a {
-    color: #9ca3af;
+    color: var(--text-muted);
     text-decoration: none;
     font-size: 14px;
   }
@@ -42,9 +78,12 @@
   .toggle {
     width: 36px;
     height: 20px;
-    background: #23252f;
+    background: var(--toggle-bg);
     border-radius: 999px;
     position: relative;
+    cursor: pointer;
+    border: none;
+    padding: 0;
   }
   .toggle::after {
     content: "";
@@ -54,7 +93,11 @@
     width: 16px;
     height: 16px;
     border-radius: 50%;
-    background: #6b7280;
+    background: var(--toggle-knob);
+    transition: left 0.2s ease;
+  }
+  body.light .toggle::after {
+    left: 18px;
   }
   .icon-circle {
     width: 18px;
@@ -78,9 +121,9 @@
     line-height: 1.1;
   }
   .hero h1.accent { color: #818cf8; }
-  .hero h1.white { color: #f3f4f6; }
+  .hero h1.white { color: var(--heading-white); }
   .hero p {
-    color: #9ca3af;
+    color: var(--text-muted);
     font-size: 17px;
     max-width: 480px;
     margin: 20px 0 28px;
@@ -106,9 +149,9 @@
     color: #ffffff;
   }
   .btn-secondary {
-    background: #1c1e27;
-    color: #e5e7eb;
-    border: 1px solid #2a2d38;
+    background: var(--btn-secondary-bg);
+    color: var(--text);
+    border: 1px solid var(--btn-secondary-border);
   }
 
   /* ===== Feature cards ===== */
@@ -119,8 +162,8 @@
     max-width: 1200px;
   }
   .feature-card {
-    background: #14161d;
-    border: 1px solid #1f222c;
+    background: var(--card-bg);
+    border: 1px solid var(--border-card);
     border-radius: 12px;
     padding: 24px;
   }
@@ -134,17 +177,17 @@
     font-size: 18px;
     margin-bottom: 16px;
   }
-  .icon-purple { background: #1e1b3a; }
-  .icon-green { background: #0f2a22; }
-  .icon-blue { background: #122236; }
+  .icon-purple { background: var(--icon-purple); }
+  .icon-green { background: var(--icon-green); }
+  .icon-blue { background: var(--icon-blue); }
   .feature-card h3 {
     font-size: 15px;
     margin: 0 0 8px;
-    color: #f3f4f6;
+    color: var(--heading-white);
   }
   .feature-card p {
     font-size: 13px;
-    color: #8b8f99;
+    color: var(--text-faint);
     line-height: 1.5;
     margin: 0;
   }
@@ -161,8 +204,8 @@
     <div class="logo">✦ ArkanaBuilds ✦</div>
     <div class="nav-right">
       <a href="#" class="active">Inicio</a>
-      <a href="#">Tier List</a>
-      <div class="toggle"></div>
+      <a href="./tier-list-zzz-local.html">Tier List</a>
+      <button class="toggle" id="theme-toggle" aria-label="Cambiar modo claro/oscuro"></button>
       <div class="icon-circle">🎮</div>
       <div class="icon-circle">📺</div>
       <div class="icon-circle">📷</div>
@@ -175,7 +218,7 @@
     <p>Fichas de personajes, tier lists avanzadas y guías optimizadas.</p>
     <div class="hero-buttons">
       <a href="#" class="btn btn-primary">Ver Personajes</a>
-      <a href="#" class="btn btn-secondary">Ver Tier List</a>
+      <a href="./tier-list-zzz-local.html" class="btn btn-secondary">Ver Tier List</a>
     </div>
 
     <div class="features">
@@ -197,5 +240,19 @@
     </div>
   </div>
 
+  <script>
+    var toggle = document.getElementById('theme-toggle');
+    var saved = localStorage.getItem('arkana-theme');
+    if (saved === 'light') {
+      document.body.classList.add('light');
+    }
+    toggle.addEventListener('click', function () {
+      document.body.classList.toggle('light');
+      localStorage.setItem(
+        'arkana-theme',
+        document.body.classList.contains('light') ? 'light' : 'dark'
+      );
+    });
+  </script>
 </body>
 </html>
