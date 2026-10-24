@@ -2,233 +2,257 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Tier List — Zenless Zone Zero</title>
+<title>ArkanaBuilds</title>
 <style>
-body {
-  margin: 0;
-  background: #0f1015;
-}
-table.tier-table {
-  width: 100%;
-  table-layout: fixed;
-  border-collapse: collapse;
-  font-family: system-ui, -apple-system, sans-serif;
-  background: transparent;
-}
-table.tier-table th {
-  padding: 12px;
-  text-align: center;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  background: #11131b;
-  border-bottom: 1px solid #1f222f;
-  text-transform: uppercase;
-}
-table.tier-table td {
-  padding: 14px 12px;
-  vertical-align: middle;
-  border-right: 1px solid #1f222f;
-  border-bottom: 1px solid #1f222f;
-}
-table.tier-table td:last-child {
-  border-right: none;
-}
+  :root {
+    --bg: #0b0c10;
+    --text: #e5e7eb;
+    --text-muted: #9ca3af;
+    --text-faint: #8b8f99;
+    --heading-white: #f3f4f6;
+    --border: #1a1c23;
+    --border-card: #1f222c;
+    --card-bg: #14161d;
+    --btn-secondary-bg: #1c1e27;
+    --btn-secondary-border: #2a2d38;
+    --toggle-bg: #23252f;
+    --toggle-knob: #6b7280;
+    --icon-purple: #1e1b3a;
+    --icon-green: #0f2a22;
+    --icon-blue: #122236;
+  }
+  body.light {
+    --bg: #f7f7fa;
+    --text: #1f2230;
+    --text-muted: #5b5f6d;
+    --text-faint: #6b6f7a;
+    --heading-white: #1a1c23;
+    --border: #e4e4ea;
+    --border-card: #e4e4ea;
+    --card-bg: #ffffff;
+    --btn-secondary-bg: #ffffff;
+    --btn-secondary-border: #d9d9e1;
+    --toggle-bg: #d9d9e1;
+    --toggle-knob: #6366f1;
+    --icon-purple: #ece9fe;
+    --icon-green: #e3f6ee;
+    --icon-blue: #e5f0fb;
+  }
 
-.tier-label-cell {
-  width: 50px;
-  font-weight: 800;
-  font-size: 15px;
-  text-align: center;
-  vertical-align: middle !important;
-  border-right: 1px solid #1f222f;
-}
-.t0-label { background: #2a1111 !important; color: #ff4d4d; }
-.t05-label { background: #22132b !important; color: #c084fc; }
-.t1-label { background: #111b2a !important; color: #60a5fa; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, sans-serif;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
 
-/* Fila de iconos que se envuelve automáticamente */
-.icon-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
+  /* ===== Navbar ===== */
+  .navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 40px;
+    border-bottom: 1px solid var(--border);
+  }
+  .logo {
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--text);
+    letter-spacing: 0.5px;
+  }
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+  }
+  .nav-right a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 14px;
+  }
+  .nav-right a.active {
+    color: #818cf8;
+  }
+  .toggle {
+    width: 36px;
+    height: 20px;
+    background: var(--toggle-bg);
+    border-radius: 999px;
+    position: relative;
+    cursor: pointer;
+    border: none;
+    padding: 0;
+  }
+  .toggle::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--toggle-knob);
+    transition: left 0.2s ease;
+  }
+  body.light .toggle::after {
+    left: 18px;
+  }
+  .icon-circle {
+    width: 18px;
+    height: 18px;
+    opacity: 0.6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+  }
 
-/* Icono chico del personaje */
-.char-icon {
-  width: 52px;
-  height: 52px;
-  border-radius: 8px;
-  overflow: hidden;
-  background: #1c1e28;
-  border: 1px solid #2d3142;
-  flex-shrink: 0;
-}
-.char-icon img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: top;
-  display: block;
-}
+  /* ===== Hero ===== */
+  .hero {
+    padding: 80px 40px 40px;
+    max-width: 1200px;
+  }
+  .hero h1 {
+    font-size: 48px;
+    font-weight: 800;
+    margin: 0;
+    line-height: 1.1;
+  }
+  .hero h1.accent { color: #818cf8; }
+  .hero h1.white { color: var(--heading-white); }
+  .hero p {
+    color: var(--text-muted);
+    font-size: 17px;
+    max-width: 480px;
+    margin: 20px 0 28px;
+    line-height: 1.5;
+  }
+  .hero-buttons {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 56px;
+  }
+  .btn {
+    padding: 11px 22px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .btn-primary {
+    background: #6366f1;
+    color: #ffffff;
+  }
+  .btn-secondary {
+    background: var(--btn-secondary-bg);
+    color: var(--text);
+    border: 1px solid var(--btn-secondary-border);
+  }
 
-/* Icono vacío para la columna T0 */
-.empty-icon {
-  width: 52px;
-  height: 52px;
-  border-radius: 8px;
-  background: #1c1e28;
-  border: 1px solid #2d3142;
-}
+  /* ===== Feature cards ===== */
+  .features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    max-width: 1200px;
+  }
+  .feature-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-card);
+    border-radius: 12px;
+    padding: 24px;
+  }
+  .feature-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    margin-bottom: 16px;
+  }
+  .icon-purple { background: var(--icon-purple); }
+  .icon-green { background: var(--icon-green); }
+  .icon-blue { background: var(--icon-blue); }
+  .feature-card h3 {
+    font-size: 15px;
+    margin: 0 0 8px;
+    color: var(--heading-white);
+  }
+  .feature-card p {
+    font-size: 13px;
+    color: var(--text-faint);
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  @media (max-width: 800px) {
+    .features { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 36px; }
+  }
 </style>
 </head>
 <body>
 
-  <!-- ================= CUADRO TIER T0 ================= -->
-  <table class="tier-table">
-    <colgroup>
-      <col style="width: 60px;">
-      <col style="width: 23.5%;">
-      <col style="width: 23.5%;">
-      <col style="width: 23.5%;">
-      <col style="width: 23.5%;">
-    </colgroup>
-    <thead>
-      <tr>
-        <th style="width: 50px;"></th>
-        <th style="color:#ef4444;">CRIT DPS</th>
-        <th style="color:#a855f7;">ANOMALY DPS</th>
-        <th style="color:#22c55e;">SUPPORT</th>
-        <th style="color:#ef4444;">T0</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="tier-label-cell t0-label">T0</td>
-        <!-- CRIT DPS -->
-        <td>
-          <div class="icon-row">
-            <div class="char-icon"><img src="./ye-shunguang_card.webp" alt="Ye Shunguang"></div>
-            <div class="char-icon"><img src="./claret_card.webp" alt="Claret"></div>
-            <div class="char-icon"><img src="./sigrid_card.webp" alt="Sigrid"></div>
-            <div class="char-icon"><img src="./miyabi_card.webp" alt="Miyabi"></div>
-          </div>
-        </td>
-        <!-- ANOMALY DPS -->
-        <td>
-          <div class="icon-row">
-            <div class="char-icon"><img src="./yanagi_card.webp" alt="Yanagi"></div>
-            <div class="char-icon"><img src="./burnice_card.webp" alt="Burnice"></div>
-          </div>
-        </td>
-        <!-- SUPPORT -->
-        <td>
-          <div class="icon-row">
-            <div class="char-icon"><img src="./lucia_card.webp" alt="Lucia"></div>
-            <div class="char-icon"><img src="./velina_card.webp" alt="Velina"></div>
-            <div class="char-icon"><img src="./soukaku_card.webp" alt="Soukaku"></div>
-          </div>
-        </td>
-        <!-- T0 (nueva, vacía) -->
-        <td>
-          <div class="icon-row">
-            <div class="empty-icon"></div>
-          </div>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <div class="navbar">
+    <div class="logo">✦ ArkanaBuilds ✦</div>
+    <div class="nav-right">
+      <a href="#" class="active">Inicio</a>
+      <a href="./tier-list-zzz-local.html">Tier List</a>
+      <button class="toggle" id="theme-toggle" aria-label="Cambiar modo claro/oscuro"></button>
+      <div class="icon-circle">🎮</div>
+      <div class="icon-circle">📺</div>
+      <div class="icon-circle">📷</div>
+    </div>
+  </div>
 
-  <!-- ================= CUADRO TIER T0.5 ================= -->
-  <table class="tier-table">
-    <colgroup>
-      <col style="width: 60px;">
-      <col style="width: 23.5%;">
-      <col style="width: 23.5%;">
-      <col style="width: 23.5%;">
-      <col style="width: 23.5%;">
-    </colgroup>
-    <tbody>
-      <tr>
-        <td class="tier-label-cell t05-label">T0.5</td>
-        <!-- CRIT DPS -->
-        <td>
-          <div class="icon-row">
-            <div class="char-icon"><img src="./ellen_card.webp" alt="Ellen"></div>
-            <div class="char-icon"><img src="./jane-doe_card.webp" alt="Jane Doe"></div>
-            <div class="char-icon"><img src="./soldier-11_card.webp" alt="Soldier 11"></div>
-          </div>
-        </td>
-        <!-- ANOMALY DPS -->
-        <td>
-          <div class="icon-row">
-            <div class="char-icon"><img src="./qingyi_card.webp" alt="Qingyi"></div>
-            <div class="char-icon"><img src="./grace-howard_card.webp" alt="Grace Howard"></div>
-          </div>
-        </td>
-        <!-- SUPPORT -->
-        <td>
-          <div class="icon-row">
-            <div class="char-icon"><img src="./nicole-demara_card.webp" alt="Nicole Demara"></div>
-            <div class="char-icon"><img src="./rina_card.webp" alt="Rina"></div>
-            <div class="char-icon"><img src="./koleda_card.webp" alt="Koleda"></div>
-          </div>
-        </td>
-        <!-- T0 (nueva, vacía) -->
-        <td>
-          <div class="icon-row">
-            <div class="empty-icon"></div>
-          </div>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <div class="hero">
+    <h1 class="accent">ARKANA</h1>
+    <h1 class="white">david weko</h1>
+    <p>Fichas de personajes, tier lists avanzadas y guías optimizadas.</p>
+    <div class="hero-buttons">
+      <a href="#" class="btn btn-primary">Ver Personajes</a>
+      <a href="./tier-list-zzz-local.html" class="btn btn-secondary">Ver Tier List</a>
+    </div>
 
-  <!-- ================= CUADRO TIER T1 ================= -->
-  <table class="tier-table">
-    <colgroup>
-      <col style="width: 60px;">
-      <col style="width: 23.5%;">
-      <col style="width: 23.5%;">
-      <col style="width: 23.5%;">
-      <col style="width: 23.5%;">
-    </colgroup>
-    <tbody>
-      <tr>
-        <td class="tier-label-cell t1-label">T1</td>
-        <!-- CRIT DPS -->
-        <td>
-          <div class="icon-row">
-            <div class="char-icon"><img src="./anby-demara-soldier-0_card.webp" alt="Anby Demara"></div>
-            <div class="char-icon"><img src="./billy-starlight_card.webp" alt="Billy Starlight"></div>
-            <div class="char-icon"><img src="./nekomata_card.webp" alt="Nekomata"></div>
-          </div>
-        </td>
-        <!-- ANOMALY DPS -->
-        <td>
-          <div class="icon-row">
-            <div class="char-icon"><img src="./piper_card.webp" alt="Piper"></div>
-          </div>
-        </td>
-        <!-- SUPPORT -->
-        <td>
-          <div class="icon-row">
-            <div class="char-icon"><img src="./sunna_card.webp" alt="Sunna"></div>
-            <div class="char-icon"><img src="./remielle_card.webp" alt="Remielle"></div>
-            <div class="char-icon"><img src="./astra-yao_card.webp" alt="Astra Yao"></div>
-            <div class="char-icon"><img src="./ukinami-yuzuha_card.webp" alt="Ukinami Yuzuha"></div>
-            <div class="char-icon"><img src="./orphie-and-magus_card.webp" alt="Orphie and Magus"></div>
-          </div>
-        </td>
-        <!-- T0 (nueva, vacía) -->
-        <td>
-          <div class="icon-row">
-            <div class="empty-icon"></div>
-          </div>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+    <div class="features">
+      <div class="feature-card">
+        <div class="feature-icon icon-purple">⚔️</div>
+        <h3>Overclock Builds</h3>
+        <p>Equipamiento, artefactos y armas ideales calculados para exprimir el máximo daño.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon icon-green">📊</div>
+        <h3>Análisis de Datos</h3>
+        <p>Evaluamos minuciosamente el rendimiento de cada personaje en el endgame.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon icon-blue">🌐</div>
+        <h3>Interfaz Limpia</h3>
+        <p>Una base de datos fluida, rápida, sin anuncios molestos y adaptada a móviles.</p>
+      </div>
+    </div>
+  </div>
 
+  <script>
+    var toggle = document.getElementById('theme-toggle');
+    var saved = localStorage.getItem('arkana-theme');
+    if (saved === 'light') {
+      document.body.classList.add('light');
+    }
+    toggle.addEventListener('click', function () {
+      document.body.classList.toggle('light');
+      localStorage.setItem(
+        'arkana-theme',
+        document.body.classList.contains('light') ? 'light' : 'dark'
+      );
+    });
+  </script>
 </body>
 </html>
