@@ -14,11 +14,11 @@ document.addEventListener("DOMContentLoaded", () => {
     img.style.cursor = 'pointer';
 
     // Extraemos el nombre limpio del personaje desde el nombre de su archivo de imagen
-    var slug = src.split('/').pop().replace('_card.webp', '').replace('.webp', '');
+    var slug = src.split('/').pop().replace('_card.webp', '').replace('.webp', '').toLowerCase().trim();
 
-    // Al hacer clic en la foto, te redirige automáticamente a la página de builds de ese personaje
+    // Al hacer clic en la foto, te redirige automáticamente a la URL absoluta de tus builds con su almohadilla (#)
     img.addEventListener('click', function() {
-      window.location.href = './builds.html#' + slug;
+      window.location.href = 'https://workers.dev' + slug;
     });
   });
 });
