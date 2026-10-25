@@ -2,50 +2,38 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>ArkanaBuilds</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Builds — ArkanaBuilds</title>
 <style>
   :root {
     --bg: #0b0c10;
     --text: #e5e7eb;
-    --text-muted: #9ca3af;
-    --text-faint: #8b8f99;
-    --heading-white: #f3f4f6;
+    --muted: #9ca3af;
+    --heading: #f3f4f6;
     --border: #1a1c23;
-    --border-card: #1f222c;
-    --card-bg: #14161d;
-    --btn-secondary-bg: #1c1e27;
-    --btn-secondary-border: #2a2d38;
-    --toggle-bg: #23252f;
-    --toggle-knob: #6b7280;
-    --icon-purple: #1e1b3a;
-    --icon-green: #0f2a22;
-    --icon-blue: #122236;
+    --card: #14161d;
+    --card-border: #1f222c;
+    --chip: #1c1e27;
+    --chip-border: #2a2d38;
+    --accent: #818cf8;
   }
   body.light {
     --bg: #f7f7fa;
     --text: #1f2230;
-    --text-muted: #5b5f6d;
-    --text-faint: #6b6f7a;
-    --heading-white: #1a1c23;
+    --muted: #5b5f6d;
+    --heading: #1a1c23;
     --border: #e4e4ea;
-    --border-card: #e4e4ea;
-    --card-bg: #ffffff;
-    --btn-secondary-bg: #ffffff;
-    --btn-secondary-border: #d9d9e1;
-    --toggle-bg: #d9d9e1;
-    --toggle-knob: #6366f1;
-    --icon-purple: #ece9fe;
-    --icon-green: #e3f6ee;
-    --icon-blue: #e5f0fb;
+    --card: #ffffff;
+    --card-border: #e4e4ea;
+    --chip: #ffffff;
+    --chip-border: #d9d9e1;
   }
-
   * { box-sizing: border-box; }
   body {
     margin: 0;
     background: var(--bg);
     color: var(--text);
     font-family: system-ui, -apple-system, sans-serif;
-    transition: background 0.2s ease, color 0.2s ease;
   }
 
   /* ===== Navbar ===== */
@@ -56,160 +44,108 @@
     padding: 20px 40px;
     border-bottom: 1px solid var(--border);
   }
-  .logo {
-    font-weight: 600;
+  .logo { font-weight: 600; font-size: 15px; letter-spacing: .5px; }
+  .nav-right { display: flex; gap: 28px; }
+  .nav-right a { color: var(--muted); text-decoration: none; font-size: 14px; }
+  .nav-right a.active { color: var(--accent); }
+
+  main { max-width: 1200px; margin: 0 auto; padding: 40px 40px 80px; }
+  h1 { margin: 0 0 6px; font-size: 32px; color: var(--heading); }
+  .sub { color: var(--muted); margin: 0 0 24px; font-size: 15px; }
+
+  /* ===== Buscador ===== */
+  .search {
+    width: 100%;
+    max-width: 420px;
+    margin-bottom: 28px;
+    padding: 11px 16px;
+    background: var(--chip);
+    color: var(--text);
+    border: 1px solid var(--chip-border);
+    border-radius: 10px;
     font-size: 15px;
-    color: var(--text);
-    letter-spacing: 0.5px;
+    font-family: inherit;
   }
-  .nav-right {
-    display: flex;
-    align-items: center;
-    gap: 28px;
+  .search::placeholder { color: var(--muted); }
+  .search:focus-visible, .card:focus-visible, .back:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
   }
-  .nav-right a {
-    color: var(--text-muted);
-    text-decoration: none;
-    font-size: 14px;
-  }
-  .nav-right a.active {
-    color: #818cf8;
-  }
-  .toggle {
-    width: 36px;
-    height: 20px;
-    background: var(--toggle-bg);
-    border-radius: 999px;
-    position: relative;
-    cursor: pointer;
-    border: none;
-    padding: 0;
-  }
-  .toggle::after {
-    content: "";
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: var(--toggle-knob);
-    transition: left 0.2s ease;
-  }
-  body.light .toggle::after {
-    left: 18px;
-  }
-  .social-icons {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-  .icon-circle {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background: var(--btn-secondary-bg);
-    border: 1px solid var(--btn-secondary-border);
-    opacity: 0.85;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    text-decoration: none;
-    color: var(--text);
-    transition: opacity 0.15s ease, transform 0.15s ease;
-  }
-  .icon-circle:hover {
-    opacity: 1;
-    transform: translateY(-1px);
-  }
+  .empty { color: var(--muted); font-size: 15px; margin: 0 0 20px; }
 
-  /* ===== Hero ===== */
-  .hero {
-    padding: 80px 40px 40px;
-    max-width: 1200px;
+  /* ===== Galería ===== */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 16px;
   }
-  .hero h1 {
-    font-size: 48px;
-    font-weight: 800;
-    margin: 0;
-    line-height: 1.1;
+  .card {
+    display: block;
+    text-decoration: none;
+    color: var(--text);
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform .15s, border-color .15s;
   }
-  .hero h1.accent { color: #818cf8; }
-  .hero h1.white { color: var(--heading-white); }
-  .hero p {
-    color: var(--text-muted);
-    font-size: 17px;
-    max-width: 480px;
-    margin: 20px 0 28px;
-    line-height: 1.5;
+  .card:hover { transform: translateY(-3px); border-color: var(--accent); }
+  .card img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    object-position: top;
+    background: var(--chip);
   }
-  .hero-buttons {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 56px;
-  }
-  .btn {
-    padding: 11px 22px;
-    border-radius: 8px;
+  .card span {
+    display: block;
+    padding: 10px 12px;
     font-size: 14px;
     font-weight: 600;
-    cursor: pointer;
-    border: none;
-    text-decoration: none;
-    display: inline-block;
+    border-top: 1px solid var(--card-border);
   }
-  .btn-primary {
-    background: #6366f1;
-    color: #ffffff;
-  }
-  .btn-secondary {
-    background: var(--btn-secondary-bg);
-    color: var(--text);
-    border: 1px solid var(--btn-secondary-border);
-  }
+  .card small { display: block; font-weight: 400; font-size: 12px; color: var(--muted); }
 
-  /* ===== Feature cards ===== */
-  .features {
+  /* ===== Detalle ===== */
+  .back {
+    display: inline-block;
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+  .detail {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-    max-width: 1200px;
+    grid-template-columns: 280px 1fr;
+    gap: 32px;
+    align-items: start;
   }
-  .feature-card {
-    background: var(--card-bg);
-    border: 1px solid var(--border-card);
-    border-radius: 12px;
-    padding: 24px;
-  }
-  .feature-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
+  .portrait {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    object-position: top;
+    border-radius: 14px;
+    border: 1px solid var(--card-border);
     margin-bottom: 16px;
   }
-  .icon-purple { background: var(--icon-purple); }
-  .icon-green { background: var(--icon-green); }
-  .icon-blue { background: var(--icon-blue); }
-  .feature-card h3 {
-    font-size: 15px;
-    margin: 0 0 8px;
-    color: var(--heading-white);
+  .shot {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    border: 1px solid var(--card-border);
   }
-  .feature-card p {
-    font-size: 13px;
-    color: var(--text-faint);
-    line-height: 1.5;
-    margin: 0;
-  }
+  .pending { color: var(--muted); font-size: 15px; margin: 0; }
+
+  [hidden] { display: none !important; }
 
   @media (max-width: 800px) {
-    .features { grid-template-columns: 1fr; }
-    .hero h1 { font-size: 36px; }
+    .navbar { padding: 16px 20px; }
+    main { padding: 28px 20px 60px; }
+    .detail { grid-template-columns: 1fr; }
+    .portrait { max-width: 280px; }
   }
 </style>
 </head>
@@ -218,60 +154,113 @@
   <div class="navbar">
     <div class="logo">✦ ArkanaBuilds ✦</div>
     <div class="nav-right">
-      <a href="#" class="active">Inicio</a>
-      <a href="#" class="active">Builds</a>
+      <a href="./index.html">Inicio</a>
+      <a href="./builds.html" class="active">Builds</a>
       <a href="./tier-list-zzz-local.html">Tier List</a>
-      <button class="toggle" id="theme-toggle" aria-label="Cambiar modo claro/oscuro"></button>
-      <div class="social-icons">
-        <a class="icon-circle" href="https://discord.gg/HgEqZERZ97" target="_blank" rel="noopener" title="Discord">💬</a>
-        <a class="icon-circle" href="https://x.com/Wnaapooo" target="_blank" rel="noopener" title="X / Twitter">𝕏</a>
-        <a class="icon-circle" href="https://www.instagram.com/wna.pooo_/" target="_blank" rel="noopener" title="Instagram">📷</a>
-        <a class="icon-circle" href="https://www.twitch.tv/wnapooo" target="_blank" rel="noopener" title="Twitch">🎥</a>
-      </div>
     </div>
   </div>
 
-  <div class="hero">
-    <h1 class="accent">Arkanabuilds</h1>
-    <h1 class="white">David weko </h1>
-    <p>Tier lists avanzadas y Guías optimizadas.</p>
-    <div class="hero-buttons">
-      <a href="#" class="btn btn-primary">Ver Personajes</a>
-      <a href="./tier-list-zzz-local.html" class="btn btn-secondary">Ver Tier List</a>
-    </div>
+  <main>
+    <!-- Vista 1: galería -->
+    <section id="gallery">
+      <h1>Builds</h1>
+      <p class="sub">Elige un personaje para ver su build.</p>
+      <input type="search" id="search" class="search" placeholder="Buscar personaje..." autocomplete="off" aria-label="Buscar personaje">
+      <p class="empty" id="empty" hidden>No se encontró ningún personaje.</p>
+      <div class="grid" id="grid"></div>
+    </section>
 
-    <div class="features">
-      <div class="feature-card">
-        <div class="feature-icon icon-purple">⚔️</div>
-        <h3>Overclock Builds</h3>
-        <p>Equipamiento, artefactos y armas ideales calculados para exprimir el máximo daño.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon icon-green">📊</div>
-        <h3>Análisis de Datos</h3>
-        <p>Evaluamos minuciosamente el rendimiento de cada personaje en el endgame.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon icon-blue">🌐</div>
-        <h3>Interfaz Limpia</h3>
-        <p>Una base de datos fluida, rápida, sin anuncios molestos y adaptada a móviles.</p>
-      </div>
-    </div>
-  </div>
+    <!-- Vista 2: build del personaje -->
+    <section id="detail" hidden></section>
+  </main>
 
-  <script>
-    var toggle = document.getElementById('theme-toggle');
-    var saved = localStorage.getItem('arkana-theme');
-    if (saved === 'light') {
-      document.body.classList.add('light');
-    }
-    toggle.addEventListener('click', function () {
-      document.body.classList.toggle('light');
-      localStorage.setItem(
-        'arkana-theme',
-        document.body.classList.contains('light') ? 'light' : 'dark'
-      );
-    });
-  </script>
+<script>
+  /* ============================================================
+     1) LISTA DE PERSONAJES
+     slug = nombre de la imagen sin "_card.webp"
+     ============================================================ */
+  const CHARS = [
+    // Crit DPS
+    ['claret','Claret','Crit DPS'], ['sigrid','Sigrid','Crit DPS'], ['ye-shunguang','Ye Shunguang','Crit DPS'],
+    ['banyue','Banyu','Crit DPS'], ['billy-starlight','Billy Starlight','Crit DPS'], ['cissia','Cissia','Crit DPS'],
+    ['pyrois','Pyloris','Crit DPS'], ['seed','Seed','Crit DPS'], ['yidhari','Yidhari','Crit DPS'], ['yixuan','Yixuan','Crit DPS'],
+    ['anby-demara-soldier-0','Anby Demara','Crit DPS'], ['evelyn','Evelyn','Crit DPS'], ['harumasa','Harumasa','Crit DPS'],
+    ['nekomata','Nekomata','Crit DPS'], ['orphie-and-magus','Orphie and Magus','Crit DPS'], ['soldier-11','Soldier 11','Crit DPS'],
+    ['ellen','Ellen','Crit DPS'], ['hugo','Hugo','Crit DPS'], ['manato','Manato','Crit DPS'], ['zhu-yuan','Zhu Yuan','Crit DPS'],
+    // Anomaly DPS
+    ['phoenix','Phoenix','Anomaly DPS'], ['remielle','Remielle','Anomaly DPS'], ['velina','Velina','Anomaly DPS'],
+    ['alice','Alice','Anomaly DPS'], ['aria','Aria','Anomaly DPS'], ['burnice','Burnice','Anomaly DPS'],
+    ['miyabi','Miyabi','Anomaly DPS'], ['promeia','Promeia','Anomaly DPS'],
+    ['grace-howard','Grace Howard','Anomaly DPS'], ['jane-doe','Jane Doe','Anomaly DPS'], ['piper','Piper','Anomaly DPS'],
+    ['vivian','Vivian','Anomaly DPS'], ['yanagi','Yanagi','Anomaly DPS'],
+    // Support
+    ['dialyn','Dialyn','Support'], ['lucia','Lucia','Support'], ['nangong-yu','Nangong Yu','Support'], ['norma','Norma','Support'],
+    ['roxy','Roxy','Support'], ['sunna','Sunna','Support'], ['ukinami-yuzuha','Ukinami Yuzuha','Support'],
+    ['astra-yao','Astra Yao','Support'], ['koleda','Koleda','Support'], ['nicole-demara','Nicole Demara','Support'],
+    ['rina','Rina','Support'], ['trigger','Trigger','Support'], ['zhao','Zhao','Support'],
+    ['ju-fufu','Ju Fufu','Support'], ['lighter','Lighter','Support'], ['lycaon','Lycaon','Support'],
+    ['pan-yinhu','Pan Yinhu','Support'], ['qingyi','Qingyi','Support']
+  ];
+
+  /* ============================================================
+     2) SCREENSHOT DE LA BUILD
+     Guarda la captura de cada personaje en la carpeta "builds"
+     con el nombre del slug, por ejemplo: builds/claret.png
+     ============================================================ */
+  const buildImg = slug => `./builds/${slug}.png`;
+
+  /* ============================================================ */
+  const $ = id => document.getElementById(id);
+  const img = slug => `./${slug}_card.webp`;
+  const norm = t => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+
+  function renderGrid() {
+    const q = norm($('search').value);
+    const list = CHARS
+      .filter(c => norm(c[1]).includes(q) || norm(c[0]).includes(q))
+      .map(([slug, name, role]) => `
+        <a class="card" href="#${slug}">
+          <img src="${img(slug)}" alt="${name}" loading="lazy">
+          <span>${name}<small>${role}</small></span>
+        </a>`).join('');
+    $('grid').innerHTML = list;
+    $('empty').hidden = list !== '';
+  }
+
+  function renderDetail(slug) {
+    const c = CHARS.find(x => x[0] === slug);
+    if (!c) return false;
+    $('detail').innerHTML = `
+      <a class="back" href="#">← Todos los personajes</a>
+      <div class="detail">
+        <div>
+          <img class="portrait" src="${img(slug)}" alt="${c[1]}">
+          <h1>${c[1]}</h1>
+          <p class="sub">${c[2]}</p>
+        </div>
+        <div>
+          <img class="shot" src="${buildImg(slug)}" alt="Build de ${c[1]}"
+               onerror="this.replaceWith(Object.assign(document.createElement('p'),{className:'pending',textContent:'Build pendiente.'}))">
+        </div>
+      </div>`;
+    return true;
+  }
+
+  function route() {
+    const slug = decodeURIComponent(location.hash.slice(1));
+    const showDetail = slug && renderDetail(slug);
+    $('detail').hidden = !showDetail;
+    $('gallery').hidden = !!showDetail;
+    window.scrollTo(0, 0);
+  }
+
+  $('search').addEventListener('input', renderGrid);
+
+  window.addEventListener('hashchange', route);
+  renderGrid();
+  route();
+
+  try { if (localStorage.getItem('arkana-theme') === 'light') document.body.classList.add('light'); } catch (e) {}
+</script>
 </body>
 </html>
