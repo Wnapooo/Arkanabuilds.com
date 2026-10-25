@@ -1,18 +1,24 @@
-// Cada personaje de la tier list lleva a su build.
-// claret_card.webp  ->  builds.html#claret
-document.querySelectorAll('.char-icon').forEach(function (icon) {
-  var img = icon.querySelector('img');
-  if (!img) return; // el cuadro vacío no lleva a ningún lado
+// Esperamos a que la página de la Tier List cargue por completo
+document.addEventListener("DOMContentLoaded", () => {
+  // Selecciona todas las imágenes de la Tier List
+  const imagenes = document.querySelectorAll('img');
 
-  var slug = img.getAttribute('src').split('/').pop().replace('_card.webp', '');
+  imagenes.forEach(function (img) {
+    var src = img.getAttribute('src');
+    if (!src) return;
+    
+    // Si es un icono de interfaz o un cuadro vacío, lo saltamos
+    if (src.includes('vacio') || src.includes('logo') || src.includes('icon')) return; 
 
-  var a = document.createElement('a');
-  a.href = './builds.html#' + slug;
-  a.title = img.alt;
-  a.style.display = 'block';
-  a.style.flexShrink = '0';
-  a.style.textDecoration = 'none';
+    // Cambiamos el cursor a una mano para que el usuario sepa que es clickeable
+    img.style.cursor = 'pointer';
 
-  icon.replaceWith(a);
-  a.appendChild(icon);
+    // Extraemos el nombre limpio del personaje desde el nombre de su archivo de imagen
+    var slug = src.split('/').pop().replace('_card.webp', '').replace('.webp', '');
+
+    // Al hacer clic en la foto, te redirige automáticamente a la página de builds de ese personaje
+    img.addEventListener('click', function() {
+      window.location.href = './builds.html#' + slug;
+    });
+  });
 });
