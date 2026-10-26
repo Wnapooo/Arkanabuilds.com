@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Tier List — Honkai: Star Rail</title>
+<link rel="icon" type="image/png" href="./favicon.png">
+<style>
+body {
+  margin: 0;
+  background: #0f1015;
+}
+table.tier-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-family: system-ui, -apple-system, sans-serif;
+  background: transparent;
+}
+table.tier-table th {
+  padding: 12px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  background: #11131b;
+  border-bottom: 1px solid #1f222f;
+  text-transform: uppercase;
+}
+table.tier-table td {
+  padding: 14px 12px;
+  vertical-align: middle;
+  border-right: 1px solid #1f222f;
+  border-bottom: 1px solid #1f222f;
+}
+table.tier-table td:last-child {
+  border-right: none;
+}
+
+.tier-label-cell {
+  width: 50px;
+  font-weight: 800;
+  font-size: 15px;
+  text-align: center;
+  vertical-align: middle !important;
+  border-right: 1px solid #1f222f;
+}
+.t0-label { background: #2a1111 !important; color: #ff4d4d; }
+.t05-label { background: #22132b !important; color: #c084fc; }
+.t1-label { background: #111b2a !important; color: #60a5fa; }
+.t15-label { background: #0e1f2e !important; color: #38bdf8; }
+
+/* Fila de iconos que se envuelve automáticamente */
+.icon-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Icono chico del personaje */
+.char-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #1c1e28;
+  border: 1px solid #2d3142;
+  flex-shrink: 0;
+}
+.char-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  display: block;
+}
+
+/* Icono vacío para la columna T0 */
+.empty-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 8px;
+  background: #1c1e28;
+  border: 1px solid #2d3142;
+}
+
+/* ===== Navbar ===== */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 40px;
+  border-bottom: 1px solid #1a1c23;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+.logo { font-weight: 600; font-size: 15px; letter-spacing: .5px; color: #e5e7eb; }
+.nav-right { display: flex; align-items: center; gap: 28px; }
+.nav-right > a { color: #9ca3af; text-decoration: none; font-size: 14px; }
+.nav-right > a.active { color: #818cf8; }
+.social-icons { display: flex; align-items: center; gap: 14px; }
+.icon-circle {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: #1c1e27; border: 1px solid #2a2d38; opacity: .85;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; text-decoration: none; color: #e5e7eb;
+  transition: opacity .15s ease, transform .15s ease;
+}
+.icon-circle:hover { opacity: 1; transform: translateY(-1px); }
+@media (max-width: 800px) {
+  .navbar { padding: 16px 20px; flex-wrap: wrap; gap: 12px; }
+  .nav-right { gap: 16px; flex-wrap: wrap; }
+}
+
+/* ===== Barra lateral ===== */
+.layout { display: flex; align-items: flex-start; }
+.tier-main { flex: 1; min-width: 0; }
+.sidebar {
+  width: 220px; flex-shrink: 0; padding: 20px 14px;
+  border-right: 1px solid #1a1c23; position: sticky; top: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+.sidebar h2 { margin: 0 0 12px; padding: 0 10px; font-size: 13px; font-weight: 600; color: #8b8f99; }
+.sidebar a {
+  display: block; padding: 10px; margin-bottom: 4px; border-radius: 8px;
+  color: #9ca3af; text-decoration: none; font-size: 14px;
+}
+.sidebar a:hover { background: #1c1e27; color: #e5e7eb; }
+.sidebar a.active { background: #1e1b3a; color: #a5b4fc; }
+@media (max-width: 800px) {
+  .layout { flex-direction: column; }
+  .sidebar {
+    width: 100%; position: static; border-right: none; border-bottom: 1px solid #1a1c23;
+    display: flex; gap: 8px; overflow-x: auto; padding: 12px 16px;
+  }
+  .sidebar h2 { display: none; }
+  .sidebar a { white-space: nowrap; margin-bottom: 0; }
+}
+
+/* ===== Pestañas de endgame ===== */
+.mode-tabs {
+  display: flex; gap: 6px; padding: 14px 16px 0; border-bottom: 1px solid #1a1c23;
+  font-family: system-ui, -apple-system, sans-serif; overflow-x: auto;
+}
+.mode-tab {
+  background: none; border: none; border-bottom: 2px solid transparent;
+  color: #9ca3af; font: inherit; font-size: 14px; padding: 10px 16px;
+  cursor: pointer; white-space: nowrap;
+}
+.mode-tab:hover { color: #e5e7eb; }
+.mode-tab[aria-selected="true"] { color: #a5b4fc; border-bottom-color: #818cf8; }
+.mode-panel[hidden] { display: none; }
+</style>
+</head>
+<body>
+
+  <div class="navbar">
+    <div class="logo">✦ ArkanaBuilds ✦</div>
+    <div class="nav-right">
+      <a href="./index.html">Inicio</a>
+      <a href="./builds.html">Builds</a>
+      <a href="./tier-list-zzz-local.html" class="active">Tier List</a>
+      <div class="social-icons">
+        <a class="icon-circle" href="https://discord.gg/HgEqZERZ97" target="_blank" rel="noopener" title="Discord">💬</a>
+        <a class="icon-circle" href="https://x.com/Wnaapooo" target="_blank" rel="noopener" title="X / Twitter">𝕏</a>
+        <a class="icon-circle" href="https://www.instagram.com/wna.pooo_/" target="_blank" rel="noopener" title="Instagram">📷</a>
+        <a class="icon-circle" href="https://www.twitch.tv/wnapooo" target="_blank" rel="noopener" title="Twitch">🎥</a>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="layout">
+    <aside class="sidebar">
+      <h2>Tier lists</h2>
+      <a href="./tier-list-zzz-local.html">Zenless Zone Zero</a>
+      <a href="./tier-list-wuwa.html">Wuthering Waves</a>
+      <a href="./tier-list-hsr.html" class="active">Honkai: Star Rail</a>
+    </aside>
+    <main class="tier-main">
+      <div class="mode-tabs" role="tablist">
+        <button class="mode-tab" role="tab" aria-selected="true" data-mode="memory-of-chaos">Memory of Chaos</button>
+        <button class="mode-tab" role="tab" aria-selected="false" data-mode="pure-fiction">Pure Fiction</button>
+        <button class="mode-tab" role="tab" aria-selected="false" data-mode="apocalyptic-shadow">Apocalyptic Shadow</button>
+      </div>
+
+      <div class="mode-panel" id="mode-memory-of-chaos">
+
+
+  <table class="tier-table">
+    <colgroup>
+      <col style="width: 60px;">
+      <col style="width: 31.33%;">
+      <col style="width: 31.33%;">
+      <col style="width: 31.33%;">
+    </colgroup>
+    <thead>
+      <tr>
+        <th style="width: 50px;"></th>
+        <th style="color:#ef4444;">DPS</th>
+        <th style="color:#a855f7;">SUB DPS</th>
+        <th style="color:#22c55e;">SUPPORT</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="tier-label-cell t0-label">T0</td>
+        <td>
+          <div class="icon-row">
+            <div class="empty-icon"></div>
+          </div>
+        </td>
+        <td>
+          <div class="icon-row">
+            <div class="empty-icon"></div>
+          </div>
+        </td>
+        <td>
+          <div class="icon-row">
+            <div class="empty-icon"></div>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <table class="tier-table">
+    <colgroup>
+      <col style="width: 60px;">
+      <col style="width: 31.33%;">
+      <col style="width: 31.33%;">
+      <col style="width: 31.33%;">
+    </colgroup>
+    <tbody>
+      <tr>
+        <td class="tier-label-cell t05-label">T0.5</td>
+        <td>
+          <div class="icon-row">
+            <div class="empty-icon"></div>
+          </div>
+        </td>
+        <td>
+          <div class="icon-row">
+            <div class="empty-icon"></div>
+          </div>
+        </td>
+        <td>
+          <div class="icon-row">
+            <div class="empty-icon"></div>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <table class="tier-table">
+    <colgroup>
+      <col style="width: 60px;">
+      <col style="width: 31.33%;">
+      <col style="width: 31.33%;">
+      <col style="width: 31.33%;">
+    </colgroup>
+    <tbody>
+      <tr>
+        <td class="tier-label-cell t1-label">T1</td>
+        <td>
+          <div class="icon-row">
+            <div class="empty-icon"></div>
+          </div>
+        </td>
+        <td>
+          <div class="icon-row">
+            <div class="empty-icon"></div>
+          </div>
+        </td>
+        <td>
+          <div class="icon-row">
+            <div class="empty-icon"></div>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <table class="tier-table">
+    <colgroup>
+      <col style="width: 60px;">
+      <col style="width: 31.33%;">
+      <col style="width: 31.33%;">
+      <col style="width: 31.33%;">
+    </colgroup>
+    <tbody>
+      <tr>
+        <td class="tier-label-cell t15-label">T1.5</td>
+        <td>
+          <div class="icon-row">
+            <div class="empty-icon"></div>
+          </div>
+        </td>
+        <td>
+          <div class="icon-row">
+            <div class="empty-icon"></div>
+          </div>
+        </td>
+        <td>
+          <div class="icon-row">
+            <div class="empty-icon"></div>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+
+      </div>
+
+
+      <div class="mode-panel" id="mode-pure-fiction" hidden>
+
+
+  <table class="tier-table">
+    <colgroup>
+      <col style="width: 60px;">
+      <col style="width: 31.33%;">
+      <col style="width: 31.33%;">
+      <col style="width: 31.33%;">
+    </colgroup>
+    <thead>
+      <tr>
+        <th style="width: 50px;"></th>
+        <th style="color:#ef4444;">DPS</th>
+        <th style="color:#a855f7;">SUB DPS</th>
+        <th style="color:#22c55e;">SUPPORT</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="tier-label-cell t0-label">T0</td>
+        <td>
+          <div class="icon-row">
+            <div class="empty-icon"></div>
+          </div>
+        </td>
+        <td>
+          <div class="icon-row">
+            <div class="empty-icon"></div>
+          </div>
+        </td>
+        <td>
+          <div class="icon-row">
+            <div class="empty-icon"></div>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <table class="tier-table">
+    <colgroup>
+      <col style="width: 60px;">
+      <col style="width: 31.33%;">
+      <col style="width: 31.33%;">
+      <col style="width: 31.33%;">
+    </colgroup>
+    <tbody>
+      <tr>
+        <td class="tier-label-cell t05-label">T0.5</td>
+        <td>
+          <div class="icon-row">
+            <div class="empty-icon"></div>
+          </div>
+        </td>
+        <td>
+          <div class="icon-row">
+            <div class="empty-icon"></div>
+          </div>
+        </td>
+        <td>
+          <div class="icon-row">
+            <div class="empty-icon"></div>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <table class="tier-table">
+    <colgroup>
+      <col style="width: 60px;">
+      <col style="width: 31.33%;">
+      <col style="width: 31.33%;">
+      <col style="width: 31.33%;">
+    </colgroup>
+    <tbody>
+      <tr>
+        <td class="tier-label-cell t1-label">T1</td>
+        <td>
+          <div class="icon-row">
+            <div class="empty-icon"></div>
+          </div>
+        </td>
+        <td>
+          <div class="icon-row">
+            <div class="empty-icon"></div>
+          </div>
+        </td>
+        <td>
+          <div class="icon-row">
+            <div class="empty-icon"></div>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <table class="tier-table">
+    <colgroup>
+      <col style="width: 60px;">
+      <col style="width: 31.33%;">
+      <col style="width: 31.33%;">
+      <col style="width: 31.33%;">
+    </colgroup>
+    <tbody>
+      <tr>
+        <td class="tier-label-cell t15-label">T1.5</td>
+        <td>
+          <div class="icon-row">
+            <div class="empty-icon"></div>
+          </div>
+        </td>
+        <td>
+          <div class="icon-row">
+            <div class="empty-icon"></div>
+          </div>
+        </td>
+        <td>
+          <div class="icon-row">
+            <div class="empty-icon"></div>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+
+      </div>
+
+
+      <div class="mode-panel" id="mode-apocalyptic-shadow" hidden>
+
+
+  <table class="tier-table">
+    <colgroup>
+      <col style="width: 60px;">
+      <col style="width: 31.33%;">
+      <col style="width: 31.33%;">
+      <col style="width: 31.33%;">
+    </colgroup>
+    <thead>
+      <tr>
+        <th style="width: 50px;"></th>
+        <th style="color:#ef4444;">DPS</th>
+        <th style="color:#a855f7;">SUB DPS</th>
+        <th style="color:#22c55e;">SUPPORT</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="tier-label-cell t0-label">T0</td>
+        <td>
+          <div class="icon-row">
+            <div class="empty-icon"></div>
+          </div>
+        </td>
+        <td>
+          <div class="icon-row">
+            <div class="empty-icon"></div>
+          </div>
+        </td>
+        <td>
+          <div class="icon-row">
+            <div class="empty-icon"></div>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <table class="tier-table">
+    <colgroup>
+      <col style="width: 60px;">
+      <col style="width: 31.33%;">
+      <col style="width: 31.33%;">
+      <col style="width: 31.33%;">
+    </colgroup>
+    <tbody>
+      <tr>
+        <td class="tier-label-cell t05-label">T0.5</td>
+        <td>
+          <div class="icon-row">
+            <div class="empty-icon"></div>
+          </div>
+        </td>
+        <td>
+          <div class="icon-row">
+            <div class="empty-icon"></div>
+          </div>
+        </td>
+        <td>
+          <div class="icon-row">
+            <div class="empty-icon"></div>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <table class="tier-table">
+    <colgroup>
+      <col style="width: 60px;">
+      <col style="width: 31.33%;">
+      <col style="width: 31.33%;">
+      <col style="width: 31.33%;">
+    </colgroup>
+    <tbody>
+      <tr>
+        <td class="tier-label-cell t1-label">T1</td>
+        <td>
+          <div class="icon-row">
+            <div class="empty-icon"></div>
+          </div>
+        </td>
+        <td>
+          <div class="icon-row">
+            <div class="empty-icon"></div>
+          </div>
+        </td>
+        <td>
+          <div class="icon-row">
+            <div class="empty-icon"></div>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <table class="tier-table">
+    <colgroup>
+      <col style="width: 60px;">
+      <col style="width: 31.33%;">
+      <col style="width: 31.33%;">
+      <col style="width: 31.33%;">
+    </colgroup>
+    <tbody>
+      <tr>
+        <td class="tier-label-cell t15-label">T1.5</td>
+        <td>
+          <div class="icon-row">
+            <div class="empty-icon"></div>
+          </div>
+        </td>
+        <td>
+          <div class="icon-row">
+            <div class="empty-icon"></div>
+          </div>
+        </td>
+        <td>
+          <div class="icon-row">
+            <div class="empty-icon"></div>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+
+      </div>
+    </main>
+  </div>
+
+
+  <script>
+    var tabs = document.querySelectorAll('.mode-tab');
+    function showMode(key) {
+      var found = false;
+      tabs.forEach(function (t) {
+        var on = t.dataset.mode === key;
+        if (on) found = true;
+        t.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      if (!found) return;
+      document.querySelectorAll('.mode-panel').forEach(function (p) {
+        p.hidden = p.id !== 'mode-' + key;
+      });
+    }
+    tabs.forEach(function (t) {
+      t.addEventListener('click', function () {
+        showMode(t.dataset.mode);
+        history.replaceState(null, '', '#' + t.dataset.mode);
+      });
+    });
+    if (location.hash) showMode(location.hash.slice(1));
+  </script>
+</body>
+</html>
