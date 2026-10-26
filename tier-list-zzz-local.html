@@ -81,9 +81,52 @@ table.tier-table td:last-child {
   background: #1c1e28;
   border: 1px solid #2d3142;
 }
+
+/* ===== Navbar ===== */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 40px;
+  border-bottom: 1px solid #1a1c23;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+.logo { font-weight: 600; font-size: 15px; letter-spacing: .5px; color: #e5e7eb; }
+.nav-right { display: flex; align-items: center; gap: 28px; }
+.nav-right > a { color: #9ca3af; text-decoration: none; font-size: 14px; }
+.nav-right > a.active { color: #818cf8; }
+.social-icons { display: flex; align-items: center; gap: 14px; }
+.icon-circle {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: #1c1e27; border: 1px solid #2a2d38; opacity: .85;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; text-decoration: none; color: #e5e7eb;
+  transition: opacity .15s ease, transform .15s ease;
+}
+.icon-circle:hover { opacity: 1; transform: translateY(-1px); }
+@media (max-width: 800px) {
+  .navbar { padding: 16px 20px; flex-wrap: wrap; gap: 12px; }
+  .nav-right { gap: 16px; flex-wrap: wrap; }
+}
 </style>
 </head>
 <body>
+
+  <div class="navbar">
+    <div class="logo">✦ ArkanaBuilds ✦</div>
+    <div class="nav-right">
+      <a href="./index.html">Inicio</a>
+      <a href="./builds.html">Builds</a>
+      <a href="./tier-list-zzz-local.html" class="active">Tier List</a>
+      <div class="social-icons">
+        <a class="icon-circle" href="https://discord.gg/HgEqZERZ97" target="_blank" rel="noopener" title="Discord">💬</a>
+        <a class="icon-circle" href="https://x.com/Wnaapooo" target="_blank" rel="noopener" title="X / Twitter">𝕏</a>
+        <a class="icon-circle" href="https://www.instagram.com/wna.pooo_/" target="_blank" rel="noopener" title="Instagram">📷</a>
+        <a class="icon-circle" href="https://www.twitch.tv/wnapooo" target="_blank" rel="noopener" title="Twitch">🎥</a>
+      </div>
+    </div>
+  </div>
+
 
   <!-- ================= CUADRO TIER T0 ================= -->
   <table class="tier-table">
@@ -107,29 +150,29 @@ table.tier-table td:last-child {
         <!-- CRIT DPS -->
         <td>
           <div class="icon-row">
-            <div class="char-icon"><img src="./claret.webp" alt="Claret"></div>
-            <div class="char-icon"><img src="./sigrid.webp" alt="Sigrid"></div>
-            <div class="char-icon"><img src="./ye-shunguang.webp" alt="Ye Shunguang"></div>
+            <a class="char-icon" href="./builds.html#claret"><img src="./claret.webp" alt="Claret"></a>
+            <a class="char-icon" href="./builds.html#sigrid"><img src="./sigrid.webp" alt="Sigrid"></a>
+            <a class="char-icon" href="./builds.html#ye-shunguang"><img src="./ye-shunguang.webp" alt="Ye Shunguang"></a>
           </div>
         </td>
         <!-- ANOMALY DPS -->
         <td>
           <div class="icon-row">
-            <div class="char-icon"><img src="./phoenix.webp" alt="Phoenix"></div>
-            <div class="char-icon"><img src="./remielle.webp" alt="Remielle"></div>
-            <div class="char-icon"><img src="./velina.webp" alt="Velina"></div>
+            <a class="char-icon" href="./builds.html#phoenix"><img src="./phoenix.webp" alt="Phoenix"></a>
+            <a class="char-icon" href="./builds.html#remielle"><img src="./remielle.webp" alt="Remielle"></a>
+            <a class="char-icon" href="./builds.html#velina"><img src="./velina.webp" alt="Velina"></a>
           </div>
         </td>
         <!-- SUPPORT -->
         <td>
           <div class="icon-row">
-            <div class="char-icon"><img src="./dialyn.webp" alt="Dialyn"></div>
-            <div class="char-icon"><img src="./lucia.webp" alt="Lucia"></div>
-            <div class="char-icon"><img src="./nangong-yu.webp" alt="Nangong Yu"></div>
-            <div class="char-icon"><img src="./norma.webp" alt="Norma"></div>
-            <div class="char-icon"><img src="./roxy.webp" alt="Roxy"></div>
-            <div class="char-icon"><img src="./sunna.webp" alt="Sunna"></div>
-            <div class="char-icon"><img src="./ukinami-yuzuha.webp" alt="Ukinami Yuzuha"></div>
+            <a class="char-icon" href="./builds.html#dialyn"><img src="./dialyn.webp" alt="Dialyn"></a>
+            <a class="char-icon" href="./builds.html#lucia"><img src="./lucia.webp" alt="Lucia"></a>
+            <a class="char-icon" href="./builds.html#nangong-yu"><img src="./nangong-yu.webp" alt="Nangong Yu"></a>
+            <a class="char-icon" href="./builds.html#norma"><img src="./norma.webp" alt="Norma"></a>
+            <a class="char-icon" href="./builds.html#roxy"><img src="./roxy.webp" alt="Roxy"></a>
+            <a class="char-icon" href="./builds.html#sunna"><img src="./sunna.webp" alt="Sunna"></a>
+            <a class="char-icon" href="./builds.html#ukinami-yuzuha"><img src="./ukinami-yuzuha.webp" alt="Ukinami Yuzuha"></a>
           </div>
         </td>
       </tr>
@@ -150,34 +193,34 @@ table.tier-table td:last-child {
         <!-- CRIT DPS -->
         <td>
           <div class="icon-row">
-            <div class="char-icon"><img src="./banyue.webp" alt="Banyu"></div>
-            <div class="char-icon"><img src="./billy-starlight.webp" alt="Billy Starlight"></div>
-            <div class="char-icon"><img src="./cissia.webp" alt="Cissia"></div>
-            <div class="char-icon"><img src="./pyrois.webp" alt="Pyloris"></div>
-            <div class="char-icon"><img src="./seed.webp" alt="Seed"></div>
-            <div class="char-icon"><img src="./yidhari.webp" alt="Yidhari"></div>
-            <div class="char-icon"><img src="./yixuan.webp" alt="Yixuan"></div>
+            <a class="char-icon" href="./builds.html#banyue"><img src="./banyue.webp" alt="Banyu"></a>
+            <a class="char-icon" href="./builds.html#billy-starlight"><img src="./billy-starlight.webp" alt="Billy Starlight"></a>
+            <a class="char-icon" href="./builds.html#cissia"><img src="./cissia.webp" alt="Cissia"></a>
+            <a class="char-icon" href="./builds.html#pyrois"><img src="./pyrois.webp" alt="Pyloris"></a>
+            <a class="char-icon" href="./builds.html#seed"><img src="./seed.webp" alt="Seed"></a>
+            <a class="char-icon" href="./builds.html#yidhari"><img src="./yidhari.webp" alt="Yidhari"></a>
+            <a class="char-icon" href="./builds.html#yixuan"><img src="./yixuan.webp" alt="Yixuan"></a>
           </div>
         </td>
         <!-- ANOMALY DPS -->
         <td>
           <div class="icon-row">
-            <div class="char-icon"><img src="./alice.webp" alt="Alice"></div>
-            <div class="char-icon"><img src="./aria.webp" alt="Aria"></div>
-            <div class="char-icon"><img src="./burnice.webp" alt="Burnice"></div>
-            <div class="char-icon"><img src="./miyabi.webp" alt="Miyabi"></div>
-            <div class="char-icon"><img src="./promeia.webp" alt="Promeia"></div>
+            <a class="char-icon" href="./builds.html#alice"><img src="./alice.webp" alt="Alice"></a>
+            <a class="char-icon" href="./builds.html#aria"><img src="./aria.webp" alt="Aria"></a>
+            <a class="char-icon" href="./builds.html#burnice"><img src="./burnice.webp" alt="Burnice"></a>
+            <a class="char-icon" href="./builds.html#miyabi"><img src="./miyabi.webp" alt="Miyabi"></a>
+            <a class="char-icon" href="./builds.html#promeia"><img src="./promeia.webp" alt="Promeia"></a>
           </div>
         </td>
         <!-- SUPPORT -->
         <td>
           <div class="icon-row">
-            <div class="char-icon"><img src="./astra-yao.webp" alt="Astra Yao"></div>
-            <div class="char-icon"><img src="./koleda.webp" alt="Koleda"></div>
-            <div class="char-icon"><img src="./nicole-demara.webp" alt="Nicole Demara"></div>
-            <div class="char-icon"><img src="./rina.webp" alt="Rina"></div>
-            <div class="char-icon"><img src="./trigger.webp" alt="Trigger"></div>
-            <div class="char-icon"><img src="./zhao.webp" alt="Zhao"></div>
+            <a class="char-icon" href="./builds.html#astra-yao"><img src="./astra-yao.webp" alt="Astra Yao"></a>
+            <a class="char-icon" href="./builds.html#koleda"><img src="./koleda.webp" alt="Koleda"></a>
+            <a class="char-icon" href="./builds.html#nicole-demara"><img src="./nicole-demara.webp" alt="Nicole Demara"></a>
+            <a class="char-icon" href="./builds.html#rina"><img src="./rina.webp" alt="Rina"></a>
+            <a class="char-icon" href="./builds.html#trigger"><img src="./trigger.webp" alt="Trigger"></a>
+            <a class="char-icon" href="./builds.html#zhao"><img src="./zhao.webp" alt="Zhao"></a>
           </div>
         </td>
       </tr>
@@ -198,30 +241,30 @@ table.tier-table td:last-child {
         <!-- CRIT DPS -->
         <td>
           <div class="icon-row">
-            <div class="char-icon"><img src="./anby-demara-soldier-0.webp" alt="Anby Demara"></div>
-            <div class="char-icon"><img src="./evelyn.webp" alt="Evelyn"></div>
-            <div class="char-icon"><img src="./harumasa.webp" alt="Harumasa"></div>
-            <div class="char-icon"><img src="./nekomata.webp" alt="Nekomata"></div>
-            <div class="char-icon"><img src="./orphie-and-magus.webp" alt="Orphie and Magus"></div>
-            <div class="char-icon"><img src="./soldier-11.webp" alt="Soldier 11"></div>
+            <a class="char-icon" href="./builds.html#anby-demara-soldier-0"><img src="./anby-demara-soldier-0.webp" alt="Anby Demara"></a>
+            <a class="char-icon" href="./builds.html#evelyn"><img src="./evelyn.webp" alt="Evelyn"></a>
+            <a class="char-icon" href="./builds.html#harumasa"><img src="./harumasa.webp" alt="Harumasa"></a>
+            <a class="char-icon" href="./builds.html#nekomata"><img src="./nekomata.webp" alt="Nekomata"></a>
+            <a class="char-icon" href="./builds.html#orphie-and-magus"><img src="./orphie-and-magus.webp" alt="Orphie and Magus"></a>
+            <a class="char-icon" href="./builds.html#soldier-11"><img src="./soldier-11.webp" alt="Soldier 11"></a>
           </div>
         </td>
         <!-- ANOMALY DPS -->
         <td>
           <div class="icon-row">
-            <div class="char-icon"><img src="./grace-howard.webp" alt="Grace Howard"></div>
-            <div class="char-icon"><img src="./jane-doe.webp" alt="Jane Doe"></div>
-            <div class="char-icon"><img src="./piper.webp" alt="Piper"></div>
-            <div class="char-icon"><img src="./vivian.webp" alt="Vivian"></div>
-            <div class="char-icon"><img src="./yanagi.webp" alt="Yanagi"></div>
+            <a class="char-icon" href="./builds.html#grace-howard"><img src="./grace-howard.webp" alt="Grace Howard"></a>
+            <a class="char-icon" href="./builds.html#jane-doe"><img src="./jane-doe.webp" alt="Jane Doe"></a>
+            <a class="char-icon" href="./builds.html#piper"><img src="./piper.webp" alt="Piper"></a>
+            <a class="char-icon" href="./builds.html#vivian"><img src="./vivian.webp" alt="Vivian"></a>
+            <a class="char-icon" href="./builds.html#yanagi"><img src="./yanagi.webp" alt="Yanagi"></a>
           </div>
         </td>
         <!-- SUPPORT -->
         <td>
           <div class="icon-row">
-            <div class="char-icon"><img src="./ju-fufu.webp" alt="Ju Fufu"></div>
-            <div class="char-icon"><img src="./lighter.webp" alt="Lighter"></div>
-            <div class="char-icon"><img src="./lycaon.webp" alt="Lycaon"></div>
+            <a class="char-icon" href="./builds.html#ju-fufu"><img src="./ju-fufu.webp" alt="Ju Fufu"></a>
+            <a class="char-icon" href="./builds.html#lighter"><img src="./lighter.webp" alt="Lighter"></a>
+            <a class="char-icon" href="./builds.html#lycaon"><img src="./lycaon.webp" alt="Lycaon"></a>
           </div>
         </td>
       </tr>
@@ -242,10 +285,10 @@ table.tier-table td:last-child {
         <!-- CRIT DPS -->
         <td>
           <div class="icon-row">
-            <div class="char-icon"><img src="./ellen.webp" alt="Ellen"></div>
-            <div class="char-icon"><img src="./hugo.webp" alt="Hugo"></div>
-            <div class="char-icon"><img src="./manato.webp" alt="Manato"></div>
-            <div class="char-icon"><img src="./zhu-yuan.webp" alt="Zhu Yuan"></div>
+            <a class="char-icon" href="./builds.html#ellen"><img src="./ellen.webp" alt="Ellen"></a>
+            <a class="char-icon" href="./builds.html#hugo"><img src="./hugo.webp" alt="Hugo"></a>
+            <a class="char-icon" href="./builds.html#manato"><img src="./manato.webp" alt="Manato"></a>
+            <a class="char-icon" href="./builds.html#zhu-yuan"><img src="./zhu-yuan.webp" alt="Zhu Yuan"></a>
           </div>
         </td>
         <!-- ANOMALY DPS -->
@@ -257,8 +300,8 @@ table.tier-table td:last-child {
         <!-- SUPPORT -->
         <td>
           <div class="icon-row">
-            <div class="char-icon"><img src="./pan-yinhu.webp" alt="Pan Yinhu"></div>
-            <div class="char-icon"><img src="./qingyi.webp" alt="Qingyi"></div>
+            <a class="char-icon" href="./builds.html#pan-yinhu"><img src="./pan-yinhu.webp" alt="Pan Yinhu"></a>
+            <a class="char-icon" href="./builds.html#qingyi"><img src="./qingyi.webp" alt="Qingyi"></a>
           </div>
         </td>
       </tr>
