@@ -241,155 +241,38 @@
   }
   .hero-buttons { margin-bottom: 0; }
 
-  .showcase {
-    position: relative;
-    aspect-ratio: 16 / 10;
-    border-radius: 16px;
-    overflow: hidden;
-    border: 1px solid var(--border-card);
+  .social-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .sp-card {
     background: rgba(20, 22, 29, 0.72);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
-  }
-  .slide {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    padding: 22px 26px 44px;
-    color: inherit;
-    text-decoration: none;
-    opacity: 0;
-    transform: translateX(28px) scale(0.99);
-    pointer-events: none;
-    transition: opacity .8s ease, transform .8s ease;
-  }
-  .slide.active {
-    opacity: 1;
-    transform: none;
-    pointer-events: auto;
-  }
-  .slide-head {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    margin-bottom: 16px;
-  }
-  .slide-head h2 {
-    margin: 0;
-    font-size: 20px;
-    color: var(--heading-white);
-  }
-  .slide-head span {
-    font-size: 13px;
-    color: #818cf8;
-  }
-
-  /* Slide 1: tarjetas de builds */
-  .cards {
-    flex: 1;
-    min-height: 0;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 14px;
-  }
-  .mini-card {
-    position: relative;
-    min-height: 0;
-    border-radius: 12px;
-    overflow: hidden;
-    background: var(--card-bg);
     border: 1px solid var(--border-card);
+    border-radius: 14px;
+    padding: 14px;
+    overflow: hidden;
+    min-width: 0;
   }
-  .mini-card img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: top;
-    display: block;
-  }
-  .mini-card b {
-    position: absolute;
-    left: 0; right: 0; bottom: 0;
-    padding: 18px 10px 8px;
-    font-size: 13px;
-    text-align: center;
-    color: #fff;
-    background: linear-gradient(transparent, rgba(0,0,0,.85));
-  }
-
-  /* Slide 2: mini tier list */
-  .tiers {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    justify-content: center;
-  }
-  .tier-row {
+  .sp-card.wide { grid-column: 1 / -1; }
+  .sp-head {
     display: flex;
     align-items: center;
-    gap: 14px;
-    background: var(--card-bg);
-    border: 1px solid var(--border-card);
-    border-radius: 12px;
-    padding: 10px 14px;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--heading-white);
   }
-  .tier-tag {
-    flex: 0 0 56px;
-    text-align: center;
-    font-weight: 800;
-    font-size: 15px;
-    padding: 8px 0;
-    border-radius: 8px;
-    color: #111;
-  }
-  .t0  { background: #f87171; }
-  .t05 { background: #fb923c; }
-  .t1  { background: #facc15; }
-  .tier-icons { display: flex; flex-wrap: wrap; gap: 8px; }
-  .tier-icons img {
-    width: 50px;
-    height: 50px;
-    border-radius: 10px;
-    object-fit: cover;
-    background: var(--btn-secondary-bg);
-    border: 1px solid var(--border-card);
-  }
-
-  .dots {
-    position: absolute;
-    left: 0; right: 0; bottom: 14px;
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    z-index: 2;
-  }
-  .dot {
-    width: 8px; height: 8px;
-    border-radius: 999px;
-    border: none;
-    padding: 0;
-    cursor: pointer;
-    background: #4b5060;
-    transition: width .25s ease, background .25s ease;
-  }
-  .dot.active { width: 22px; background: #818cf8; }
+  .sp-head a { font-size: 12px; font-weight: 500; color: #818cf8; text-decoration: none; }
+  .sp-card iframe { width: 100%; border: 0; border-radius: 10px; display: block; background: #0b0c10; }
+  .sp-box { height: 420px; overflow-y: auto; border-radius: 10px; }
+  .sp-fallback { color: var(--text-muted); font-size: 13px; padding: 24px 8px; text-align: center; }
 
   @media (max-width: 1000px) {
     .hero { grid-template-columns: 1fr; gap: 36px; min-height: 0; }
   }
   @media (max-width: 560px) {
     .hero { padding: 40px 20px; }
-    .slide { padding: 16px 16px 40px; }
-    .cards { grid-template-columns: repeat(2, 1fr); }
-    .cards .mini-card:nth-child(n+3) { display: none; }
-    .showcase { aspect-ratio: 4 / 5; }
-    .tier-icons img { width: 40px; height: 40px; }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .slide { transition: none; }
+    .social-panel { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -421,53 +304,42 @@
       </div>
     </div>
 
-    <div class="showcase" id="showcase">
-      <a class="slide active" href="./builds.html">
-        <div class="slide-head"><h2>Builds</h2><span>Ver todas →</span></div>
-        <div class="cards">
-          <div class="mini-card"><img src="./aha_card.webp" alt="Aha"><b>Aha</b></div>
-          <div class="mini-card"><img src="./firefly_card.webp" alt="Firefly"><b>Firefly</b></div>
-          <div class="mini-card"><img src="./castorice_card.webp" alt="Castorice"><b>Castorice</b></div>
-          <div class="mini-card"><img src="./acheron_card.webp" alt="Acheron"><b>Acheron</b></div>
+    <div class="social-panel">
+      <div class="sp-card wide">
+        <div class="sp-head"><span>🎥 Twitch</span><a href="https://www.twitch.tv/wnapooo" target="_blank" rel="noopener">Abrir canal →</a></div>
+        <div id="twitch-box"></div>
+      </div>
+      <div class="sp-card">
+        <div class="sp-head"><span>𝕏 Último post</span><a href="https://x.com/Wnaapooo" target="_blank" rel="noopener">Ver perfil →</a></div>
+        <div class="sp-box">
+          <a class="twitter-timeline" data-theme="dark" data-height="420" data-chrome="noheader nofooter transparent" href="https://twitter.com/Wnaapooo">Posts de @Wnaapooo</a>
         </div>
-      </a>
-      <a class="slide" href="./tier-list-hsr.html">
-        <div class="slide-head"><h2>Tier List</h2><span>Ver completa →</span></div>
-        <div class="tiers">
-          <div class="tier-row"><div class="tier-tag t0">T0</div><div class="tier-icons"><img src="./archer_icon.webp" alt="archer" onerror="this.style.visibility='hidden'"><img src="./ashveil_icon.webp" alt="ashveil" onerror="this.style.visibility='hidden'"><img src="./castorice_icon.webp" alt="castorice" onerror="this.style.visibility='hidden'"><img src="./firefly_icon.webp" alt="firefly" onerror="this.style.visibility='hidden'"><img src="./himeko-nova_icon.webp" alt="himeko-nova" onerror="this.style.visibility='hidden'"><img src="./evanescia_icon.webp" alt="evanescia" onerror="this.style.visibility='hidden'"></div></div>
-          <div class="tier-row"><div class="tier-tag t05">T0.5</div><div class="tier-icons"><img src="./acheron_icon.webp" alt="acheron" onerror="this.style.visibility='hidden'"><img src="./hysilens_icon.webp" alt="hysilens" onerror="this.style.visibility='hidden'"><img src="./saber_icon.webp" alt="saber" onerror="this.style.visibility='hidden'"><img src="./kafka_icon.webp" alt="kafka" onerror="this.style.visibility='hidden'"><img src="./black-swan_icon.webp" alt="black-swan" onerror="this.style.visibility='hidden'"></div></div>
-          <div class="tier-row"><div class="tier-tag t1">T1</div><div class="tier-icons"><img src="./anaxa_icon.webp" alt="anaxa" onerror="this.style.visibility='hidden'"><img src="./phainon_icon.webp" alt="phainon" onerror="this.style.visibility='hidden'"><img src="./cerydra_icon.webp" alt="cerydra" onerror="this.style.visibility='hidden'"><img src="./sunday_icon.webp" alt="sunday" onerror="this.style.visibility='hidden'"><img src="./lingsha_icon.webp" alt="lingsha" onerror="this.style.visibility='hidden'"></div></div>
-        </div>
-      </a>
-      <div class="dots" id="dots"></div>
+      </div>
+      <div class="sp-card">
+        <div class="sp-head"><span>📷 Instagram</span><a href="https://www.instagram.com/wna.pooo_/" target="_blank" rel="noopener">Ver perfil →</a></div>
+        <iframe src="https://www.instagram.com/wna.pooo_/embed" height="420" loading="lazy" title="Instagram de wna.pooo_"></iframe>
+      </div>
     </div>
   </div>
 
 
+  <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
   <script>
+    // Twitch: el reproductor muestra el directo si estás en vivo y "offline" si no.
+    // Twitch exige el dominio de la página (parent); no funciona abriendo el archivo local.
     (function () {
-      var box = document.getElementById('showcase');
-      var slides = box.querySelectorAll('.slide');
-      var dotsBox = document.getElementById('dots');
-      var i = 0, timer;
-      slides.forEach(function (_, k) {
-        var d = document.createElement('button');
-        d.className = 'dot' + (k === 0 ? ' active' : '');
-        d.setAttribute('aria-label', 'Ir a la diapositiva ' + (k + 1));
-        d.addEventListener('click', function () { show(k); restart(); });
-        dotsBox.appendChild(d);
-      });
-      var dots = dotsBox.children;
-      function show(n) {
-        slides[i].classList.remove('active'); dots[i].classList.remove('active');
-        i = n % slides.length;
-        slides[i].classList.add('active'); dots[i].classList.add('active');
+      var box = document.getElementById('twitch-box');
+      var host = location.hostname;
+      if (!host) {
+        box.innerHTML = '<p class="sp-fallback">El reproductor de Twitch aparece cuando la página está publicada en internet.</p>';
+        return;
       }
-      function start() { timer = setInterval(function () { show(i + 1); }, 4500); }
-      function restart() { clearInterval(timer); start(); }
-      box.addEventListener('mouseenter', function () { clearInterval(timer); });
-      box.addEventListener('mouseleave', start);
-      start();
+      var f = document.createElement('iframe');
+      f.src = 'https://player.twitch.tv/?channel=wnapooo&parent=' + encodeURIComponent(host) + '&muted=true&autoplay=false';
+      f.height = 360;
+      f.allowFullscreen = true;
+      f.title = 'Twitch de wnapooo';
+      box.appendChild(f);
     })();
   </script>
 </body>
