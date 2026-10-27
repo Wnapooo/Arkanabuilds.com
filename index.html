@@ -228,10 +228,10 @@
   }
 
   /* ===== Fondos en transición (crossfade con CSS puro) =====
-     Para cambiar las imágenes, edita los dos url() de abajo.
-     --ciclo = duración de las dos imágenes juntas: 10s = 5s por fondo.
-     Para más lento, sube el número; para más rápido, bájalo. */
-  .bg-slides { --ciclo: 10s; position: fixed; inset: 0; z-index: -2; background: var(--bg); overflow: hidden; }
+     3 fondos: fondo.jpg -> fondo_sunbringer.jpg -> fondo_2.jpg -> (vuelve al primero)
+     --ciclo = duración de los 3 juntos: 15s = 5s por fondo.
+     Más lento: sube el número (30s = 10s por fondo). Más rápido: bájalo. */
+  .bg-slides { --ciclo: 15s; position: fixed; inset: 0; z-index: -2; background: var(--bg); overflow: hidden; }
   .bg-slide {
     position: absolute;
     inset: 0;
@@ -239,21 +239,20 @@
     background-position: center;
     background-repeat: no-repeat;
   }
-  /* El primero queda fijo de base; el segundo aparece y desaparece encima (sin saltos ni oscurecimientos) */
-  .bg-slide.s1 { background-image: url('./fondo_sunbringer.jpg'); }
-  .bg-slide.s2 {
-    background-image: url('./fondo_2.jpg');
-    opacity: 0;
-    animation: bgFade var(--ciclo) ease-in-out infinite;
-    will-change: opacity;
+  .bg-slide.s1 { background-image: url('./fondo.jpg'); }               /* base, siempre visible debajo */
+  .bg-slide.s2 { background-image: url('./fondo_sunbringer.jpg'); opacity: 0; animation: bgFade2 var(--ciclo) ease-in-out infinite; will-change: opacity; }
+  .bg-slide.s3 { background-image: url('./fondo_2.jpg');          opacity: 0; animation: bgFade3 var(--ciclo) ease-in-out infinite; will-change: opacity; }
+
+  /* 0-4s: 1.º | 4-5s: fundido al 2.º | 5-9s: 2.º | 9-10s: fundido al 3.º | 10-14s: 3.º | 14-15s: fundido al 1.º */
+  @keyframes bgFade2 {
+    0%, 26.67%   { opacity: 0; }
+    33.33%, 66.67% { opacity: 1; }
+    70%, 100%    { opacity: 0; }
   }
-  @keyframes bgFade {
-    0%, 40% { opacity: 0; }   /* se ve el 1.º (4 s) */
-    50%, 90% { opacity: 1; }  /* fundido 1 s -> se ve el 2.º (4 s) */
-    100%    { opacity: 0; }   /* fundido 1 s de vuelta al 1.º */
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .bg-slide.s2 { animation: none; opacity: 0; }
+  @keyframes bgFade3 {
+    0%, 60%      { opacity: 0; }
+    66.67%, 93.33% { opacity: 1; }
+    100%         { opacity: 0; }
   }
 </style>
 </head>
@@ -262,6 +261,7 @@
   <div class="bg-slides" aria-hidden="true">
     <div class="bg-slide s1"></div>
     <div class="bg-slide s2"></div>
+    <div class="bg-slide s3"></div>
   </div>
 
   <div class="navbar">
