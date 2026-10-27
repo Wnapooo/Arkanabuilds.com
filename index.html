@@ -229,88 +229,31 @@
 
   /* ===== Fondos en transición (crossfade con CSS puro) =====
      Para cambiar las imágenes, edita los dos url() de abajo.
-     --ciclo = duración total (cada fondo se ve la mitad del ciclo).
+     --ciclo = duración de las dos imágenes juntas: 10s = 5s por fondo.
      Para más lento, sube el número; para más rápido, bájalo. */
-  .bg-slides { --ciclo: 24s; position: fixed; inset: 0; z-index: -2; background: var(--bg); overflow: hidden; }
+  .bg-slides { --ciclo: 10s; position: fixed; inset: 0; z-index: -2; background: var(--bg); overflow: hidden; }
   .bg-slide {
     position: absolute;
     inset: 0;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+  }
+  /* El primero queda fijo de base; el segundo aparece y desaparece encima (sin saltos ni oscurecimientos) */
+  .bg-slide.s1 { background-image: url('./fondo_sunbringer.jpg'); }
+  .bg-slide.s2 {
+    background-image: url('./fondo_2.jpg');
     opacity: 0;
     animation: bgFade var(--ciclo) ease-in-out infinite;
     will-change: opacity;
   }
-  .bg-slide.s1 { background-image: url('./fondo_sunbringer.jpg'); }
-  .bg-slide.s2 { background-image: url('./fondo_2.jpg'); animation-delay: calc(var(--ciclo) / -2); }
   @keyframes bgFade {
-    0%   { opacity: 1; }
-    42%  { opacity: 1; }
-    50%  { opacity: 0; }
-    92%  { opacity: 0; }
-    100% { opacity: 1; }
+    0%, 40% { opacity: 0; }   /* se ve el 1.º (4 s) */
+    50%, 90% { opacity: 1; }  /* fundido 1 s -> se ve el 2.º (4 s) */
+    100%    { opacity: 0; }   /* fundido 1 s de vuelta al 1.º */
   }
   @media (prefers-reduced-motion: reduce) {
-    .bg-slide { animation: none; }
-    .bg-slide.s1 { opacity: 1; }
-  }
-
-  /* ===== Hero en 2 columnas + carrusel ===== */
-  .hero {
-    max-width: none;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
-    gap: 56px;
-    align-items: center;
-    min-height: calc(100vh - 80px);
-    padding-top: 24px;
-    padding-bottom: 24px;
-  }
-  .hero-buttons { margin-bottom: 0; }
-
-  .sp-card {
-    background: rgba(20, 22, 29, 0.35);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid var(--border-card);
-    border-radius: 14px;
-    padding: 14px;
-    overflow: hidden;
-    min-width: 0;
-  }
-  .sp-card.wide { grid-column: 1 / -1; }
-  .sp-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 10px;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--heading-white);
-  }
-  .sp-head a { font-size: 12px; font-weight: 500; color: #818cf8; text-decoration: none; }
-  .sp-card iframe { width: 100%; border: 0; border-radius: 10px; display: block; background: #0b0c10; }
-  .sp-box { height: clamp(150px, 20vh, 260px); overflow-y: auto; border-radius: 10px; }
-  .sp-fallback a { color: #818cf8; text-decoration: none; font-weight: 600; }
-  .sp-fallback { color: var(--text-muted); font-size: 13px; padding: 24px 8px; text-align: center; }
-
-  @media (min-width: 1001px) {
-    .hero-text { padding-bottom: 140px; }
-  }
-
-
-  /* ===== Layout del panel: Twitch grande arriba, barra de X abajo ===== */
-  .hero { grid-template-columns: 1fr; padding-top: 24px; padding-bottom: 24px; }
-  @media (max-width: 1000px) {
-    .hero { padding-top: 24px; }
-  }
-
-  @media (max-width: 1000px) {
-    .hero { grid-template-columns: 1fr; gap: 36px; min-height: 0; }
-  }
-  @media (max-width: 560px) {
-    .hero { padding: 40px 20px; }
+    .bg-slide.s2 { animation: none; opacity: 0; }
   }
 </style>
 </head>
