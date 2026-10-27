@@ -224,9 +224,36 @@
     position: fixed;
     inset: 0;
     z-index: -1;
-    background:
-      linear-gradient(var(--overlay), var(--overlay)),
-      url('./fondo.jpg') center / cover no-repeat;
+    background: var(--overlay);
+  }
+
+  /* ===== Fondos en transición (crossfade con CSS puro) =====
+     Para cambiar las imágenes, edita los dos url() de abajo.
+     --ciclo = duración total (cada fondo se ve la mitad del ciclo).
+     Para más lento, sube el número; para más rápido, bájalo. */
+  .bg-slides { --ciclo: 24s; position: fixed; inset: 0; z-index: -2; background: var(--bg); overflow: hidden; }
+  .bg-slide {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0;
+    animation: bgFade var(--ciclo) ease-in-out infinite;
+    will-change: opacity;
+  }
+  .bg-slide.s1 { background-image: url('./fondo_sunbringer.jpg'); }
+  .bg-slide.s2 { background-image: url('./fondo_2.jpg'); animation-delay: calc(var(--ciclo) / -2); }
+  @keyframes bgFade {
+    0%   { opacity: 1; }
+    42%  { opacity: 1; }
+    50%  { opacity: 0; }
+    92%  { opacity: 0; }
+    100% { opacity: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .bg-slide { animation: none; }
+    .bg-slide.s1 { opacity: 1; }
   }
 
   /* ===== Hero en 2 columnas + carrusel ===== */
@@ -288,6 +315,11 @@
 </style>
 </head>
 <body>
+
+  <div class="bg-slides" aria-hidden="true">
+    <div class="bg-slide s1"></div>
+    <div class="bg-slide s2"></div>
+  </div>
 
   <div class="navbar">
     <div class="logo">✦ ArkanaBuilds ✦</div>
