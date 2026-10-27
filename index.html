@@ -244,7 +244,7 @@
 
   .social-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   .sp-card {
-    background: rgba(20, 22, 29, 0.72);
+    background: rgba(20, 22, 29, 0.35);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     border: 1px solid var(--border-card);
@@ -283,7 +283,33 @@
     align-self: center;
     gap: 16px;
   }
-  #twitch-box iframe { height: clamp(240px, 56vh, 560px); }
+  #twitch-box {
+    position: relative;
+    height: clamp(240px, 56vh, 560px);
+    border-radius: 10px;
+    overflow: hidden;
+    background: transparent;
+  }
+  #twitch-box iframe { height: 100%; }
+  #twitch-embed { position: absolute; inset: 0; }
+  #twitch-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .tw-offline {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    text-align: center;
+    padding: 24px;
+    background: radial-gradient(ellipse at center, rgba(99,102,241,.14), rgba(11,12,16,.25) 75%);
+  }
+  .tw-offline.show { display: flex; }
+  .tw-offline .tw-dot { width: 12px; height: 12px; border-radius: 50%; background: #6b7280; }
+  .tw-offline h3 { margin: 0; font-size: 22px; color: var(--heading-white); }
+  .tw-offline p { margin: 0; font-size: 14px; color: var(--text-muted); max-width: 360px; line-height: 1.5; }
   @media (max-width: 1000px) {
     .hero { padding-top: 24px; }
   }
@@ -328,30 +354,65 @@
     <div class="social-panel">
       <div class="sp-card wide">
         <div class="sp-head"><span>🎥 Twitch</span><a href="https://www.twitch.tv/wnapooo" target="_blank" rel="noopener">Abrir canal →</a></div>
-        <div id="twitch-box"></div>
+        <div id="twitch-box">
+          <div id="twitch-embed"></div>
+          <div class="tw-offline" id="tw-offline">
+            <span class="tw-dot"></span>
+            <h3>wnapooo no está en directo</h3>
+            <p id="tw-offline-msg">Cuando empiece el stream, el directo aparecerá aquí automáticamente.</p>
+            <a class="btn btn-primary" href="https://www.twitch.tv/wnapooo" target="_blank" rel="noopener">Visitar canal</a>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
 
   <script>
-    // Twitch: el reproductor muestra el directo si estás en vivo y "offline" si no.
+    // Twitch: muestra el directo cuando estás en vivo y una tarjeta propia cuando estás offline.
     // Twitch exige el dominio de la página (parent); no funciona abriendo el archivo local.
     (function () {
-      var box = document.getElementById('twitch-box');
+      var card = document.getElementById('tw-offline');
+      var msg = document.getElementById('tw-offline-msg');
+      var ready = false;
+      function showOffline(text) {
+        if (text) msg.textContent = text;
+        card.classList.add('show');
+      }
+      function showLive() { card.classList.remove('show'); }
+
       var host = location.hostname;
       if (!host) {
-        box.innerHTML = '<p class="sp-fallback">El reproductor de Twitch aparece cuando la página está publicada en internet.</p>';
+        showOffline('El reproductor de Twitch aparece cuando la página está publicada en internet.');
         return;
       }
-      var f = document.createElement('iframe');
-      f.src = 'https://player.twitch.tv/?channel=wnapooo&parent=' + encodeURIComponent(host) + '&muted=true&autoplay=false';
-      f.height = 360;
-      f.allowFullscreen = true;
-      f.title = 'Twitch de wnapooo';
-      box.appendChild(f);
+
+      // Si el reproductor no responde en 6 s (bloqueado, sin conexión, etc.), muestra la tarjeta.
+      var timer = setTimeout(function () { if (!ready) showOffline(); }, 6000);
+
+      var s = document.createElement('script');
+      s.src = 'https://embed.twitch.tv/embed/v1.js';
+      s.onerror = function () { clearTimeout(timer); showOffline(); };
+      s.onload = function () {
+        var embed = new Twitch.Embed('twitch-embed', {
+          width: '100%',
+          height: '100%',
+          channel: 'wnapooo',
+          layout: 'video',
+          autoplay: false,
+          muted: true,
+          parent: [host]
+        });
+        embed.addEventListener(Twitch.Embed.VIDEO_READY, function () {
+          ready = true;
+          clearTimeout(timer);
+          var p = embed.getPlayer();
+          p.addEventListener(Twitch.Player.ONLINE, showLive);
+          p.addEventListener(Twitch.Player.OFFLINE, function () { showOffline(); });
+        });
+      };
+      document.body.appendChild(s);
     })();
-  
-</script>
+  </script>
 </body>
 </html>
