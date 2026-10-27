@@ -212,6 +212,22 @@
     .features { grid-template-columns: 1fr; }
     .hero h1 { font-size: 36px; }
   }
+  :root { --overlay: rgba(11,12,16,.62); }
+  body.light { --overlay: rgba(247,247,250,.82); }
+
+  /* ===== Imagen de fondo =====
+     Guarda tu imagen como "fondo.jpg" en la misma carpeta que los .html
+     (o cambia el nombre en url('./fondo.jpg')). La capa --overlay la oscurece
+     para que el texto se siga leyendo; sube o baja el último número (0 a 1). */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background:
+      linear-gradient(var(--overlay), var(--overlay)),
+      url('./fondo.jpg') center / cover no-repeat;
+  }
 </style>
 </head>
 <body>
