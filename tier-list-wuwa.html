@@ -48,6 +48,10 @@ table.tier-table td:last-child {
 .t05-label { background: #22132b !important; color: #c084fc; }
 .t1-label { background: #111b2a !important; color: #60a5fa; }
 .t15-label { background: #0e1f2e !important; color: #38bdf8; }
+.t2-label { background: #10231f !important; color: #2dd4bf; }
+
+.divider { display:flex; align-items:center; gap:14px; padding:10px 16px; font-family: system-ui, -apple-system, sans-serif; font-size:13px; font-weight:800; letter-spacing:1px; color:#818cf8; }
+.divider::before, .divider::after { content:""; flex:1; height:1px; background:#2a2d38; }
 
 /* Fila de iconos que se envuelve automáticamente */
 .icon-row {
@@ -163,129 +167,40 @@ table.tier-table td:last-child {
     </aside>
     <main class="tier-main">
 
+  <div class="divider"><span>CURRENT META</span></div>
+
   <table class="tier-table">
-    <colgroup>
-      <col style="width: 60px;">
-      <col style="width: 31.33%;">
-      <col style="width: 31.33%;">
-      <col style="width: 31.33%;">
-    </colgroup>
-    <thead>
-      <tr>
-        <th style="width: 50px;"></th>
-        <th style="color:#ef4444;">DPS</th>
-        <th style="color:#a855f7;">HÍBRIDO</th>
-        <th style="color:#22c55e;">SOPORTE</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="tier-label-cell t0-label">T0</td>
-        <td>
-          <div class="icon-row">
-            <div class="empty-icon"></div>
-          </div>
-        </td>
-        <td>
-          <div class="icon-row">
-            <div class="empty-icon"></div>
-          </div>
-        </td>
-        <td>
-          <div class="icon-row">
-            <div class="empty-icon"></div>
-          </div>
-        </td>
-      </tr>
-    </tbody>
+    <colgroup><col style="width: 60px;"><col style="width: 31.33%;"><col style="width: 31.33%;"><col style="width: 31.33%;"></colgroup>
+    <thead><tr><th></th><th style="color:#ef4444;">DPS</th><th style="color:#a855f7;">HÍBRIDO</th><th style="color:#22c55e;">SOPORTE</th></tr></thead>
+    <tbody><tr><td class="tier-label-cell t0-label">T0</td><td><div class="icon-row"><div class="empty-icon"></div><div class="char-icon" title="Augusta"><img src="./aug_card.webp" alt="Augusta" loading="lazy"></div><div class="char-icon" title="Galbrena"><img src="./gal_card.webp" alt="Galbrena" loading="lazy"></div><div class="char-icon" title="Iuno"><img src="./ioun_card.webp" alt="Iuno" loading="lazy"></div><div class="char-icon" title="Phrolova"><img src="./phr_card.webp" alt="Phrolova" loading="lazy"></div></div></td><td><div class="icon-row"><div class="empty-icon"></div><div class="empty-icon"></div><div class="empty-icon"></div><div class="empty-icon"></div></div></td><td><div class="icon-row"><div class="empty-icon"></div><div class="empty-icon"></div><div class="empty-icon"></div><div class="empty-icon"></div></div></td></tr></tbody>
   </table>
 
   <table class="tier-table">
-    <colgroup>
-      <col style="width: 60px;">
-      <col style="width: 31.33%;">
-      <col style="width: 31.33%;">
-      <col style="width: 31.33%;">
-    </colgroup>
-    <tbody>
-      <tr>
-        <td class="tier-label-cell t05-label">T0.5</td>
-        <td>
-          <div class="icon-row">
-            <div class="empty-icon"></div>
-          </div>
-        </td>
-        <td>
-          <div class="icon-row">
-            <div class="empty-icon"></div>
-          </div>
-        </td>
-        <td>
-          <div class="icon-row">
-            <div class="empty-icon"></div>
-          </div>
-        </td>
-      </tr>
-    </tbody>
+    <colgroup><col style="width: 60px;"><col style="width: 31.33%;"><col style="width: 31.33%;"><col style="width: 31.33%;"></colgroup>
+    
+    <tbody><tr><td class="tier-label-cell t05-label">T0.5</td><td><div class="icon-row"><div class="empty-icon"></div><div class="empty-icon"></div><div class="empty-icon"></div><div class="empty-icon"></div></div></td><td><div class="icon-row"><div class="empty-icon"></div><div class="char-icon" title="Lynae"><img src="./lynae_card.webp" alt="Lynae" loading="lazy"></div><div class="empty-icon"></div></div></td><td><div class="icon-row"><div class="char-icon" title="Verina"><img src="./verina_card.webp" alt="Verina" loading="lazy"></div></div></td></tr></tbody>
   </table>
 
   <table class="tier-table">
-    <colgroup>
-      <col style="width: 60px;">
-      <col style="width: 31.33%;">
-      <col style="width: 31.33%;">
-      <col style="width: 31.33%;">
-    </colgroup>
-    <tbody>
-      <tr>
-        <td class="tier-label-cell t1-label">T1</td>
-        <td>
-          <div class="icon-row">
-            <div class="empty-icon"></div>
-          </div>
-        </td>
-        <td>
-          <div class="icon-row">
-            <div class="empty-icon"></div>
-          </div>
-        </td>
-        <td>
-          <div class="icon-row">
-            <div class="empty-icon"></div>
-          </div>
-        </td>
-      </tr>
-    </tbody>
+    <colgroup><col style="width: 60px;"><col style="width: 31.33%;"><col style="width: 31.33%;"><col style="width: 31.33%;"></colgroup>
+    
+    <tbody><tr><td class="tier-label-cell t1-label">T1</td><td><div class="icon-row"><div class="empty-icon"></div><div class="empty-icon"></div><div class="empty-icon"></div><div class="empty-icon"></div><div class="empty-icon"></div><div class="empty-icon"></div></div></td><td><div class="icon-row"><div class="empty-icon"></div><div class="empty-icon"></div><div class="empty-icon"></div><div class="char-icon" title="Rover (Electro)"><img src="./rover_card.webp" alt="Rover (Electro)" loading="lazy"></div><div class="empty-icon"></div></div></td><td><div class="icon-row"><div class="char-icon" title="Buling"><img src="./buling_card.webp" alt="Buling" loading="lazy"></div></div></td></tr></tbody>
   </table>
 
   <table class="tier-table">
-    <colgroup>
-      <col style="width: 60px;">
-      <col style="width: 31.33%;">
-      <col style="width: 31.33%;">
-      <col style="width: 31.33%;">
-    </colgroup>
-    <tbody>
-      <tr>
-        <td class="tier-label-cell t15-label">T1.5</td>
-        <td>
-          <div class="icon-row">
-            <div class="empty-icon"></div>
-          </div>
-        </td>
-        <td>
-          <div class="icon-row">
-            <div class="empty-icon"></div>
-          </div>
-        </td>
-        <td>
-          <div class="icon-row">
-            <div class="empty-icon"></div>
-          </div>
-        </td>
-      </tr>
-    </tbody>
+    <colgroup><col style="width: 60px;"><col style="width: 31.33%;"><col style="width: 31.33%;"><col style="width: 31.33%;"></colgroup>
+    
+    <tbody><tr><td class="tier-label-cell t15-label">T1.5</td><td><div class="icon-row"><div class="empty-icon"></div><div class="empty-icon"></div></div></td><td><div class="icon-row"><div class="empty-icon"></div></div></td><td><div class="icon-row"><div class="char-icon" title="Rover (Aero)"><img src="./rover-erosion_card.webp" alt="Rover (Aero)" loading="lazy"></div></div></td></tr></tbody>
   </table>
+
+  <div class="divider"><span>OFF-META</span></div>
+
+  <table class="tier-table">
+    <colgroup><col style="width: 60px;"><col style="width: 31.33%;"><col style="width: 31.33%;"><col style="width: 31.33%;"></colgroup>
+    
+    <tbody><tr><td class="tier-label-cell t2-label">T2</td><td><div class="icon-row"><div class="empty-icon"></div><div class="empty-icon"></div><div class="empty-icon"></div><div class="empty-icon"></div></div></td><td><div class="icon-row"><div class="empty-icon"></div><div class="empty-icon"></div><div class="empty-icon"></div></div></td><td><div class="icon-row"><div class="char-icon" title="Rover (Spectro)"><img src="./rover-frazzle_card.webp" alt="Rover (Spectro)" loading="lazy"></div></div></td></tr></tbody>
+  </table>
+
 
     </main>
   </div>
