@@ -142,9 +142,37 @@ a.char-icon:hover { transform: translateY(-2px); border-color: #818cf8; }
   .sidebar h2 { display: none; }
   .sidebar a { white-space: nowrap; margin-bottom: 0; }
 }
+
+/* ===== Modo editor (arrastrar y soltar) ===== */
+.tier-main { transition: opacity .2s ease; }
+html.loading .tier-main { opacity: 0; }
+.icon-row { min-height: 68px; }
+body.editing a.char-icon { cursor: grab; }
+a.char-icon.dragging { opacity: .35; border-color: #818cf8; cursor: grabbing; }
+.char-icon img { -webkit-user-drag: none; user-select: none; }
+td.drop-active, .pool.drop-active { background: rgba(129,140,248,.06); }
+.toolbar {
+  display: flex; justify-content: flex-end; align-items: center; gap: 10px;
+  padding: 10px 16px 0; font-family: system-ui, -apple-system, sans-serif;
+}
+.toolbar .hint { margin-right: auto; font-size: 12px; color: #a5b4fc; }
+.toolbar button {
+  background: #1c1e27; color: #cbd5e1; border: 1px solid #2a2d38; border-radius: 8px;
+  padding: 7px 12px; font-size: 13px; cursor: pointer; font-family: inherit;
+  transition: border-color .15s ease, color .15s ease;
+}
+.toolbar button:hover { border-color: #818cf8; color: #fff; }
+#toast {
+  position: fixed; bottom: 20px; right: 20px; background: #1e1b3a; color: #a5b4fc;
+  border: 1px solid #3730a3; padding: 8px 14px; border-radius: 8px; font-size: 13px;
+  font-family: system-ui, -apple-system, sans-serif; opacity: 0; transform: translateY(6px);
+  transition: opacity .2s ease, transform .2s ease; pointer-events: none;
+}
+#toast.show { opacity: 1; transform: none; }
 </style>
+<script>document.documentElement.classList.add('loading')</script>
 </head>
-<body>
+<body data-page="wuwa">
 
   <div class="navbar">
     <div class="logo">✦ ArkanaBuilds ✦</div>
@@ -208,5 +236,175 @@ a.char-icon:hover { transform: translateY(-2px); border-color: #818cf8; }
     </main>
   </div>
 
+
+<div id="toast"></div>
+<script>
+(function () {
+  var PAGE = document.body.getAttribute('data-page') || 'wuwa';
+  var API = '/api/layout?page=' + encodeURIComponent(PAGE);
+  var EDIT = /[?&]edit(=|&|$)/.test(location.search);
+  var KEYSTORE = 'tierlist-admin-key';
+  var SAFE = /^\.\/[\w\-.\/#]+$/;
+  var rows = Array.prototype.slice.call(document.querySelectorAll('.icon-row'));
+  var dragged = null, saveTimer = null;
+
+  function serialize() {
+    return rows.map(function (r) {
+      return Array.prototype.map.call(r.querySelectorAll('a.char-icon'), function (a) {
+        return { h: a.getAttribute('href'), t: a.getAttribute('title') || '', s: a.querySelector('img').getAttribute('src') };
+      });
+    });
+  }
+  function hash(str) { var h = 5381; for (var i = 0; i < str.length; i++) h = ((h << 5) + h + str.charCodeAt(i)) | 0; return String(h); }
+  // Hash del conjunto de personajes (no depende de en qué celda estén)
+  var BASE = (function () {
+    var items = [];
+    serialize().forEach(function (r) { r.forEach(function (i) { items.push(i.h + '|' + i.s); }); });
+    items.sort(); return hash(items.join('\n'));
+  })();
+
+  function build(it) {
+    var a = document.createElement('a');
+    a.className = 'char-icon'; a.href = it.h; a.title = it.t;
+    var img = document.createElement('img');
+    img.src = it.s; img.alt = it.t; img.loading = 'lazy'; img.draggable = false;
+    a.appendChild(img);
+    return a;
+  }
+  function applyLayout(d) {
+    if (!d || d.base !== BASE || !Array.isArray(d.layout) || d.layout.length !== rows.length) return false;
+    var ok = d.layout.every(function (row) {
+      return Array.isArray(row) && row.every(function (it) {
+        return it && typeof it.h === 'string' && SAFE.test(it.h) && typeof it.s === 'string' && SAFE.test(it.s) && typeof it.t === 'string';
+      });
+    });
+    if (!ok) return false;
+    rows.forEach(function (r, i) {
+      r.innerHTML = '';
+      d.layout[i].forEach(function (it) { r.appendChild(build(it)); });
+    });
+    return true;
+  }
+  function toast(msg) {
+    var t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
+    clearTimeout(toast._t); toast._t = setTimeout(function () { t.classList.remove('show'); }, 1800);
+  }
+
+  var finished = false;
+  function finish() { if (finished) return; finished = true; document.documentElement.classList.remove('loading'); }
+  setTimeout(finish, 2500);
+
+  var stale = false;
+  fetch(API, { cache: 'no-store' })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (d) { if (d && !applyLayout(d)) stale = true; })
+    .catch(function () {})
+    .then(function () {
+      finish();
+      if (EDIT) initEditor();
+    });
+
+  /* ---------- Modo editor ---------- */
+  function getKey(force) {
+    var k = localStorage.getItem(KEYSTORE);
+    if (!k || force) {
+      k = prompt('Clave de administrador:');
+      if (k) localStorage.setItem(KEYSTORE, k); else k = null;
+    }
+    return k;
+  }
+  function doSave(retry) {
+    var key = getKey(retry);
+    if (!key) { toast('Sin clave: no se guardó'); return; }
+    fetch(API, {
+      method: 'PUT',
+      headers: { 'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ base: BASE, layout: serialize() })
+    }).then(function (r) {
+      if (r.status === 401) {
+        localStorage.removeItem(KEYSTORE);
+        if (!retry) return doSave(true);
+        toast('Clave incorrecta'); return;
+      }
+      toast(r.ok ? 'Guardado para todos ✓' : 'Error al guardar (' + r.status + ')');
+    }).catch(function () { toast('Error de red'); });
+  }
+  function save() { clearTimeout(saveTimer); saveTimer = setTimeout(function () { doSave(false); }, 300); }
+
+  function place(row, x, y) {
+    var kids = Array.prototype.filter.call(row.children, function (c) { return c !== dragged; });
+    var ref = null;
+    if (kids.length) {
+      var best = null, bd = Infinity, before = true;
+      kids.forEach(function (c) {
+        var b = c.getBoundingClientRect(), cx = b.left + b.width / 2, cy = b.top + b.height / 2;
+        var d = Math.pow(x - cx, 2) + Math.pow((y - cy) * 2, 2);
+        if (d < bd) { bd = d; best = c; before = x < cx; }
+      });
+      ref = before ? best : best.nextSibling;
+    }
+    if (dragged.parentNode === row && dragged.nextSibling === ref) return;
+    row.insertBefore(dragged, ref);
+  }
+
+  function initEditor() {
+    document.body.classList.add('editing');
+    var bar = document.createElement('div');
+    bar.className = 'toolbar';
+    bar.innerHTML = '<span class="hint">Modo editor: lo que muevas se publica para todos.' +
+      (stale ? ' (El orden guardado era de una versión anterior; se publicará de nuevo al mover algo.)' : '') +
+      '</span><button type="button" id="btn-reset">↺ Restablecer</button><button type="button" id="btn-exit">Salir del editor</button>';
+    var main = document.querySelector('.tier-main');
+    main.insertBefore(bar, main.firstChild);
+
+    function makeDraggable() {
+      document.querySelectorAll('a.char-icon').forEach(function (a) {
+        a.setAttribute('draggable', 'true');
+        var img = a.querySelector('img'); if (img) img.draggable = false;
+      });
+    }
+    makeDraggable();
+
+    document.addEventListener('dragstart', function (e) {
+      var a = e.target.closest && e.target.closest('a.char-icon');
+      if (!a) return;
+      dragged = a;
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', a.title);
+      setTimeout(function () { a.classList.add('dragging'); }, 0);
+    });
+    document.addEventListener('dragover', function (e) {
+      if (!dragged) return;
+      var zone = e.target.closest && e.target.closest('td, .pool');
+      var row = zone && zone.querySelector('.icon-row');
+      document.querySelectorAll('.drop-active').forEach(function (z) { if (z !== zone) z.classList.remove('drop-active'); });
+      if (!row) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      zone.classList.add('drop-active');
+      place(row, e.clientX, e.clientY);
+    });
+    document.addEventListener('drop', function (e) { if (dragged) e.preventDefault(); });
+    document.addEventListener('dragend', function () {
+      if (!dragged) return;
+      dragged.classList.remove('dragging'); dragged = null;
+      document.querySelectorAll('.drop-active').forEach(function (z) { z.classList.remove('drop-active'); });
+      save();
+    });
+
+    document.getElementById('btn-reset').addEventListener('click', function () {
+      if (!confirm('¿Volver al orden original del archivo para todos los visitantes?')) return;
+      var key = getKey(false); if (!key) return;
+      fetch(API, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + key } }).then(function (r) {
+        if (r.status === 401) { localStorage.removeItem(KEYSTORE); toast('Clave incorrecta'); return; }
+        location.reload();
+      }).catch(function () { toast('Error de red'); });
+    });
+    document.getElementById('btn-exit').addEventListener('click', function () {
+      location.href = location.pathname;
+    });
+  }
+})();
+</script>
 </body>
 </html>
