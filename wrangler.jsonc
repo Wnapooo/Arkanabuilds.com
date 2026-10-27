@@ -1,0 +1,13 @@
+{
+  "name": "arkanabuilds-com",
+  "main": "worker.js",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": ".",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"]
+  },
+  "kv_namespaces": [
+    { "binding": "TIERLIST", "id": "be7a5de638bf42b79808c60942cf4a07" }
+  ]
+}
