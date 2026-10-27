@@ -285,9 +285,33 @@
   @media (max-width: 560px) {
     .hero { padding: 40px 20px; }
   }
+
+  /* ===== Videos de fondo en secuencia (sin sonido) ===== */
+  .bg-videos {
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    overflow: hidden;
+    background: var(--bg);
+  }
+  .bg-videos video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 1.2s ease;
+  }
+  .bg-videos video.show { opacity: 1; }
 </style>
 </head>
 <body>
+
+  <div class="bg-videos" aria-hidden="true">
+    <video id="bgA" muted playsinline preload="auto"></video>
+    <video id="bgB" muted playsinline preload="auto"></video>
+  </div>
 
   <div class="navbar">
     <div class="logo">✦ ArkanaBuilds ✦</div>
@@ -315,5 +339,81 @@
       </div>
     </div>
   </div>
+
+<script>
+  // Lista de fondos. Cada uno puede tener:
+  //   duracion: segundos totales que se queda en pantalla (el video se repite en bucle hasta cumplirlos).
+  //             Si lo quitas, se reproduce una sola vez completo.
+  //   velocidad: 1 = normal, 0.5 = cámara lenta (hace que un clip corto dure el doble).
+  const FONDOS = [
+    { src: './FONDO_WUWA.mp4',   duracion: 40, velocidad: 0.5 }, // clip de ~7 s: lento y en bucle
+    { src: './FONDO_ZZZ_.mp4' },
+    { src: './FONDO_HSR_4_7.mp4' }
+  ];
+  const FADE = 1.2; // segundos de transición entre videos
+
+  const vids = [document.getElementById('bgA'), document.getElementById('bgB')];
+  vids.forEach(v => { v.muted = true; v.volume = 0; v.playsInline = true; });
+
+  let actual = 0;      // cuál <video> está visible
+  let indice = 0;      // cuál fondo de la lista está sonando
+  let cambiando = false;
+  let timer = null;
+
+  function cargar(v, i) {
+    const f = FONDOS[i % FONDOS.length];
+    v.src = f.src;
+    v.loop = !!f.duracion;
+    v.defaultPlaybackRate = f.velocidad || 1;
+    v.playbackRate = f.velocidad || 1;
+    v.load();
+  }
+
+  function reproducir(v) {
+    v.currentTime = 0;
+    v.playbackRate = FONDOS[indice].velocidad || 1;
+    v.play().catch(() => {});
+  }
+
+  // Si el fondo actual tiene "duracion", programa el cambio al siguiente.
+  function programar() {
+    clearTimeout(timer);
+    const f = FONDOS[indice];
+    if (f.duracion) timer = setTimeout(cambiar, Math.max(0, f.duracion - FADE) * 1000);
+  }
+
+  function cambiar() {
+    if (cambiando) return;
+    cambiando = true;
+    clearTimeout(timer);
+    const viejo = actual;
+    const nuevo = 1 - actual;
+    indice = (indice + 1) % FONDOS.length;
+    reproducir(vids[nuevo]);
+    vids[nuevo].classList.add('show');
+    vids[viejo].classList.remove('show');
+    actual = nuevo;
+    programar();
+    setTimeout(() => {
+      vids[viejo].pause();
+      cargar(vids[viejo], indice + 1); // precarga el siguiente
+      cambiando = false;
+    }, FADE * 1000 + 100);
+  }
+
+  vids.forEach((v, n) => {
+    v.addEventListener('timeupdate', () => {
+      if (n !== actual || FONDOS[indice].duracion || !v.duration) return;
+      if ((v.duration - v.currentTime) / (v.playbackRate || 1) <= FADE) cambiar();
+    });
+    v.addEventListener('ended', () => { if (n === actual && !FONDOS[indice].duracion) cambiar(); });
+  });
+
+  cargar(vids[0], 0);
+  cargar(vids[1], 1);
+  vids[0].classList.add('show');
+  vids[0].play().catch(() => {});
+  programar();
+</script>
 </body>
 </html>
