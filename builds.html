@@ -230,7 +230,6 @@
       <a href="./index.html">Inicio</a>
       <a href="./builds.html" class="active">Builds</a>
       <a href="./tier-list-zzz-local.html">Tier List</a>
-      <button class="toggle" id="theme-toggle" aria-label="Cambiar modo claro/oscuro"></button>
       <div class="social-icons">
         <a class="icon-circle" href="https://discord.gg/HgEqZERZ97" target="_blank" rel="noopener" title="Discord">💬</a>
         <a class="icon-circle" href="https://x.com/Wnaapooo" target="_blank" rel="noopener" title="X / Twitter">𝕏</a>
@@ -446,11 +445,6 @@
   renderGrid();
   route();
 
-  try { if (localStorage.getItem('arkana-theme') === 'light') document.body.classList.add('light'); } catch (e) {}
-  $('theme-toggle').addEventListener('click', () => {
-    document.body.classList.toggle('light');
-    try { localStorage.setItem('arkana-theme', document.body.classList.contains('light') ? 'light' : 'dark'); } catch (e) {}
-  });
 </script>
 </body>
 </html>
