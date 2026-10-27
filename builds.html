@@ -292,16 +292,33 @@
     wuwa: {
       label: 'Wuthering Waves',
       suffix: '_card.webp',
+      // Nombre real de cada archivo (las imágenes nuevas tienen nombres distintos)
+      files: {
+        'aug':'aug_card2.webp', 'brant':'card_brant2.webp', 'buling':'buling_card2.webp',
+        'canta':'card_canta2.webp', 'carlotta':'card_carlotta2.webp', 'cart':'cart_card2.webp',
+        'changli':'card_changli2.webp', 'chisa':'chisa_card2.webp', 'cia':'cia_card2.webp',
+        'denia':'denia_card2.webp', 'gal':'gal_card2.webp', 'hiyuki':'hiyuki_card2.webp',
+        'hsin':'hsin_card2.webp', 'iuno':'iuno_card2.webp', 'jingran':'jingran_card2.webp',
+        'jihni':'jihni_card2.webp', 'jiyan':'jiyan_card2.webp', 'lucilla':'Lucilla_card2.webp',
+        'lucy':'lucy_card2.webp', 'lupa':'lupa_card2.webp', 'luuk-herssen':'Luuk Herssen_card2.webp',
+        'lynae':'Lynae_card2.webp', 'math':'math_card2.webp', 'mornye':'Mornye_card2.webp',
+        'mortefi':'mortefi_card2.webp', 'phoebe':'card_phoebe2.webp', 'phr':'phr_card2.webp',
+        'qingxiao':'qingxiao_card2.webp', 'qiu':'qiu_card2.webp', 'rebecca':'rebecca_card2.webp',
+        'rover-aero':'roveraero_card2.webp', 'rover-electro':'roverelectro_card2.webp', 'rover-spectro':'roverspectro_card2.webp',
+        'senhua':'senhua_card2.webp', 'keeper':'card_keeper2.webp', 'sigrika':'Sigrika_card2.webp',
+        'suisui':'suisui_card2.webp', 'suoming':'suoming_card2.webp', 'verina':'verina_card2.webp',
+        'yangyang-xuanling':'yangyang-xuanling_card2.webp', 'zani':'card_zani2.webp'
+      },
       chars: [
         ['aug','Augusta',''], ['brant','Brant',''], ['buling','Buling',''], ['canta','Cantarella',''],
         ['carlotta','Carlotta',''], ['cart','Cartethyia',''], ['changli','Changli',''], ['chisa','Chisa',''],
         ['cia','Ciaccona',''], ['denia','Denia',''], ['gal','Galbrena',''], ['hiyuki','Hiyuki',''],
-        ['hsin','Hsin',''], ['ioun','Iuno',''], ['jihni','Jinhsi',''], ['jingran','Jingran',''],
-        ['jiyan','Jiyan',''], ['keeper','Shorekeeper',''], ['lucilla','Lucilla',''], ['lucy','Lucy',''],
-        ['lupa','Lupa',''], ['luuk-herssen','Luuk Herssen',''], ['lynae','Lynae',''], ['math','Math',''],
-        ['mornye','Mornye',''], ['mortefi','Mortefi',''], ['phoebe','Phoebe',''], ['phr','Phrolova',''],
-        ['qingxiao','Qingxiao',''], ['qiu','Qiuyuan',''], ['rebecca','Rebecca',''], ['rover','Rover',''],
-        ['rover-erosion','Rover Erosion',''], ['rover-frazzle','Rover Frazzle',''], ['senhua','Senhua',''], ['sigrika','Sigrika',''],
+        ['hsin','Hsin',''], ['iuno','Iuno',''], ['jingran','Jingran',''], ['jihni','Jinhsi',''],
+        ['jiyan','Jiyan',''], ['lucilla','Lucilla',''], ['lucy','Lucy',''], ['lupa','Lupa',''],
+        ['luuk-herssen','Luuk Herssen',''], ['lynae','Lynae',''], ['math','Math',''], ['mornye','Mornye',''],
+        ['mortefi','Mortefi',''], ['phoebe','Phoebe',''], ['phr','Phrolova',''], ['qingxiao','Qingxiao',''],
+        ['qiu','Qiuyuan',''], ['rebecca','Rebecca',''], ['rover-aero','Rover Aero',''], ['rover-electro','Rover Electro',''],
+        ['rover-spectro','Rover Spectro',''], ['senhua','Senhua',''], ['keeper','Shorekeeper',''], ['sigrika','Sigrika',''],
         ['suisui','Suisui',''], ['suoming','Suoming',''], ['verina','Verina',''], ['yangyang-xuanling','Yangyang Xuanling',''],
         ['zani','Zani','']
       ]
@@ -358,7 +375,9 @@
   }
 
   function img(gameKey, slug) {
-    return `./${slug}${GAMES[gameKey].suffix}`;
+    const g = GAMES[gameKey];
+    const file = (g.files && g.files[slug]) || (slug + g.suffix);
+    return './' + encodeURI(file);
   }
 
   function renderTabs() {
