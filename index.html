@@ -224,29 +224,9 @@
     position: fixed;
     inset: 0;
     z-index: -1;
-    background: var(--overlay);
-  }
-
-  /* ===== Videos de fondo con transición (crossfade) ===== */
-  .bg-videos {
-    position: fixed;
-    inset: 0;
-    z-index: -2;
-    background: var(--bg);
-    overflow: hidden;
-  }
-  .bg-videos video {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    opacity: 0;
-    transition: opacity 1.2s ease-in-out;
-  }
-  .bg-videos video.show { opacity: 1; }
-  @media (prefers-reduced-motion: reduce) {
-    .bg-videos video { display: none; }
+    background:
+      linear-gradient(var(--overlay), var(--overlay)),
+      url('./fondo.jpg') center / cover no-repeat;
   }
 
   /* ===== Hero en 2 columnas + carrusel ===== */
@@ -309,11 +289,6 @@
 </head>
 <body>
 
-  <div class="bg-videos" aria-hidden="true">
-    <video id="bgA" muted playsinline autoplay preload="auto"></video>
-    <video id="bgB" muted playsinline preload="auto"></video>
-  </div>
-
   <div class="navbar">
     <div class="logo">✦ ArkanaBuilds ✦</div>
     <div class="nav-right">
@@ -340,79 +315,5 @@
       </div>
     </div>
   </div>
-
-  <script>
-  (function () {
-    var clips = ['./FONDO HSR 4.7.mp4', './FONDO_WUWA.mp4', './FONDO_ZZZ_.mp4'];
-    var MAX_SECONDS = 12;   // máximo que se muestra cada video antes de pasar al siguiente
-    var FADE = 1.2;         // segundos de transición (igual que en el CSS)
-    var vids = [document.getElementById('bgA'), document.getElementById('bgB')];
-    var current = 0, index = 0, switching = false, failures = 0;
-
-    vids.forEach(function (v) {
-      v.muted = true; v.defaultMuted = true; v.playsInline = true;
-      v.addEventListener('timeupdate', tick);
-      v.addEventListener('error', function () {
-        console.warn('[fondo] no se pudo cargar:', v.currentSrc || v.src, v.error && v.error.code);
-        if (v === vids[current] && ++failures < clips.length * 2) { next(true); }
-      });
-    });
-
-    function load(v, i) { v.src = encodeURI(clips[i]); v.load(); }
-
-    function start() {
-      // el primer video se muestra apenas tenga datos, aunque el navegador bloquee el autoplay
-      vids[0].addEventListener('loadeddata', function () { vids[0].classList.add('show'); }, { once: true });
-      load(vids[0], 0);
-      load(vids[1], 1 % clips.length);
-      var p = vids[0].play();
-      if (p && p.catch) {
-        p.catch(function (e) {
-          console.warn('[fondo] autoplay bloqueado, se activará al interactuar:', e && e.name);
-          var kick = function () {
-            vids[0].play().catch(function () {});
-            ['pointerdown', 'keydown', 'touchstart', 'scroll', 'mousemove'].forEach(function (t) {
-              window.removeEventListener(t, kick);
-            });
-          };
-          ['pointerdown', 'keydown', 'touchstart', 'scroll', 'mousemove'].forEach(function (t) {
-            window.addEventListener(t, kick, { passive: true });
-          });
-        });
-      }
-    }
-
-    function tick(e) {
-      var v = e.target;
-      if (v !== vids[current] || switching) return;
-      var limit = Math.min((v.duration || MAX_SECONDS) - FADE, MAX_SECONDS);
-      if (v.currentTime >= limit) next();
-    }
-
-    function next(skipFailed) {
-      if (switching) return;
-      switching = true;
-      var from = vids[current], to = vids[1 - current];
-      index = (index + 1) % clips.length;
-      to.currentTime = 0;
-      var p = to.play();
-      (p && p.then ? p : Promise.resolve()).then(function () {
-        to.classList.add('show');
-        from.classList.remove('show');
-        setTimeout(function () {
-          from.pause();
-          current = 1 - current;
-          load(from, (index + 1) % clips.length);   // precarga el siguiente
-          switching = false;
-        }, FADE * 1000 + 100);
-      }).catch(function (e) {
-        console.warn('[fondo] error al cambiar:', e);
-        switching = false;
-      });
-    }
-
-    start();
-  })();
-  </script>
 </body>
 </html>
