@@ -273,7 +273,20 @@
     .hero-text { padding-bottom: 140px; }
   }
 
-  #twitch-box iframe { height: clamp(200px, 34vh, 360px); }
+
+  /* ===== Layout del panel: Twitch grande arriba, barra de X abajo ===== */
+  .hero { padding-top: 24px; padding-bottom: 24px; }
+  .social-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-self: center;
+    gap: 16px;
+  }
+  #twitch-box iframe { height: clamp(240px, 56vh, 560px); }
+  @media (max-width: 1000px) {
+    .hero { padding-top: 24px; }
+  }
 
   @media (max-width: 1000px) {
     .hero { grid-template-columns: 1fr; gap: 36px; min-height: 0; }
@@ -317,17 +330,10 @@
         <div class="sp-head"><span>🎥 Twitch</span><a href="https://www.twitch.tv/wnapooo" target="_blank" rel="noopener">Abrir canal →</a></div>
         <div id="twitch-box"></div>
       </div>
-      <div class="sp-card wide">
-        <div class="sp-head"><span>𝕏 Último post</span><a href="https://x.com/Wnaapooo" target="_blank" rel="noopener">Ver perfil →</a></div>
-        <div class="sp-box">
-          <a class="twitter-timeline" data-theme="dark" data-height="300" data-chrome="noheader nofooter transparent" href="https://twitter.com/Wnaapooo">Posts de @Wnaapooo</a>
-        </div>
-      </div>
     </div>
   </div>
 
 
-  <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
   <script>
     // Twitch: el reproductor muestra el directo si estás en vivo y "offline" si no.
     // Twitch exige el dominio de la página (parent); no funciona abriendo el archivo local.
@@ -346,14 +352,6 @@
       box.appendChild(f);
     })();
   
-  // X: si el feed no carga (bloqueado o sin publicar), muestra un enlace compacto.
-  setTimeout(function () {
-    var box = document.querySelector('.sp-box');
-    if (box && !box.querySelector('iframe')) {
-      box.style.height = 'auto';
-      box.innerHTML = '<p class="sp-fallback">No se pudo cargar el feed de X. <a href="https://x.com/Wnaapooo" target="_blank" rel="noopener">Ver posts en X →</a></p>';
-    }
-  }, 5000);
 </script>
 </body>
 </html>
