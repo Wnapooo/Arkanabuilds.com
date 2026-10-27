@@ -429,6 +429,11 @@
   function route() {
     const slug = decodeURIComponent(location.hash.slice(1));
     const showDetail = slug && renderDetail(slug);
+    if (showDetail) {
+      // al volver a la galería, queda en la pestaña del juego del personaje
+      const f = findChar(slug);
+      if (f && f.game !== currentGame) { currentGame = f.game; renderTabs(); renderGrid(); }
+    }
     $('detail').hidden = !showDetail;
     $('gallery').hidden = !!showDetail;
     window.scrollTo(0, 0);
