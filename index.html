@@ -231,7 +231,7 @@
 
   /* ===== Hero en 2 columnas + carrusel ===== */
   .hero {
-    max-width: 1400px;
+    max-width: none;
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
     gap: 56px;
@@ -266,6 +266,7 @@
   .sp-head a { font-size: 12px; font-weight: 500; color: #818cf8; text-decoration: none; }
   .sp-card iframe { width: 100%; border: 0; border-radius: 10px; display: block; background: #0b0c10; }
   .sp-box { height: clamp(150px, 20vh, 260px); overflow-y: auto; border-radius: 10px; }
+  .sp-fallback a { color: #818cf8; text-decoration: none; font-weight: 600; }
   .sp-fallback { color: var(--text-muted); font-size: 13px; padding: 24px 8px; text-align: center; }
 
   @media (min-width: 1001px) {
@@ -344,6 +345,15 @@
       f.title = 'Twitch de wnapooo';
       box.appendChild(f);
     })();
-  </script>
+  
+  // X: si el feed no carga (bloqueado o sin publicar), muestra un enlace compacto.
+  setTimeout(function () {
+    var box = document.querySelector('.sp-box');
+    if (box && !box.querySelector('iframe')) {
+      box.style.height = 'auto';
+      box.innerHTML = '<p class="sp-fallback">No se pudo cargar el feed de X. <a href="https://x.com/Wnaapooo" target="_blank" rel="noopener">Ver posts en X →</a></p>';
+    }
+  }, 5000);
+</script>
 </body>
 </html>
