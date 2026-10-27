@@ -210,6 +210,161 @@
   }
   .pending { color: var(--muted); font-size: 15px; margin: 0; }
 
+  /* ===== Guía de build (estilo "Complete Guide") ===== */
+  .guide-top {
+    text-align: center;
+    margin-bottom: 28px;
+    position: relative;
+  }
+  .guide-eyebrow {
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .guide-title {
+    font-size: 34px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: var(--heading);
+    margin: 6px 0;
+  }
+  .guide-subtitle {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .guide-badge {
+    display: inline-block;
+    margin-top: 14px;
+    padding: 6px 14px;
+    border-radius: 8px;
+    background: #2a230f;
+    border: 1px solid #4d3f14;
+    color: #e8c468;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .guide-grid {
+    display: grid;
+    grid-template-columns: 280px 1fr 320px;
+    gap: 20px;
+    align-items: start;
+  }
+  .guide-col { display: flex; flex-direction: column; gap: 20px; }
+  .guide-portrait {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    object-position: top;
+    border-radius: 14px;
+    border: 1px solid var(--card-border);
+  }
+  .guide-elchips {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--accent);
+  }
+  .guide-card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    padding: 18px;
+  }
+  .guide-card h3 {
+    margin: 0 0 14px;
+    font-size: 15px;
+    color: var(--accent);
+  }
+  .guide-note {
+    background: #10231f22;
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text);
+    margin-top: 12px;
+  }
+  .guide-note ul { margin: 0; padding-left: 18px; }
+  .guide-weapons {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  .guide-chipbox {
+    background: var(--chip);
+    border: 1px solid var(--chip-border);
+    border-radius: 10px;
+    padding: 12px 10px;
+    text-align: center;
+  }
+  .guide-chipbox b { display: block; font-size: 13px; margin-bottom: 4px; }
+  .guide-chipbox .rk { color: var(--muted); font-size: 11px; display: block; margin-bottom: 8px; }
+  .guide-chipbox .val { font-size: 12px; color: var(--accent); font-weight: 600; }
+  .guide-row {
+    display: grid;
+    grid-auto-flow: column;
+    gap: 10px;
+    overflow-x: auto;
+  }
+  .guide-step {
+    background: var(--chip);
+    border: 1px solid var(--chip-border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    text-align: center;
+    min-width: 72px;
+  }
+  .guide-step b { display: block; font-size: 13px; color: var(--text); }
+  .guide-step small { color: var(--muted); font-size: 11px; }
+  .guide-arrow { align-self: center; color: var(--muted); }
+  .guide-s { display: flex; gap: 10px; margin-bottom: 14px; }
+  .guide-s .pill {
+    flex-shrink: 0;
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    background: var(--chip);
+    border: 1px solid var(--chip-border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: var(--accent);
+  }
+  .guide-s b { display: block; font-size: 13px; }
+  .guide-s span { font-size: 12px; color: var(--muted); line-height: 1.4; }
+  .guide-synergy-row { margin-bottom: 14px; }
+  .guide-synergy-row h4 {
+    margin: 0 0 8px;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .guide-synergy-chars { display: flex; gap: 14px; flex-wrap: wrap; }
+  .guide-synchar { text-align: center; width: 60px; }
+  .guide-synchar img {
+    width: 52px; height: 52px;
+    border-radius: 10px;
+    object-fit: cover;
+    object-position: top;
+    border: 1px solid var(--card-border);
+    margin-bottom: 4px;
+  }
+  .guide-synchar span { font-size: 11px; color: var(--text); }
+  .guide-support-line { font-size: 12.5px; line-height: 1.7; margin-bottom: 10px; }
+  .guide-support-line b { color: var(--text); }
+  .guide-cond { font-size: 13px; line-height: 1.6; border-left: 2px solid var(--accent); padding-left: 12px; margin-bottom: 16px; }
+  .guide-cond b { color: var(--text); }
+  @media (max-width: 1000px) {
+    .guide-grid { grid-template-columns: 1fr; }
+  }
+
   [hidden] { display: none !important; }
 
   @media (max-width: 800px) {
@@ -360,6 +515,219 @@
      ============================================================ */
   const buildImg = slug => `./builds/${slug}.png`;
 
+  /* ============================================================
+     2.5) GUÍAS DE BUILD DETALLADAS (estilo "Complete Guide")
+     Agrega una entrada por slug para reemplazar la captura por una
+     guía completa renderizada en HTML, en español.
+     ============================================================ */
+  const BUILD_GUIDES = {
+    lily: {
+      academy: 'Wuthering Waves / Academia Huaxu',
+      title: 'LILY — GUÍA COMPLETA',
+      subtitle: 'SPECTRO · PISTOLAS · SOPORTE',
+      badge: 'Válida exclusivamente para la Beta v3.8.1',
+      portrait: './lily_card.webp',
+      weapons: [
+        { name: 'Lullaby', rank: 'R1', val: '16% ATK / 24% Bono de Eco' },
+        { name: 'Static Mist', rank: 'R1', val: '10-20% ATK al próximo Resonador' },
+        { name: 'Cadenza', rank: 'R5', val: '+16 Concierto' }
+      ],
+      weaponsNote: [
+        'Static Mist: el 10% de ATK aplica solo al próximo Resonador.',
+        'Los bonos de Lullaby no se aplican fuera de equipos Unísono / Eco.'
+      ],
+      echoSet: {
+        name: '43311 · Resplandor Rejuvenecedor',
+        costs: [
+          { cost: '4 COST', val: 'Tasa Crítica / Daño Crítico' },
+          { cost: '3 COST', val: 'ER%' },
+          { cost: '3 COST', val: 'ER%' },
+          { cost: '1 COST', val: 'HP%' },
+          { cost: '1 COST', val: 'HP%' }
+        ],
+        notes: [
+          '260% de ER maximiza los críticos personales; los bonos no escalan con ER.',
+          'El Eco principal Fallacy otorga +10% ER. El HP% mejora la curación.',
+          'El set de firma no tiene ventaja sobre Resplandor Rejuvenecedor, ni siquiera en Unísono (Beta).'
+        ]
+      },
+      sonatas: [
+        { name: '#1 Resplandor Rejuvenecedor', desc: '15% ATK para todo el equipo, +10% ATK de Fallacy' },
+        { name: '#2 Flor del Anhelo Teñido', desc: '10% ATK para todo el equipo, 25% ATK con Unísono' }
+      ],
+      mainEchoes: [
+        { name: 'Falacia sin Retorno', tag: 'RESPL. REJUV. · 4 COST' },
+        { name: 'Formrender +10% ER', tag: 'FLOR AÑORANZA · 3 COST' }
+      ],
+      chain: [
+        { s: 'S1', title: '28% ATK en vez de 14%', desc: 'Solo se necesitan dos Habilidades de Intro para el bono completo.' },
+        { s: 'S2', title: '+8% CR y 24% CD', desc: 'Los bonos críticos benefician a todo tipo de daño.' },
+        { s: 'S3', title: 'Rotación más rápida', desc: 'Acelera animaciones y la generación de Concierto.' }
+      ],
+      skillPriority: ['Forte', 'Liberación', 'Intro', 'Ataque Básico', 'Habilidad'],
+      statPriority: [
+        { stat: 'ER → 260%', desc: 'Críticos personales' },
+        { stat: 'HP%', desc: 'Curación' },
+        { stat: 'CR → 100%', desc: '80% de bono por Intro' },
+        { stat: 'Daño Crítico', desc: 'Daño personal' }
+      ],
+      rotation: ['Intro', 'Habilidad', 'AB 1-4', 'Forte', 'Liberación', 'Salida'],
+      rotationNote: 'Mantén Forte hasta el Finale, luego Liberación → Salida. Usa el Eco antes de cambiar a un aliado.',
+      synergy: {
+        primary: [
+          { slug: 'hsin', name: 'Hsin' },
+          { slug: 'suoming', name: 'Suoming' },
+          { slug: 'sigrika', name: 'Sigrika' },
+          { slug: 'lucilla', name: 'Lucilla' }
+        ],
+        secondary: [
+          { slug: 'gal', name: 'Galbrena' },
+          { slug: 'jihni', name: 'Jinhsi' }
+        ],
+        none: [
+          { slug: 'phr', name: 'Phrolova' },
+          { slug: 'qiu', name: 'Qiuyuan (S3+)' }
+        ]
+      },
+      support: [
+        'Eco S0R1: <b>25% AMP, 39% ATK, 10% CR, 20% CD, 24% Bono ES</b>',
+        'Eco S2R1: <b>25% AMP, 53% ATK, 18% CR, 44% CD, 24% Bono ES</b>',
+        'Unísono S0R1: <b>25% AMP, 90% ATK</b> (S6 Hsin 97%)',
+        'Unísono S2R1: <b>25% AMP, 90% ATK, 8% CR, 24% CD</b>',
+        'General S0R0: <b>25% AMP, 39% ATK</b>',
+        'General S2R0: <b>25% AMP, 53% ATK, 8% CR, 24% CD</b>',
+        'S2R0 SK: <b>15% AMP, 65% ATK, 12.5% CR, 25% CD</b>'
+      ],
+      conditions: [
+        '<b>Qiuyuan S3+</b> — un híbrido Eco/Pesado. Su daño principal de Forte es 100% Daño de Ataque Pesado. En el modo Eco de Lily, se beneficia principalmente del bono de Liberación.',
+        '<b>Galbrena</b> — un híbrido Eco/Pesado. Algunos ataques, tanto en su forma normal como demoníaca, cuentan como Daño de Habilidad de Eco. En mi opinión, se beneficia más de Lily que Qiuyuan.',
+        '<b>Phrolova</b> — un personaje fuera de campo. Todos los bonos de Eco de Lily solo se aplican al Resonador activo.',
+        'Mientras que <b>Mornye</b> necesita S1 para ser soporte universal, <b>Lily</b> necesita S2. Lily no necesita su arma de firma para uso universal: <b>S2R0 Lily</b> es comparable a <b>S2R1 SK</b>.'
+      ]
+    }
+  };
+
+  function renderBuildGuide(slug, c) {
+    const g = BUILD_GUIDES[slug];
+    const synChar = (s) => `
+      <div class="guide-synchar">
+        <img src="${img('wuwa', s.slug)}" alt="${s.name}" loading="lazy">
+        <span>${s.name}</span>
+      </div>`;
+    return `
+      <a class="back" href="#">← Todos los personajes</a>
+      <div class="guide-top">
+        <div class="guide-eyebrow">${g.academy}</div>
+        <div class="guide-title">${g.title}</div>
+        <div class="guide-subtitle">${g.subtitle}</div>
+        <div class="guide-badge">${g.badge}</div>
+      </div>
+      <div class="guide-grid">
+        <div class="guide-col">
+          <img class="guide-portrait" src="${g.portrait}" alt="${c[1]}">
+          <div class="guide-card">
+            <h3>Efectos de Cadena de Resonancia</h3>
+            ${g.chain.map(x => `
+              <div class="guide-s">
+                <div class="pill">${x.s}</div>
+                <div><b>${x.title}</b><span>${x.desc}</span></div>
+              </div>`).join('')}
+          </div>
+          <div class="guide-card">
+            <h3>Sets de Sonata y Eco Principal</h3>
+            ${g.sonatas.map(s => `<div class="guide-s"><div><b>${s.name}</b><span>${s.desc}</span></div></div>`).join('')}
+            <div class="guide-row" style="margin-top:4px;">
+              ${g.mainEchoes.map(e => `
+                <div class="guide-step" style="min-width:120px;">
+                  <b>${e.name}</b><small>${e.tag}</small>
+                </div>`).join('')}
+            </div>
+          </div>
+        </div>
+
+        <div class="guide-col">
+          <div class="guide-card">
+            <h3>Armas (para daño de equipo)</h3>
+            <div class="guide-weapons">
+              ${g.weapons.map(w => `
+                <div class="guide-chipbox">
+                  <b>${w.name}</b><span class="rk">${w.rank}</span>
+                  <span class="val">${w.val}</span>
+                </div>`).join('')}
+            </div>
+            <div class="guide-note"><ul>${g.weaponsNote.map(n => `<li>${n}</li>`).join('')}</ul></div>
+          </div>
+
+          <div class="guide-card">
+            <h3>${g.echoSet.name}</h3>
+            <div class="guide-weapons" style="grid-template-columns:repeat(5,1fr);">
+              ${g.echoSet.costs.map(c2 => `
+                <div class="guide-chipbox">
+                  <span class="rk">${c2.cost}</span>
+                  <span class="val">${c2.val}</span>
+                </div>`).join('')}
+            </div>
+            <div class="guide-note"><ul>${g.echoSet.notes.map(n => `<li>${n}</li>`).join('')}</ul></div>
+          </div>
+
+          <div class="guide-card">
+            <h3>Prioridad de Habilidades</h3>
+            <div class="guide-row">
+              ${g.skillPriority.map((s, i) => `
+                ${i > 0 ? '<div class="guide-arrow">›</div>' : ''}
+                <div class="guide-step"><b>${s}</b></div>`).join('')}
+            </div>
+          </div>
+
+          <div class="guide-card">
+            <h3>Prioridad de Stats</h3>
+            <div class="guide-weapons" style="grid-template-columns:repeat(4,1fr);">
+              ${g.statPriority.map(s => `
+                <div class="guide-chipbox"><b>${s.stat}</b><span class="val">${s.desc}</span></div>`).join('')}
+            </div>
+          </div>
+
+          <div class="guide-card">
+            <h3>Rotación · Soporte</h3>
+            <div class="guide-row">
+              ${g.rotation.map((s, i) => `
+                ${i > 0 ? '<div class="guide-arrow">›</div>' : ''}
+                <div class="guide-step"><b>${s}</b></div>`).join('')}
+            </div>
+            <div class="guide-note">${g.rotationNote}</div>
+          </div>
+        </div>
+
+        <div class="guide-col">
+          <div class="guide-card">
+            <h3>Sinergias</h3>
+            <div class="guide-synergy-row">
+              <h4>Sinergia principal</h4>
+              <div class="guide-synergy-chars">${g.synergy.primary.map(synChar).join('')}</div>
+            </div>
+            <div class="guide-synergy-row">
+              <h4>Sinergia secundaria</h4>
+              <div class="guide-synergy-chars">${g.synergy.secondary.map(synChar).join('')}</div>
+            </div>
+            <div class="guide-synergy-row">
+              <h4>Casi sin sinergia</h4>
+              <div class="guide-synergy-chars">${g.synergy.none.map(synChar).join('')}</div>
+            </div>
+          </div>
+
+          <div class="guide-card">
+            <h3>Paquete de Soporte</h3>
+            ${g.support.map(s => `<div class="guide-support-line">${s}</div>`).join('')}
+          </div>
+
+          <div class="guide-card">
+            <h3>Condiciones Importantes</h3>
+            ${g.conditions.map(c2 => `<div class="guide-cond">${c2}</div>`).join('')}
+          </div>
+        </div>
+      </div>`;
+  }
+
 
   /* ============================================================ */
   const $ = id => document.getElementById(id);
@@ -411,6 +779,12 @@
     const found = findChar(slug);
     if (!found) return false;
     const { game, char: c } = found;
+
+    if (BUILD_GUIDES[slug]) {
+      $('detail').innerHTML = renderBuildGuide(slug, c);
+      return true;
+    }
+
     $('detail').innerHTML = `
       <a class="back" href="#">← Todos los personajes</a>
       <div class="detail">
