@@ -237,7 +237,8 @@
     gap: 56px;
     align-items: center;
     min-height: calc(100vh - 80px);
-    padding-top: 40px;
+    padding-top: 24px;
+    padding-bottom: 24px;
   }
   .hero-buttons { margin-bottom: 0; }
 
@@ -264,8 +265,14 @@
   }
   .sp-head a { font-size: 12px; font-weight: 500; color: #818cf8; text-decoration: none; }
   .sp-card iframe { width: 100%; border: 0; border-radius: 10px; display: block; background: #0b0c10; }
-  .sp-box { height: 300px; overflow-y: auto; border-radius: 10px; }
+  .sp-box { height: clamp(150px, 20vh, 260px); overflow-y: auto; border-radius: 10px; }
   .sp-fallback { color: var(--text-muted); font-size: 13px; padding: 24px 8px; text-align: center; }
+
+  @media (min-width: 1001px) {
+    .hero-text { padding-bottom: 140px; }
+  }
+
+  #twitch-box iframe { height: clamp(200px, 34vh, 360px); }
 
   @media (max-width: 1000px) {
     .hero { grid-template-columns: 1fr; gap: 36px; min-height: 0; }
