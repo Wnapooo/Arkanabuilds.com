@@ -98,6 +98,32 @@
   h1.hero-title.white { color: var(--heading); }
   .hero-sub { color: var(--muted); font-size: 17px; max-width: 480px; margin: 20px 0 28px; line-height: 1.5; }
 
+  /* ===== Pestañas de juego ===== */
+  .game-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 24px;
+    overflow-x: auto;
+  }
+  .game-tab {
+    background: var(--chip);
+    border: 1px solid var(--chip-border);
+    color: var(--muted);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 9px 18px;
+    border-radius: 999px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .game-tab:hover { color: var(--text); }
+  .game-tab[aria-selected="true"] {
+    color: #ffffff;
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
   /* ===== Buscador ===== */
   .search {
     width: 100%;
@@ -220,6 +246,7 @@
       <h1 class="hero-title accent">Arkanabuilds</h1>
       <h1 class="hero-title white">Builds</h1>
       <p class="hero-sub">Elige un personaje para ver su build.</p>
+      <div class="game-tabs" id="game-tabs" role="tablist"></div>
       <input type="search" id="search" class="search" placeholder="Buscar personaje..." autocomplete="off" aria-label="Buscar personaje">
       <p class="empty" id="empty" hidden>No se encontró ningún personaje.</p>
       <div class="grid" id="grid"></div>
@@ -231,31 +258,49 @@
 
 <script>
   /* ============================================================
-     1) LISTA DE PERSONAJES
-     slug = nombre de la imagen sin "_card.webp"
+     1) JUEGOS Y PERSONAJES
+     slug = nombre de la imagen sin el sufijo indicado en "suffix"
+     role puede quedar vacío ('') si todavía no lo defines
      ============================================================ */
-  const CHARS = [
-    // Crit DPS
-    ['claret','Claret','Crit DPS'], ['sigrid','Sigrid','Crit DPS'], ['ye-shunguang','Ye Shunguang','Crit DPS'],
-    ['banyue','Banyu','Crit DPS'], ['billy-starlight','Billy Starlight','Crit DPS'], ['cissia','Cissia','Crit DPS'],
-    ['pyrois','Pyloris','Crit DPS'], ['seed','Seed','Crit DPS'], ['yidhari','Yidhari','Crit DPS'], ['yixuan','Yixuan','Crit DPS'],
-    ['anby-demara-soldier-0','Anby Demara','Crit DPS'], ['evelyn','Evelyn','Crit DPS'], ['harumasa','Harumasa','Crit DPS'],
-    ['nekomata','Nekomata','Crit DPS'], ['orphie-and-magus','Orphie and Magus','Crit DPS'], ['soldier-11','Soldier 11','Crit DPS'],
-    ['ellen','Ellen','Crit DPS'], ['hugo','Hugo','Crit DPS'], ['manato','Manato','Crit DPS'], ['zhu-yuan','Zhu Yuan','Crit DPS'],
-    // Anomaly DPS
-    ['phoenix','Phoenix','Anomaly DPS'], ['remielle','Remielle','Anomaly DPS'], ['velina','Velina','Anomaly DPS'],
-    ['alice','Alice','Anomaly DPS'], ['aria','Aria','Anomaly DPS'], ['burnice','Burnice','Anomaly DPS'],
-    ['miyabi','Miyabi','Anomaly DPS'], ['promeia','Promeia','Anomaly DPS'],
-    ['grace-howard','Grace Howard','Anomaly DPS'], ['jane-doe','Jane Doe','Anomaly DPS'], ['piper','Piper','Anomaly DPS'],
-    ['vivian','Vivian','Anomaly DPS'], ['yanagi','Yanagi','Anomaly DPS'],
-    // Support
-    ['dialyn','Dialyn','Support'], ['lucia','Lucia','Support'], ['nangong-yu','Nangong Yu','Support'], ['norma','Norma','Support'],
-    ['roxy','Roxy','Support'], ['sunna','Sunna','Support'], ['ukinami-yuzuha','Ukinami Yuzuha','Support'],
-    ['astra-yao','Astra Yao','Support'], ['koleda','Koleda','Support'], ['nicole-demara','Nicole Demara','Support'],
-    ['rina','Rina','Support'], ['trigger','Trigger','Support'], ['zhao','Zhao','Support'],
-    ['ju-fufu','Ju Fufu','Support'], ['lighter','Lighter','Support'], ['lycaon','Lycaon','Support'],
-    ['pan-yinhu','Pan Yinhu','Support'], ['qingyi','Qingyi','Support']
-  ];
+  const GAMES = {
+    zzz: {
+      label: 'Zenless Zone Zero',
+      suffix: '_card.webp',
+      chars: [
+        // Crit DPS
+        ['claret','Claret','Crit DPS'], ['sigrid','Sigrid','Crit DPS'], ['ye-shunguang','Ye Shunguang','Crit DPS'],
+        ['banyue','Banyu','Crit DPS'], ['billy-starlight','Billy Starlight','Crit DPS'], ['cissia','Cissia','Crit DPS'],
+        ['pyrois','Pyloris','Crit DPS'], ['seed','Seed','Crit DPS'], ['yidhari','Yidhari','Crit DPS'], ['yixuan','Yixuan','Crit DPS'],
+        ['anby-demara-soldier-0','Anby Demara','Crit DPS'], ['evelyn','Evelyn','Crit DPS'], ['harumasa','Harumasa','Crit DPS'],
+        ['nekomata','Nekomata','Crit DPS'], ['orphie-and-magus','Orphie and Magus','Crit DPS'], ['soldier-11','Soldier 11','Crit DPS'],
+        ['ellen','Ellen','Crit DPS'], ['hugo','Hugo','Crit DPS'], ['manato','Manato','Crit DPS'], ['zhu-yuan','Zhu Yuan','Crit DPS'],
+        // Anomaly DPS
+        ['phoenix','Phoenix','Anomaly DPS'], ['remielle','Remielle','Anomaly DPS'], ['velina','Velina','Anomaly DPS'],
+        ['alice','Alice','Anomaly DPS'], ['aria','Aria','Anomaly DPS'], ['burnice','Burnice','Anomaly DPS'],
+        ['miyabi','Miyabi','Anomaly DPS'], ['promeia','Promeia','Anomaly DPS'],
+        ['grace-howard','Grace Howard','Anomaly DPS'], ['jane-doe','Jane Doe','Anomaly DPS'], ['piper','Piper','Anomaly DPS'],
+        ['vivian','Vivian','Anomaly DPS'], ['yanagi','Yanagi','Anomaly DPS'],
+        // Support
+        ['dialyn','Dialyn','Support'], ['lucia','Lucia','Support'], ['nangong-yu','Nangong Yu','Support'], ['norma','Norma','Support'],
+        ['roxy','Roxy','Support'], ['sunna','Sunna','Support'], ['ukinami-yuzuha','Ukinami Yuzuha','Support'],
+        ['astra-yao','Astra Yao','Support'], ['koleda','Koleda','Support'], ['nicole-demara','Nicole Demara','Support'],
+        ['rina','Rina','Support'], ['trigger','Trigger','Support'], ['zhao','Zhao','Support'],
+        ['ju-fufu','Ju Fufu','Support'], ['lighter','Lighter','Support'], ['lycaon','Lycaon','Support'],
+        ['pan-yinhu','Pan Yinhu','Support'], ['qingyi','Qingyi','Support']
+      ]
+    },
+    hsr: {
+      label: 'Honkai: Star Rail',
+      suffix: '_card.webp',
+      chars: [
+        ['cyrene','Cyrene',''], ['acheron','Acheron',''], ['aglaea','Aglaea',''], ['anaxa','Anaxa',''],
+        ['archer','Archer',''], ['ashveil','Ashveil',''], ['aventurine','Aventurine',''],
+        ['aventurine-waveflair','Aventurine Waveflair',''], ['black-swan','Black Swan',''],
+        ['blade-mortenax','Blade Mortenax',''], ['boothill','Boothill',''], ['bronya','Bronya',''],
+        ['castorice','Castorice',''], ['cerydra','Cerydra',''], ['cipher','Cipher','']
+      ]
+    }
+  };
 
   /* ============================================================
      2) SCREENSHOT DE LA BUILD
@@ -266,30 +311,57 @@
 
   /* ============================================================ */
   const $ = id => document.getElementById(id);
-  const img = slug => `./${slug}_card.webp`;
   const norm = t => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+
+  let currentGame = 'zzz';
+
+  function findChar(slug) {
+    for (const key in GAMES) {
+      const c = GAMES[key].chars.find(x => x[0] === slug);
+      if (c) return { game: key, char: c };
+    }
+    return null;
+  }
+
+  function img(gameKey, slug) {
+    return `./${slug}${GAMES[gameKey].suffix}`;
+  }
+
+  function renderTabs() {
+    $('game-tabs').innerHTML = Object.keys(GAMES).map(key => `
+      <button class="game-tab" role="tab" aria-selected="${key === currentGame}" data-game="${key}">${GAMES[key].label}</button>
+    `).join('');
+    $('game-tabs').querySelectorAll('.game-tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        currentGame = btn.dataset.game;
+        renderTabs();
+        renderGrid();
+      });
+    });
+  }
 
   function renderGrid() {
     const q = norm($('search').value);
-    const list = CHARS
+    const list = GAMES[currentGame].chars
       .filter(c => norm(c[1]).includes(q) || norm(c[0]).includes(q))
       .map(([slug, name, role]) => `
         <a class="card" href="#${slug}">
-          <img src="${img(slug)}" alt="${name}" loading="lazy">
-          <span>${name}<small>${role}</small></span>
+          <img src="${img(currentGame, slug)}" alt="${name}" loading="lazy">
+          <span>${name}${role ? `<small>${role}</small>` : ''}</span>
         </a>`).join('');
     $('grid').innerHTML = list;
     $('empty').hidden = list !== '';
   }
 
   function renderDetail(slug) {
-    const c = CHARS.find(x => x[0] === slug);
-    if (!c) return false;
+    const found = findChar(slug);
+    if (!found) return false;
+    const { game, char: c } = found;
     $('detail').innerHTML = `
       <a class="back" href="#">← Todos los personajes</a>
       <div class="detail">
         <div>
-          <img class="portrait" src="${img(slug)}" alt="${c[1]}">
+          <img class="portrait" src="${img(game, slug)}" alt="${c[1]}">
           <h1>${c[1]}</h1>
           <p class="sub">${c[2]}</p>
         </div>
@@ -312,6 +384,7 @@
   $('search').addEventListener('input', renderGrid);
 
   window.addEventListener('hashchange', route);
+  renderTabs();
   renderGrid();
   route();
 
