@@ -238,7 +238,6 @@
       <a href="./index.html" class="active">Inicio</a>
       <a href="./builds.html">Builds</a>
       <a href="./tier-list-zzz-local.html">Tier List</a>
-      <button class="toggle" id="theme-toggle" aria-label="Cambiar modo claro/oscuro"></button>
       <div class="social-icons">
         <a class="icon-circle" href="https://discord.gg/HgEqZERZ97" target="_blank" rel="noopener" title="Discord">💬</a>
         <a class="icon-circle" href="https://x.com/Wnaapooo" target="_blank" rel="noopener" title="X / Twitter">𝕏</a>
@@ -276,19 +275,5 @@
     </div>
   </div>
 
-  <script>
-    var toggle = document.getElementById('theme-toggle');
-    var saved = localStorage.getItem('arkana-theme');
-    if (saved === 'light') {
-      document.body.classList.add('light');
-    }
-    toggle.addEventListener('click', function () {
-      document.body.classList.toggle('light');
-      localStorage.setItem(
-        'arkana-theme',
-        document.body.classList.contains('light') ? 'light' : 'dark'
-      );
-    });
-  </script>
 </body>
 </html>
