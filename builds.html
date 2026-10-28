@@ -266,6 +266,14 @@
     gap: 28px;
     align-items: start;
   }
+  /* paneles más grandes: armas y sets ancho/alto, equipos como columna alta */
+  main.wide { max-width: 1840px; margin: 0 auto; }
+  .panel { display: flex; flex-direction: column; }
+  .panel-main  { min-height: 640px; }
+  .panel-teams { min-height: 740px; }
+  .panel-body { flex: 1; display: flex; flex-direction: column; }
+  .panel-body .shot { flex: none; }
+  .panel-body .pending { flex: 1; min-height: 0; }
   .hsr-id h1 { font-size: 38px; line-height: 1.1; margin: 0 0 10px; color: var(--heading); text-shadow: 0 2px 18px color-mix(in srgb, var(--e2) 60%, transparent); }
   .el-tag { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--e3); font-weight: 600; }
   .el-tag::before {
@@ -338,10 +346,34 @@
   @media (max-width: 1100px) {
     .hsr-grid { grid-template-columns: 240px minmax(0, 1fr); }
     .hsr-grid .panel:last-child { grid-column: 1 / -1; }
+    .panel-main { min-height: 520px; }
+    .panel-teams { min-height: 420px; }
   }
   @media (max-width: 800px) {
+    .panel-main, .panel-teams { min-height: 320px; }
     .hsr-grid { grid-template-columns: 1fr; }
     .hsr-id { max-width: 280px; }
+  }
+
+
+  /* ============================================================
+     FONDOS EXCLUSIVOS POR PERSONAJE (HSR)
+     Se activan con CHAR_FX[slug] en el script. Seele = mariposas cuánticas
+     ============================================================ */
+  .char-fx { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .hsr-bg.fx-seele {
+    background:
+      radial-gradient(60% 55% at 14% 38%, rgba(120,96,255,.42), transparent 66%),
+      radial-gradient(45% 50% at 92% 96%, rgba(214,32,92,.34), transparent 68%),
+      radial-gradient(40% 35% at 70% 8%, rgba(86,64,214,.28), transparent 70%),
+      linear-gradient(162deg, #130d46 0%, #0a0830 46%, #05040f 100%);
+  }
+  .fx-seele .bf-float { animation: bf-float 9s ease-in-out infinite; }
+  .fx-seele .bf-wings { animation: bf-flap 2.6s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 50%; }
+  @keyframes bf-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-16px); } }
+  @keyframes bf-flap  { 0%,100% { transform: scaleX(1); } 50% { transform: scaleX(.78); } }
+  @media (prefers-reduced-motion: reduce) {
+    .fx-seele .bf-float, .fx-seele .bf-wings { animation: none; }
   }
 
   [hidden] { display: none !important; }
@@ -526,6 +558,52 @@
   const teamsImg = slug => `./equipos/${slug}.png`;
 
 
+
+  /* ============================================================
+     FONDOS EXCLUSIVOS: añade un personaje aquí y define su función
+     ============================================================ */
+  function seeleFx() {
+    // [x, y, tamaño, rotación, opacidad, retraso de animación]
+    const B = [
+      [1180,150,230,14,.55,0], [1420,360,150,-18,.5,1.4], [980,470,110,22,.4,2.6],
+      [1300,640,260,-10,.42,.7], [760,120,95,-24,.38,3.2], [1500,90,120,30,.45,2],
+      [560,640,150,16,.3,4], [900,760,100,-14,.34,1.1], [1120,330,70,8,.5,3.6],
+      [330,780,85,-20,.26,2.3], [1540,760,170,26,.32,.3]
+    ];
+    const wing = (flip) => `
+      <g ${flip ? 'transform="translate(100,0) scale(-1,1)"' : ''}>
+        <path d="M50 38C41 12 10 2 5 22c-3 14 21 25 45 18Z" fill="url(#bfg)"/>
+        <path d="M50 43C39 47 15 52 19 66c4 11 23 2 31-20Z" fill="url(#bfg)" opacity=".8"/>
+        <path d="M48 38C38 24 22 16 10 20" stroke="#f0ebff" stroke-opacity=".55" stroke-width=".8" fill="none"/>
+      </g>`;
+    const bf = ([x,y,sz,rot,op,d]) => `
+      <g transform="translate(${x} ${y}) rotate(${rot}) scale(${sz/100}) translate(-50 -40)" opacity="${op}" filter="url(#bfglow)">
+        <g class="bf-float" style="animation-delay:-${d}s">
+          <g class="bf-wings" style="animation-delay:-${d}s">${wing(false)}${wing(true)}</g>
+          <path d="M50 28v26" stroke="#f0ebff" stroke-width="2" stroke-linecap="round"/>
+        </g>
+      </g>`;
+    return `
+    <svg class="char-fx" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <defs>
+        <linearGradient id="bfg" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#d9d2ff"/><stop offset=".55" stop-color="#7a66ff"/><stop offset="1" stop-color="#e0245e"/>
+        </linearGradient>
+        <linearGradient id="scy" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#e0245e" stop-opacity="0"/><stop offset=".5" stop-color="#ffb3d1" stop-opacity=".75"/><stop offset="1" stop-color="#7a66ff" stop-opacity="0"/>
+        </linearGradient>
+        <filter id="bfglow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      <!-- corte de guadaña: arco carmesí que cruza el fondo -->
+      <path d="M380 880C700 520 1180 300 1600 250" stroke="url(#scy)" stroke-width="3" fill="none" opacity=".7"/>
+      <path d="M440 900C780 560 1200 360 1600 330" stroke="url(#scy)" stroke-width="1.2" fill="none" opacity=".5"/>
+      ${B.map(bf).join('')}
+    </svg>`;
+  }
+  const CHAR_FX = { 'seele': seeleFx };
+
   /* ============================================================ */
   const $ = id => document.getElementById(id);
   const norm = t => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
@@ -583,7 +661,7 @@
     if (el) {
       $('detail').innerHTML = `
         <div data-el="${el}">
-          <div class="hsr-bg" style="--art:url('${img(game, slug)}')"></div>
+          <div class="hsr-bg${CHAR_FX[slug] ? ' fx-' + slug : ''}" style="--art:url('${img(game, slug)}')">${CHAR_FX[slug] ? CHAR_FX[slug]() : ''}</div>
           <a class="back" href="#">← Todos los personajes</a>
           <div class="hsr-grid">
             <aside class="hsr-id">
@@ -594,13 +672,13 @@
               <h1>${c[1]}</h1>
               <span class="el-tag"><img class="el-ico" src="${elIcon(el)}" alt="" onerror="this.remove()">${EL_LABEL[el]}${c[2] ? ' · ' + c[2] : ''}</span>
             </aside>
-            <section class="panel">
+            <section class="panel panel-main">
               <h2>Armas y sets</h2>
               <div class="panel-body">
                 <img class="shot" src="${buildImg(slug)}" alt="Build de ${c[1]}" onerror="${pendingImg('Build pendiente.')}">
               </div>
             </section>
-            <section class="panel">
+            <section class="panel panel-teams">
               <h2>Equipos</h2>
               <div class="panel-body">
                 <img class="shot" src="${teamsImg(slug)}" alt="Equipos de ${c[1]}" onerror="${pendingImg('Equipos pendientes.')}">
