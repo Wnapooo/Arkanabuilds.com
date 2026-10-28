@@ -296,6 +296,20 @@
     margin: 0; border: 0; border-radius: 0; background: transparent;
   }
 
+
+  .el-badge {
+    position: absolute; top: 10px; left: 10px; z-index: 2;
+    width: 38px; height: 38px;
+    padding: 5px;
+    border-radius: 50%;
+    background: rgba(8,9,14,.62);
+    border: 1px solid color-mix(in srgb, var(--e2) 70%, transparent);
+    box-shadow: 0 0 16px -2px var(--e2);
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  }
+  .el-ico { width: 20px; height: 20px; object-fit: contain; }
+  .el-tag:has(.el-ico)::before { display: none; }
+
   .panel {
     border-radius: 16px;
     border: 1px solid color-mix(in srgb, var(--e2) 38%, var(--card-border));
@@ -450,7 +464,7 @@
         ['acheron','Acheron',''], ['aglaea','Aglaea',''], ['aha','Aha',''], ['anaxa','Anaxa',''], ['archer','Archer',''],
         ['argenti','Argenti',''], ['ashveil','Ashveil',''], ['asta','Asta',''], ['aventurine','Aventurine',''],
         ['aventurine-waveflair','Aventurine Waveflair',''], ['bailu','Bailu',''], ['black-swan','Black Swan',''],
-        ['blade','Blade',''], ['blade-mortenax','Blade Mortenax',''], ['boothill','Boothill',''], ['bronya','Bronya',''],
+        ['blade','Blade',''], ['blade-mortenax','Mortenax Blade',''], ['boothill','Boothill',''], ['bronya','Bronya',''],
         ['castorice','Castorice',''], ['cerydra','Cerydra',''], ['cipher','Cipher',''], ['clara','Clara',''],
         ['cyrene','Cyrene',''], ['dan-heng-permansor-terrae','Dan Heng Permansor Terrae',''], ['dr-ratio','Dr. Ratio',''],
         ['evanescia','Evanescia',''], ['feixiao','Feixiao',''], ['firefly','Firefly',''], ['fu-xuan','Fu Xuan',''],
@@ -465,7 +479,7 @@
         ['ruan-mei','Ruan Mei',''], ['saber','Saber',''], ['seele','Seele',''], ['serval','Serval',''],
         ['silver-wolf','Silver Wolf',''], ['silver-wolf-lv-999','Silver Wolf Lv.999',''], ['sparkle','Sparkle',''],
         ['sparxie','Sparxie',''], ['sunday','Sunday',''], ['the-dahlia','The Dahlia',''], ['the-herta','The Herta',''],
-        ['tingyun','Tingyun',''], ['tingyun-fugue','Tingyun Fugue',''], ['topaz','Topaz',''],
+        ['tingyun','Tingyun',''], ['tingyun-fugue','Fugue',''], ['topaz','Topaz',''],
         ['trailblazer-elation','Trailblazer Elation',''], ['trailblazer-harmony','Trailblazer Harmony',''],
         ['trailblazer-remembrance','Trailblazer Remembrance',''], ['tribbie','Tribbie',''], ['welt','Welt',''],
         ['yao-guang','Yao Guang',''], ['yunli','Yunli','']
@@ -476,28 +490,29 @@
   /* ============================================================
      ELEMENTO DE CADA PERSONAJE DE HSR (define el fondo de la card)
      Valores: physical, fire, ice, lightning, wind, quantum, imaginary
-     Los marcados con (?) no estoy 100% seguro, corrígelos si hace falta.
+     Verificado contra Beebom y Game8 (oct 2026)
      ============================================================ */
   const HSR_EL = {
-    'acheron':'lightning','aglaea':'lightning','aha':'imaginary', /* (?) */ 'anaxa':'wind','archer':'quantum',
-    'argenti':'physical','ashveil':'lightning', /* (?) */ 'asta':'fire','aventurine':'imaginary',
-    'aventurine-waveflair':'imaginary', /* (?) */ 'bailu':'lightning','black-swan':'wind','blade':'wind',
-    'blade-mortenax':'wind', /* (?) */ 'boothill':'physical','bronya':'wind','castorice':'quantum','cerydra':'wind',
-    'cipher':'quantum','clara':'physical','cyrene':'ice', /* (?) */ 'dan-heng-permansor-terrae':'physical',
-    'dr-ratio':'imaginary','evanescia':'quantum', /* (?) */ 'feixiao':'wind','firefly':'fire','fu-xuan':'quantum',
-    'gallagher':'fire','gepard':'ice','gilgamesh':'imaginary', /* (?) */ 'herta':'ice','himeko':'fire',
-    'himeko-nova':'fire', /* (?) */ 'huohuo':'wind','hyacine':'wind','hysilens':'physical','imbibitor-lunae':'imaginary',
+    'acheron':'lightning','aglaea':'lightning','aha':'quantum','anaxa':'wind','archer':'quantum',
+    'argenti':'physical','ashveil':'lightning','asta':'fire','aventurine':'imaginary',
+    'aventurine-waveflair':'quantum','bailu':'lightning','black-swan':'wind','blade':'wind',
+    'blade-mortenax':'fire','boothill':'physical','bronya':'wind','castorice':'quantum','cerydra':'wind',
+    'cipher':'quantum','clara':'physical','cyrene':'ice','dan-heng-permansor-terrae':'imaginary',
+    'dr-ratio':'imaginary','evanescia':'physical','feixiao':'wind','firefly':'fire','fu-xuan':'quantum',
+    'gallagher':'fire','gepard':'ice','gilgamesh':'lightning','herta':'ice','himeko':'fire',
+    'himeko-nova':'fire','huohuo':'wind','hyacine':'wind','hysilens':'physical','imbibitor-lunae':'imaginary',
     'jade':'quantum','jiaoqiu':'fire','jingliu':'ice','jing-yuan':'lightning','kafka':'lightning','lingsha':'fire',
     'luocha':'imaginary','lynx':'quantum','march-7th-evernight':'ice','march-7th-swordmaster':'imaginary',
-    'moze':'lightning','mydei':'imaginary','pearl':'imaginary', /* (?) */ 'pela':'ice','phainon':'physical',
-    'rappa':'imaginary','rin-tohsaka':'fire', /* (?) */ 'robin':'physical','robin-summeretto':'physical', /* (?) */
+    'moze':'lightning','mydei':'imaginary','pearl':'ice','pela':'ice','phainon':'physical',
+    'rappa':'imaginary','rin-tohsaka':'quantum','robin':'physical','robin-summeretto':'wind',
     'ruan-mei':'ice','saber':'wind','seele':'quantum','serval':'lightning','silver-wolf':'quantum',
-    'silver-wolf-lv-999':'quantum','sparkle':'quantum','sparxie':'fire', /* (?) */ 'sunday':'imaginary',
-    'the-dahlia':'fire', /* (?) */ 'the-herta':'ice','tingyun':'lightning','tingyun-fugue':'lightning', /* (?) */
-    'topaz':'fire','trailblazer-elation':'imaginary','trailblazer-harmony':'imaginary',
+    'silver-wolf-lv-999':'imaginary','sparkle':'quantum','sparxie':'fire','sunday':'imaginary',
+    'the-dahlia':'fire','the-herta':'ice','tingyun':'lightning','tingyun-fugue':'fire',
+    'topaz':'fire','trailblazer-elation':'lightning','trailblazer-harmony':'imaginary',
     'trailblazer-remembrance':'ice','tribbie':'quantum','welt':'imaginary','yao-guang':'physical','yunli':'physical'
   };
   const EL_LABEL = { physical:'Físico', fire:'Fuego', ice:'Hielo', lightning:'Rayo', wind:'Viento', quantum:'Cuántico', imaginary:'Imaginario' };
+  const elIcon = el => `./ele_${el}.webp`;
   const elOf = (game, slug) => game === 'hsr' ? (HSR_EL[slug] || null) : null;
 
 
@@ -572,9 +587,12 @@
           <a class="back" href="#">← Todos los personajes</a>
           <div class="hsr-grid">
             <aside class="hsr-id">
-              <div class="portrait-stage"><img class="portrait" src="${img(game, slug)}" alt="${c[1]}"></div>
+              <div class="portrait-stage">
+                <img class="portrait" src="${img(game, slug)}" alt="${c[1]}">
+                <img class="el-badge" src="${elIcon(el)}" alt="${EL_LABEL[el]}" onerror="this.remove()">
+              </div>
               <h1>${c[1]}</h1>
-              <span class="el-tag">${EL_LABEL[el]}${c[2] ? ' · ' + c[2] : ''}</span>
+              <span class="el-tag"><img class="el-ico" src="${elIcon(el)}" alt="" onerror="this.remove()">${EL_LABEL[el]}${c[2] ? ' · ' + c[2] : ''}</span>
             </aside>
             <section class="panel">
               <h2>Armas y sets</h2>
