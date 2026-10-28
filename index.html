@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ArkanaBuilds</title>
 <link rel="icon" type="image/png" href="./favicon.png">
 <style>
@@ -253,6 +254,26 @@
     0%, 60%      { opacity: 0; }
     66.67%, 93.33% { opacity: 1; }
     100%         { opacity: 0; }
+  }
+
+  /* ===== Adaptación a móvil ===== */
+  .hero-buttons { flex-wrap: wrap; }
+  @media (max-width: 800px) {
+    .navbar { padding: 14px 16px; flex-wrap: wrap; gap: 10px; }
+    .nav-right { width: 100%; justify-content: space-between; gap: 12px; }
+    .nav-right > a { padding: 6px 2px; }
+    .social-icons { gap: 10px; }
+    .icon-circle { width: 34px; height: 34px; }
+    .hero { padding: 40px 20px 24px; }
+    .hero h1 { font-size: 34px; word-break: break-word; }
+    .hero p { font-size: 16px; margin: 16px 0 22px; }
+    .hero-buttons { margin-bottom: 36px; }
+    .btn { padding: 13px 20px; }
+    .features { padding: 0 20px 32px; gap: 14px; }
+  }
+  @media (max-width: 380px) {
+    .hero h1 { font-size: 30px; }
+    .hero-buttons .btn { flex: 1 1 100%; text-align: center; }
   }
 </style>
 </head>
