@@ -1,4 +1,4 @@
-// Cloudflare Worker  ->  /api/layout?page=wuwa  (todo lo demás lo sirven los archivos del sitio)
+// Cloudflare Worker  ->  /api/layout?page=wuwa  y  /api/teams?c=<slug>  (todo lo demás lo sirven los archivos del sitio)
 // Requiere: KV binding "TIERLIST" y secreto "ADMIN_KEY".
 
 const PAGE_RE = /^[a-z0-9-]{1,40}$/;
@@ -84,6 +84,44 @@ async function onRequestDelete({ request, env }) {
   return json({ ok: true });
 }
 
+/* ---------------- EQUIPOS: /api/teams?c=<slug> ---------------- */
+const MAX_TEAMS = 8, MAX_TEAM = 4;
+
+function getChar(request) {
+  const c = new URL(request.url).searchParams.get('c') || '';
+  return PAGE_RE.test(c) ? c : null;
+}
+
+async function teamsGet({ request, env }) {
+  const c = getChar(request);
+  if (!c) return json({ error: 'personaje inválido' }, 400);
+  if (!env.TIERLIST) return json({ error: 'KV TIERLIST no configurado' }, 500);
+  const value = await env.TIERLIST.get('teams:' + c);
+  return new Response(value || JSON.stringify({ teams: [] }), {
+    headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
+  });
+}
+
+async function teamsPut({ request, env }) {
+  if (!(await authorized(request, env))) return json({ error: 'no autorizado' }, 401);
+  const c = getChar(request);
+  if (!c) return json({ error: 'personaje inválido' }, 400);
+  if (!env.TIERLIST) return json({ error: 'KV TIERLIST no configurado' }, 500);
+  const text = await request.text();
+  if (text.length > MAX_BODY) return json({ error: 'demasiado grande' }, 413);
+  let body;
+  try { body = JSON.parse(text); } catch { return json({ error: 'JSON inválido' }, 400); }
+  if (!body || !Array.isArray(body.teams)) return json({ error: 'formato inválido' }, 400);
+  const teams = body.teams.slice(0, MAX_TEAMS).map((t) => ({
+    n: t && typeof t.n === 'string' ? t.n.slice(0, 40) : '',
+    m: (t && Array.isArray(t.m) ? t.m : [])
+      .filter((s) => typeof s === 'string' && PAGE_RE.test(s))
+      .slice(0, MAX_TEAM),
+  }));
+  await env.TIERLIST.put('teams:' + c, JSON.stringify({ teams }));
+  return json({ ok: true });
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -93,6 +131,14 @@ export default {
         case 'GET': return onRequestGet(ctx);
         case 'PUT': return onRequestPut(ctx);
         case 'DELETE': return onRequestDelete(ctx);
+        default: return json({ error: 'método no permitido' }, 405);
+      }
+    }
+    if (url.pathname === '/api/teams') {
+      const ctx = { request, env };
+      switch (request.method) {
+        case 'GET': return teamsGet(ctx);
+        case 'PUT': return teamsPut(ctx);
         default: return json({ error: 'método no permitido' }, 405);
       }
     }
