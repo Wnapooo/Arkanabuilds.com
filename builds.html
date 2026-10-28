@@ -383,7 +383,6 @@
   .hsr-bg.zzz::before { opacity: .38; filter: blur(60px) saturate(1.7); }
   .hsr-bg.zzz::after {
     background:
-      repeating-linear-gradient(-55deg, transparent 0 46px, color-mix(in srgb, var(--b2) 11%, transparent) 46px 49px, transparent 49px 52px, color-mix(in srgb, var(--b3) 7%, transparent) 52px 54px),
       radial-gradient(circle, color-mix(in srgb, var(--b3) 38%, transparent) 0 1.3px, transparent 1.8px) 0 0 / 15px 15px,
       repeating-linear-gradient(0deg, rgba(255,255,255,.035) 0 1px, transparent 1px 4px);
     -webkit-mask-image: linear-gradient(var(--ang), #000 0%, rgba(0,0,0,.35) 45%, transparent 85%);
@@ -398,6 +397,18 @@
     border-bottom: 1px solid color-mix(in srgb, var(--b3) 40%, transparent);
     filter: blur(.5px);
   }
+  .zzz-fx { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  /* Fondos de Wuthering Waves */
+  .hsr-bg.wuwa::before { opacity: .34; filter: blur(64px) saturate(1.6); }
+  .hsr-bg.wuwa::after {
+    background: radial-gradient(circle, color-mix(in srgb, var(--b3) 30%, transparent) 0 1px, transparent 1.6px) 0 0 / 24px 24px;
+    -webkit-mask-image: linear-gradient(var(--ang), #000 0%, rgba(0,0,0,.3) 45%, transparent 85%);
+            mask-image: linear-gradient(var(--ang), #000 0%, rgba(0,0,0,.3) 45%, transparent 85%);
+    opacity: .8;
+  }
+  .wuwa-fx { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  [data-el="wuwa"] .panel { border-top: 2px solid var(--e2); border-radius: 20px 8px 20px 8px; }
+  [data-el="wuwa"] .portrait-stage { border-radius: 20px 8px 20px 8px; }
   .zzz-word {
     position: absolute; left: 50%; bottom: -3%;
     transform: translateX(-50%) rotate(-6deg);
@@ -833,6 +844,147 @@
     'yunli':['#2a0e0e','#e8402a','#ffb04a',2]
   };
 
+  /* ---- Fondos exclusivos de ZZZ ----
+     Motivo según el color de cada personaje (rojo/naranja = llamas, dorado = rayos, verde = hexágonos,
+     cian = cristales de hielo, azul = cortes, violeta/rosa = ondas de éter) y composición única
+     generada a partir de su nombre. Para forzar un motivo: ZZZ_MOTIF['slug'] = 'flame' (flame, volt, hex, frost, slash, ether) */
+  const ZZZ_MOTIF = {};
+  function zzzFx(slug, bg) {
+    let s = 2166136261;
+    for (const ch of slug) s = Math.imul(s ^ ch.charCodeAt(0), 16777619) >>> 0;
+    const r = () => { s = (s + 0x6D2B79F5) >>> 0; let t = s; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+    const n = (a, b) => +(a + r() * (b - a)).toFixed(1);
+    const c1 = 'var(--b2)', c2 = 'var(--b3)';
+    const h6 = bg[1].replace('#', ''), v = [0, 2, 4].map(i => parseInt(h6.substr(i, 2), 16) / 255);
+    const mx = Math.max(...v), mn = Math.min(...v), d = mx - mn || 1e-6;
+    let hue = mx === v[0] ? ((v[1] - v[2]) / d) % 6 : mx === v[1] ? (v[2] - v[0]) / d + 2 : (v[0] - v[1]) / d + 4;
+    hue = (hue * 60 + 360) % 360;
+    const motif = ZZZ_MOTIF[slug] || (hue >= 340 || hue <= 35 ? 'flame' : hue <= 70 ? 'volt' : hue <= 175 ? 'hex' : hue <= 225 ? 'frost' : hue <= 260 ? 'slash' : 'ether');
+    let o = `<defs><radialGradient id="zg-${slug}"><stop offset="0" stop-color="${c1}" stop-opacity=".5"/><stop offset="1" stop-color="${c1}" stop-opacity="0"/></radialGradient></defs><circle cx="${n(100, 900)}" cy="${n(80, 520)}" r="${n(220, 380)}" fill="url(#zg-${slug})"/>`;
+    if (motif === 'flame') {
+      for (let i = 0; i < 9; i++) {
+        const x = n(40, 960), h = n(160, 420), w = n(24, 60);
+        o += `<path d="M${x - w},600C${x - w},${600 - h * .35} ${x - w * .2},${600 - h * .6} ${x + n(-20, 20)},${600 - h}C${x + w * .2},${600 - h * .55} ${x + w},${600 - h * .35} ${x + w},600Z" fill="${c1}" opacity="${n(.1, .28)}"/>`;
+        o += `<circle cx="${n(0, 1000)}" cy="${n(80, 520)}" r="${n(1.5, 4)}" fill="${c2}" opacity=".6"/>`;
+      }
+    } else if (motif === 'volt') {
+      for (let i = 0; i < 5; i++) {
+        let x = n(60, 940), y = -10, p = x + ',' + y;
+        while (y < 610) { y += n(40, 80); x += n(-60, 60); p += ` ${x},${y}`; }
+        o += `<polyline points="${p}" fill="none" stroke="${c1}" stroke-width="${n(5, 10)}" opacity=".12" stroke-linejoin="round"/><polyline points="${p}" fill="none" stroke="${c2}" stroke-width="${n(1.2, 2.6)}" opacity="${n(.35, .7)}" stroke-linejoin="round"/>`;
+      }
+    } else if (motif === 'hex') {
+      const cx = n(150, 850), cy = n(100, 500), z = n(26, 40);
+      for (let q = -6; q <= 6; q++) for (let w = -5; w <= 5; w++) {
+        const x = cx + z * 1.732 * (q + w / 2), y = cy + z * 1.5 * w, dist = Math.hypot(x - cx, y - cy);
+        if (dist > z * 6.5) continue;
+        let pts = '';
+        for (let k = 0; k < 6; k++) { const a = (60 * k - 30) * Math.PI / 180; pts += `${(x + z * .92 * Math.cos(a)).toFixed(1)},${(y + z * .92 * Math.sin(a)).toFixed(1)} `; }
+        const op = (.4 - dist / (z * 6.5) * .34).toFixed(2);
+        o += `<polygon points="${pts}" fill="${r() < .2 ? c1 : 'none'}" fill-opacity=".18" stroke="${c1}" stroke-width="1.5" opacity="${op}"/>`;
+      }
+    } else if (motif === 'frost') {
+      for (let i = 0; i < 4; i++) {
+        const cx = n(80, 920), cy = n(60, 540), L = n(60, 170), rot = n(0, 60);
+        let g = '';
+        for (let k = 0; k < 6; k++) {
+          const a = (k * 60 + rot) * Math.PI / 180, x = Math.cos(a) * L, y = Math.sin(a) * L, px = -Math.sin(a) * L * .22, py = Math.cos(a) * L * .22;
+          g += `M0 0L${x.toFixed(1)} ${y.toFixed(1)}M${(x * .55).toFixed(1)} ${(y * .55).toFixed(1)}l${px.toFixed(1)} ${py.toFixed(1)}M${(x * .55).toFixed(1)} ${(y * .55).toFixed(1)}l${(-px).toFixed(1)} ${(-py).toFixed(1)}`;
+        }
+        o += `<path transform="translate(${cx} ${cy})" d="${g}" fill="none" stroke="${c2}" stroke-width="2" stroke-linecap="round" opacity="${n(.2, .42)}"/>`;
+      }
+      for (let i = 0; i < 6; i++) { const x = n(0, 1000), y = n(0, 600); o += `<polygon points="${x},${y} ${x + n(30, 90)},${y + n(-30, 40)} ${x + n(-20, 50)},${y + n(40, 110)}" fill="${c1}" opacity="${n(.08, .16)}"/>`; }
+    } else if (motif === 'slash') {
+      o += `<g transform="rotate(${n(-32, -14)} 500 300)">`;
+      for (let i = 0; i < 8; i++) {
+        const y = n(-100, 700), hh = n(6, 70), x = n(-250, 300), w = n(500, 1200);
+        o += `<rect x="${x}" y="${y}" width="${w}" height="${hh}" fill="${c1}" opacity="${n(.07, .2)}"/><rect x="${x}" y="${y}" width="${w}" height="2" fill="${c2}" opacity="${n(.2, .5)}"/>`;
+      }
+      o += '</g>';
+    } else {
+      for (let i = 0; i < 3; i++) {
+        const cx = n(100, 900), cy = n(80, 520), k = Math.floor(n(5, 9)), st = n(26, 48);
+        for (let j = 1; j <= k; j++) o += `<circle cx="${cx}" cy="${cy}" r="${j * st}" fill="none" stroke="${j % 2 ? c1 : c2}" stroke-width="${j % 3 ? 1.5 : 3}" opacity="${(.34 - j * .035).toFixed(2)}"${j % 3 === 0 ? ' stroke-dasharray="6 14"' : ''}/>`;
+        o += `<circle cx="${cx}" cy="${cy}" r="5" fill="${c2}" opacity=".8"/>`;
+      }
+    }
+    return `<svg class="zzz-fx" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${o}</svg>`;
+  }
+
+  /* ---- Fondos exclusivos de Wuthering Waves ----
+     Motivo por elemento (aero = corrientes de viento, electro = rayos, fusion = llamas, glacio = cristales,
+     havoc = grietas oscuras, spectro = rayos de luz) + una onda de frecuencia propia de cada personaje.
+     Paleta y composición únicas calculadas a partir de su nombre.
+     Para cambiar el elemento de alguien: edita WUWA_EL (los marcados "provisional" son los que debes revisar). */
+  const WUWA_EL = {
+    'aug':'electro', 'brant':'fusion', 'buling':'electro', 'canta':'havoc', 'carlotta':'glacio', 'cart':'aero',
+    'changli':'fusion', 'chisa':'havoc', 'cia':'aero', 'gal':'fusion', 'iuno':'aero', 'jihni':'spectro',
+    'jiyan':'aero', 'lupa':'fusion', 'luuk-herssen':'spectro', 'lynae':'spectro', 'mortefi':'fusion',
+    'phoebe':'spectro', 'phr':'havoc', 'qiu':'aero', 'rover-aero':'aero', 'rover-electro':'electro',
+    'rover-spectro':'spectro', 'senhua':'glacio', 'keeper':'spectro', 'verina':'spectro',
+    'yangyang-xuanling':'aero', 'zani':'spectro',
+    /* provisional */
+    'denia':'fusion', 'hiyuki':'glacio', 'hsin':'havoc', 'jingran':'aero', 'lily':'spectro', 'lucilla':'electro',
+    'lucy':'fusion', 'math':'glacio', 'mornye':'havoc', 'qingxiao':'aero', 'rebecca':'electro', 'sigrika':'aero',
+    'suisui':'glacio', 'suoming':'spectro'
+  };
+  const WUWA_LABEL = { aero:'Aero', electro:'Electro', fusion:'Fusion', glacio:'Glacio', havoc:'Havoc', spectro:'Spectro' };
+  const WUWA_HUE = { aero:160, electro:275, fusion:12, glacio:200, havoc:335, spectro:48 };
+  function wuwaRand(str) {
+    let s = 2166136261;
+    for (const ch of str) s = Math.imul(s ^ ch.charCodeAt(0), 16777619) >>> 0;
+    return () => { s = (s + 0x6D2B79F5) >>> 0; let t = s; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  }
+  function wuwaBg(slug) {
+    const r = wuwaRand('ww-' + slug), n = (a, b) => a + r() * (b - a);
+    const keys = Object.keys(WUWA_HUE);
+    const el = WUWA_EL[slug] || keys[Math.floor(r() * keys.length)];
+    const hsl = (h, s, l) => { h = ((h % 360) + 360) % 360; s /= 100; l /= 100; const a = s * Math.min(l, 1 - l), f = k => { const x = (k + h / 30) % 12; return Math.round(255 * (l - a * Math.max(-1, Math.min(x - 3, 9 - x, 1)))).toString(16).padStart(2, '0'); }; return '#' + f(0) + f(8) + f(4); };
+    const h = WUWA_HUE[el] + n(-14, 14);
+    return { el, bg: [hsl(h, 55, 9), hsl(h, 82, 62), hsl(h + n(14, 30), 90, 82), Math.floor(r() * 6)] };
+  }
+  function wuwaFx(slug, bg, el) {
+    const r = wuwaRand('wf-' + slug), n = (a, b) => +(a + r() * (b - a)).toFixed(1);
+    const c1 = 'var(--b2)', c2 = 'var(--b3)';
+    let o = '';
+    const reuse = { fusion: 'flame', electro: 'volt', glacio: 'frost' }[el];
+    if (reuse) {
+      ZZZ_MOTIF['w-' + slug] = reuse;
+      o = zzzFx('w-' + slug, bg).replace(/^<svg[^>]*>/, '').replace('</svg>', '');
+    } else {
+      o = `<defs><radialGradient id="wg-${slug}"><stop offset="0" stop-color="${c1}" stop-opacity=".5"/><stop offset="1" stop-color="${c1}" stop-opacity="0"/></radialGradient></defs><circle cx="${n(100, 900)}" cy="${n(80, 400)}" r="${n(240, 400)}" fill="url(#wg-${slug})"/>`;
+      if (el === 'aero') {
+        for (let i = 0; i < 9; i++) {
+          const x = n(-50, 700), y = n(40, 560), w = n(260, 520), dy = n(-40, 40);
+          o += `<path d="M${x},${y}c${w * .3},${n(-90, -20)} ${w * .6},${n(20, 90)} ${w},${dy}" fill="none" stroke="${i % 2 ? c1 : c2}" stroke-width="${n(1.2, 3)}" stroke-linecap="round" opacity="${n(.16, .4)}"/>`;
+          o += `<circle cx="${(x + w).toFixed(1)}" cy="${(y + dy).toFixed(1)}" r="${n(6, 16)}" fill="none" stroke="${c2}" stroke-width="1.5" opacity="${n(.2, .45)}"/>`;
+        }
+        for (let i = 0; i < 10; i++) o += `<ellipse cx="${n(0, 1000)}" cy="${n(0, 600)}" rx="${n(8, 18)}" ry="${n(3, 6)}" transform="rotate(${n(-40, 40)} 500 300)" fill="${c1}" opacity="${n(.12, .3)}"/>`;
+      } else if (el === 'havoc') {
+        for (let i = 0; i < 3; i++) {
+          let x = n(60, 940), y = -10, L = [], R = [];
+          while (y < 620) { const w = n(2, 16); L.push(`${(x - w).toFixed(1)},${y.toFixed(1)}`); R.unshift(`${(x + w).toFixed(1)},${y.toFixed(1)}`); y += n(30, 70); x += n(-45, 45); }
+          o += `<polygon points="${L.concat(R).join(' ')}" fill="${c1}" fill-opacity=".14" stroke="${c2}" stroke-width="1.4" opacity="${n(.45, .8)}" stroke-linejoin="miter"/>`;
+        }
+        for (let i = 0; i < 14; i++) { const x = n(0, 1000), y = n(0, 600), z = n(8, 34); o += `<rect x="${x}" y="${y}" width="${z}" height="${z}" transform="rotate(${n(0, 90)} ${x + z / 2} ${y + z / 2})" fill="${i % 3 ? c1 : 'none'}" stroke="${c2}" stroke-width="1.2" opacity="${n(.14, .4)}"/>`; }
+      } else {
+        const cx = n(200, 800), cy = n(100, 350);
+        for (let i = 0; i < 18; i++) { const a = n(0, 6.283), L = n(220, 760), a0 = n(40, 90); o += `<line x1="${(cx + Math.cos(a) * a0).toFixed(1)}" y1="${(cy + Math.sin(a) * a0).toFixed(1)}" x2="${(cx + Math.cos(a) * L).toFixed(1)}" y2="${(cy + Math.sin(a) * L).toFixed(1)}" stroke="${c2}" stroke-width="${n(.8, 2.4)}" opacity="${n(.1, .35)}"/>`; }
+        for (let j = 1; j <= 4; j++) o += `<circle cx="${cx}" cy="${cy}" r="${(j * n(50, 70)).toFixed(0)}" fill="none" stroke="${c1}" stroke-width="1.5" opacity="${(.36 - j * .06).toFixed(2)}"/>`;
+        for (let i = 0; i < 5; i++) { const x = n(60, 940), y = n(40, 520), s = n(12, 34); o += `<path d="M${x},${y - s}Q${x},${y} ${x + s},${y}Q${x},${y} ${x},${y + s}Q${x},${y} ${x - s},${y}Q${x},${y} ${x},${y - s}Z" fill="${c2}" opacity="${n(.4, .8)}"/>`; }
+      }
+    }
+    /* onda de frecuencia propia de cada personaje */
+    for (let k = 0; k < 3; k++) {
+      const y0 = 400 + k * 60 + n(-20, 20), A = n(14, 50), f = n(.006, .02), ph = n(0, 6.28);
+      let d = '';
+      for (let x = 0; x <= 1000; x += 16) d += (x ? 'L' : 'M') + x + ' ' + (y0 + A * Math.sin(f * x + ph) * Math.sin(x / 1000 * Math.PI)).toFixed(1);
+      if (k === 0) o += `<path d="${d}L1000 600L0 600Z" fill="${c1}" opacity=".06"/>`;
+      o += `<path d="${d}" fill="none" stroke="${k ? c1 : c2}" stroke-width="${k ? 1.5 : 2.5}" opacity="${[.38, .22, .13][k]}"/>`;
+    }
+    return `<svg class="wuwa-fx" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${o}</svg>`;
+  }
+
   /* Fondo propio de cada personaje de ZZZ: [base oscura, color principal, color secundario, composición 0-5] */
   const ZZZ_BG = {
     'claret':['#1c0a10','#e8365a','#f2c14e',0],
@@ -1112,22 +1264,24 @@
     const { game, char: c } = found;
     const el = elOf(game, slug);
     const isZzz = game === 'zzz';
+    const isWw = game === 'wuwa';
+    const wb = isWw ? wuwaBg(slug) : null;
     const pa = pathOf(game, slug);
-    const bg = isZzz ? ZZZ_BG[slug] : CHAR_BG[slug];
+    const bg = isZzz ? ZZZ_BG[slug] : isWw ? wb.bg : CHAR_BG[slug];
 
-    if (el || (isZzz && bg)) {
+    if (el || ((isZzz || isWw) && bg)) {
       $('detail').innerHTML = `
-        <div data-el="${el || 'zzz'}"${bg ? ` style="--e1:${bg[0]};--e2:${bg[1]};--e3:color-mix(in srgb, ${bg[1]} 45%, #fff)"` : ''}>
-          <div class="hsr-bg${isZzz ? ' zzz' : ''}${bg ? ' fx lay-' + bg[3] : ''}" style="${bg ? `--b1:${bg[0]};--b2:${bg[1]};--b3:${bg[2]};` : ''}--art:url('${img(game, slug)}')">${isZzz ? `<i class="zzz-slash"></i><span class="zzz-word">${c[1]}</span>` : ''}</div>
+        <div data-el="${el || (isWw ? 'wuwa' : 'zzz')}"${bg ? ` style="--e1:${bg[0]};--e2:${bg[1]};--e3:color-mix(in srgb, ${bg[1]} 45%, #fff)"` : ''}>
+          <div class="hsr-bg${isZzz ? ' zzz' : ''}${isWw ? ' wuwa' : ''}${bg ? ' fx lay-' + bg[3] : ''}" style="${bg ? `--b1:${bg[0]};--b2:${bg[1]};--b3:${bg[2]};` : ''}--art:url('${img(game, slug)}')">${isZzz ? `${zzzFx(slug, bg)}<span class="zzz-word">${c[1]}</span>` : isWw ? wuwaFx(slug, bg, wb.el) : ''}</div>
           <a class="back" href="#">← Todos los personajes</a>
           <div class="hsr-grid">
             <aside class="hsr-id">
               <div class="portrait-stage">
                 <img class="portrait" src="${img(game, slug)}" alt="${c[1]}">
-                ${el ? `<img class="el-badge" src="${elIcon(el)}" alt="${EL_LABEL[el]}" onerror="this.remove()">` : ''}${pa ? `<img class="path-badge" src="${pathIcon(pa)}" alt="${PATH_LABEL[pa]}" title="${PATH_LABEL[pa]}" onerror="this.remove()">` : ''}
+                ${el ? `<img class="el-badge" src="${elIcon(el)}" alt="${EL_LABEL[el]}" onerror="this.remove()">` : isWw ? `<img class="el-badge" src="./element_${wb.el}.webp" alt="${WUWA_LABEL[wb.el]}" title="${WUWA_LABEL[wb.el]}" onerror="this.remove()">` : ''}${pa ? `<img class="path-badge" src="${pathIcon(pa)}" alt="${PATH_LABEL[pa]}" title="${PATH_LABEL[pa]}" onerror="this.remove()">` : ''}
               </div>
               <h1>${c[1]}</h1>
-              <span class="el-tag">${el ? `<img class="el-ico" src="${elIcon(el)}" alt="" onerror="this.remove()">${EL_LABEL[el]}${c[2] ? ' · ' + c[2] : ''}` : c[2]}${pa ? `<span class="path-tag"><img class="path-ico" src="${pathIcon(pa)}" alt="" onerror="this.remove()">${PATH_LABEL[pa]}</span>` : ''}</span>
+              <span class="el-tag">${el ? `<img class="el-ico" src="${elIcon(el)}" alt="" onerror="this.remove()">${EL_LABEL[el]}${c[2] ? ' · ' + c[2] : ''}` : (c[2] || (isWw ? `<img class="el-ico" src="./element_${wb.el}.webp" alt="" onerror="this.remove()">${WUWA_LABEL[wb.el]}` : ''))}${pa ? `<span class="path-tag"><img class="path-ico" src="${pathIcon(pa)}" alt="" onerror="this.remove()">${PATH_LABEL[pa]}</span>` : ''}</span>
             </aside>
             <section class="panel panel-main">
               <h2>Armas y sets</h2>
@@ -1170,7 +1324,7 @@
       if (f && f.game !== currentGame) { currentGame = f.game; renderTabs(); renderGrid(); }
     }
     const f2 = showDetail && findChar(slug);
-    const isHsr = !!(f2 && (elOf(f2.game, slug) || (f2.game === 'zzz' && ZZZ_BG[slug])));
+    const isHsr = !!(f2 && (elOf(f2.game, slug) || (f2.game === 'zzz' && ZZZ_BG[slug]) || f2.game === 'wuwa'));
     if (f2 && $('teams-body')) initTeams(slug, f2.game);
     document.body.classList.toggle('hsr-open', isHsr);
     document.querySelector('main').classList.toggle('wide', isHsr);
