@@ -434,6 +434,77 @@
   .path-tag { display: inline-flex; align-items: center; gap: 6px; padding-left: 10px; margin-left: 2px; border-left: 1px solid color-mix(in srgb, var(--e2) 45%, transparent); }
   .path-ico { width: 20px; height: 20px; object-fit: contain; }
 
+  /* ===== Equipos: buscador + iconos ===== */
+  .team-search {
+    flex: 1; min-width: 0; margin-left: 6px; padding: 7px 10px;
+    font: inherit; font-size: 13px; font-weight: 500; color: var(--text);
+    background: rgba(8,9,14,.6);
+    border: 1px solid color-mix(in srgb, var(--e2) 45%, transparent);
+    border-radius: 8px;
+  }
+  .team-search::placeholder { color: var(--muted); font-weight: 400; }
+  .team-search:focus-visible { outline: 2px solid var(--e2); outline-offset: 1px; }
+  .team-hint { margin: 0 0 10px; font-size: 12px; color: var(--muted); }
+  .team-picker {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(48px, 1fr)); gap: 6px;
+    max-height: 210px; overflow: auto; padding: 8px; margin-bottom: 14px;
+    border: 1px dashed color-mix(in srgb, var(--e2) 45%, transparent); border-radius: 10px;
+  }
+  .pick {
+    padding: 0; border: 1px solid var(--chip-border); border-radius: 8px; overflow: hidden;
+    background: var(--chip); cursor: pointer; aspect-ratio: 1;
+    transition: transform .12s, border-color .12s;
+  }
+  .pick img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+  .pick:hover { transform: translateY(-2px); border-color: var(--e2); }
+  .pick.used { opacity: .35; }
+  .pick-empty { grid-column: 1 / -1; margin: 6px; color: var(--muted); font-size: 13px; text-align: center; }
+
+  .team-card {
+    padding: 10px; margin-bottom: 12px; border-radius: 12px;
+    border: 1px solid color-mix(in srgb, var(--e2) 25%, var(--card-border));
+    background: rgba(8,9,14,.35);
+  }
+  .team-card.edit { cursor: pointer; }
+  .team-card.edit.active { border-color: var(--e2); box-shadow: 0 0 14px -4px var(--e2); }
+  .team-title { font-size: 13px; font-weight: 700; color: var(--e3); margin: 0 0 8px; letter-spacing: .02em; }
+  .team-bar { display: flex; gap: 6px; margin-bottom: 8px; }
+  .team-name {
+    flex: 1; min-width: 0; padding: 6px 9px; font: inherit; font-size: 13px; font-weight: 600;
+    color: var(--text); background: rgba(8,9,14,.55);
+    border: 1px solid var(--chip-border); border-radius: 8px;
+  }
+  .team-name:focus-visible { outline: 2px solid var(--e2); outline-offset: 1px; }
+  .team-del, .team-add {
+    font: inherit; font-size: 13px; color: var(--muted); cursor: pointer;
+    background: var(--chip); border: 1px solid var(--chip-border); border-radius: 8px; padding: 6px 10px;
+  }
+  .team-del:hover, .team-add:hover { color: var(--text); border-color: var(--e2); }
+  .team-add { width: 100%; border-style: dashed; padding: 10px; }
+  .team-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-start; }
+  .tm { position: relative; width: 64px; display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none; color: var(--text); }
+  .tm img {
+    width: 64px; height: 64px; object-fit: cover; object-position: top; display: block;
+    border-radius: 10px; border: 1px solid var(--chip-border); background: var(--chip);
+  }
+  .tm small { font-size: 11px; color: var(--muted); max-width: 64px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  a.tm:hover img { border-color: var(--e2); }
+  .tm.me img { border-color: var(--e2); box-shadow: 0 0 12px -2px var(--e2); }
+  .tm.empty { height: 64px; border: 1px dashed color-mix(in srgb, var(--e2) 35%, transparent); border-radius: 10px; }
+  .tm-x {
+    position: absolute; top: -6px; right: -6px; z-index: 1; width: 20px; height: 20px; padding: 0;
+    border-radius: 50%; border: 1px solid var(--chip-border); background: #1c1e27; color: var(--text);
+    font-size: 11px; line-height: 1; cursor: pointer;
+  }
+  .tm-x:hover { background: #7f1d1d; border-color: #ef4444; }
+  #toast {
+    position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 20px); z-index: 50;
+    padding: 10px 16px; border-radius: 10px; font-size: 14px; color: #fff;
+    background: #23252f; border: 1px solid #3a3d4b; opacity: 0; pointer-events: none;
+    transition: opacity .2s, transform .2s;
+  }
+  #toast.show { opacity: 1; transform: translate(-50%, 0); }
+
   [hidden] { display: none !important; }
 
   @media (max-width: 800px) {
@@ -817,6 +888,176 @@
     'qingyi':['#14122a','#7a8aff','#ffb0d0',2]
   };
 
+  /* Iconos de la tier list (slug -> archivo). Si falta uno se usa la imagen de la card */
+  const CHAR_ICON = {"hsr": {"archer": "./archer_icon.webp", "ashveil": "./ashveil_icon.webp", "aventurine-waveflair": "./aventurine-waveflair_icon.webp", "castorice": "./castorice_icon.webp", "evanescia": "./evanescia_icon.webp", "firefly": "./firefly_icon.webp", "himeko-nova": "./himeko-nova_icon.webp", "silver-wolf-lv-999": "./silver-wolf-lv-999_icon.webp", "march-7th-evernight": "./march-7th-evernight_icon.webp", "rin-tohsaka": "./rin-tohsaka_icon.webp", "sparxie": "./sparxie_icon.webp", "blade-mortenax": "./blade-mortenax_icon.webp", "cyrene": "./cyrene_icon.webp", "robin-summeretto": "./robin-summeretto_icon.webp", "the-dahlia": "./the-dahlia_icon.webp", "trailblazer-elation": "./trailblazer-elation_icon.webp", "yao-guang": "./yao-guang_icon.webp", "huohuo": "./huohuo_icon.webp", "hyacine": "./hyacine_icon.webp", "pearl": "./pearl_icon.webp", "acheron": "./acheron_icon.webp", "hysilens": "./hysilens_icon.webp", "saber": "./saber_icon.webp", "black-swan": "./black-swan_icon.webp", "gilgamesh": "./gilgamesh_icon.webp", "kafka": "./kafka_icon.webp", "ruan-mei": "./ruan-mei_icon.webp", "sparkle": "./sparkle_icon.webp", "tingyun-fugue": "./tingyun-fugue_icon.webp", "trailblazer-harmony": "./trailblazer-harmony_icon.webp", "trailblazer-remembrance": "./trailblazer-remembrance_icon.webp", "tribbie": "./tribbie_icon.webp", "welt": "./welt_icon.webp", "dan-heng-permansor-terrae": "./dan-heng-permansor-terrae_icon.webp", "anaxa": "./anaxa_icon.webp", "phainon": "./phainon_icon.webp", "cerydra": "./cerydra_icon.webp", "cipher": "./cipher_icon.webp", "silver-wolf": "./silver-wolf_icon.webp", "sunday": "./sunday_icon.webp", "fu-xuan": "./fu-xuan_icon.webp", "lingsha": "./lingsha_icon.webp", "aglaea": "./aglaea_icon.webp", "feixiao": "./feixiao_icon.webp", "mydei": "./mydei_icon.webp", "the-herta": "./the-herta_icon.webp", "jade": "./jade_icon.webp", "robin": "./robin_icon.webp", "aventurine": "./aventurine_icon.webp", "gallagher": "./gallagher_icon.webp", "aha": "./Aha_icon.png", "argenti": "./argenti_icon.webp", "asta": "./asta_icon.webp", "bailu": "./bailu_icon.webp", "blade": "./blade_icon.webp", "boothill": "./boothill_icon.webp", "bronya": "./bronya_icon.webp", "clara": "./clara_icon.webp", "herta": "./herta_icon.webp", "himeko": "./himeko_icon.webp", "imbibitor-lunae": "./imbibitor-lunae_icon.webp", "jiaoqiu": "./jiaoqiu_icon.webp", "jingliu": "./jingliu_icon.webp", "jing-yuan": "./jing-yuan_icon.webp", "luocha": "./luocha_icon.webp", "lynx": "./lynx_icon.webp", "march-7th-swordmaster": "./march-7th-swordmaster_icon.webp", "moze": "./moze_icon.webp", "pela": "./pela_icon.webp", "rappa": "./rappa_icon.webp", "seele": "./seele_icon.webp", "serval": "./serval_icon.webp", "tingyun": "./tingyun_icon.webp", "topaz": "./topaz_icon.webp", "yunli": "./yunli_icon.webp", "gepard": "./gepard_icon.webp"}, "zzz": {"claret": "./claret.webp", "sigrid": "./sigrid.webp", "ye-shunguang": "./ye-shunguang.webp", "phoenix": "./phoenix.webp", "remielle": "./remielle.webp", "velina": "./velina.webp", "dialyn": "./dialyn.webp", "lucia": "./lucia.webp", "nangong-yu": "./nangong-yu.webp", "norma": "./norma.webp", "roxy": "./roxy.webp", "sunna": "./sunna.webp", "ukinami-yuzuha": "./ukinami-yuzuha.webp", "banyue": "./banyue.webp", "billy-starlight": "./billy-starlight.webp", "cissia": "./cissia.webp", "pyrois": "./pyrois.webp", "seed": "./seed.webp", "yidhari": "./yidhari.webp", "yixuan": "./yixuan.webp", "alice": "./alice.webp", "aria": "./aria.webp", "burnice": "./burnice.webp", "miyabi": "./miyabi.webp", "promeia": "./promeia.webp", "astra-yao": "./astra-yao.webp", "koleda": "./koleda.webp", "nicole-demara": "./nicole-demara.webp", "rina": "./rina.webp", "trigger": "./trigger.webp", "zhao": "./zhao.webp", "anby-demara-soldier-0": "./anby-demara-soldier-0.webp", "evelyn": "./evelyn.webp", "harumasa": "./harumasa.webp", "nekomata": "./nekomata.webp", "orphie-and-magus": "./orphie-and-magus.webp", "soldier-11": "./soldier-11.webp", "grace-howard": "./grace-howard.webp", "jane-doe": "./jane-doe.webp", "piper": "./piper.webp", "vivian": "./vivian.webp", "yanagi": "./yanagi.webp", "ju-fufu": "./ju-fufu.webp", "lighter": "./lighter.webp", "lycaon": "./lycaon.webp", "ellen": "./ellen.webp", "hugo": "./hugo.webp", "manato": "./manato.webp", "zhu-yuan": "./zhu-yuan.webp", "pan-yinhu": "./pan-yinhu.webp", "qingyi": "./qingyi.webp"}, "wuwa": {"hiyuki": "./hiyuki_card.webp", "hsin": "./hsin_card.webp", "jingran": "./jingran_card.webp", "qingxiao": "./qingxiao_card.webp", "yangyang-xuanling": "./yangyang-xuanling_card.webp", "denia": "./denia_card.webp", "lucilla": "./lucilla_card.webp", "suoming": "./suoming_card.webp", "iuno": "./ioun_card.webp", "chisa": "./chisa_card.webp", "mornye": "./mornye_card.webp", "suisui": "./suisui_card.webp", "keeper": "./keeper_card.webp", "math": "./math_card.webp", "luuk-herssen": "./luuk-herssen_card.webp", "sigrika": "./sigrika_card.webp", "lynae": "./lynae_card.webp", "qiu": "./qiu_card.webp", "rebecca": "./rebecca_card.webp", "verina": "./verina_card.webp", "aug": "./aug_card.webp", "cart": "./cart_card.webp", "lucy": "./lucy_card.webp", "phr": "./phr_card.webp", "gal": "./gal_card.webp", "cia": "./cia_card.webp", "senhua": "./senhua_card.webp", "lupa": "./lupa_card.webp", "mortefi": "./mortefi_card.webp", "rover-electro": "./rover_card.webp", "buling": "./buling_card.webp", "jiyan": "./jiyan_card.webp", "phoebe": "./phoebe_card.webp", "zani": "./zani_card.webp", "canta": "./canta_card.webp", "changli": "./changli_card.webp", "rover-spectro": "./rover-frazzle_card.webp", "lily": "./lily_icon.png"}};
+
+  /* ============================================================
+     EQUIPOS: buscador + iconos (editar con ?edit, se guarda en Cloudflare)
+     GET  /api/teams?c=<slug>        -> { teams:[{n,m:[slugs]}] }
+     PUT  /api/teams?c=<slug>        -> guarda (clave de administrador)
+     ============================================================ */
+  const EDIT = /[?&]edit(=|&|$)/.test(location.search);
+  const KEYSTORE = 'tierlist-admin-key';
+  const MAX_TEAM = 4, MAX_TEAMS = 8;
+  const TEAMS_API = slug => '/api/teams?c=' + encodeURIComponent(slug);
+  const esc = t => String(t).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  const iconSrc = (game, slug) => (CHAR_ICON[game] && CHAR_ICON[game][slug]) || img(game, slug);
+  const iconHtml = (game, slug, name) => `<img src="${esc(iconSrc(game, slug))}" alt="${esc(name)}" loading="lazy" data-card="${esc(img(game, slug))}">`;
+
+  function toast(msg) {
+    let t = document.getElementById('toast');
+    if (!t) { t = document.createElement('div'); t.id = 'toast'; document.body.appendChild(t); }
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 1800);
+  }
+  function getKey(force) {
+    let k = localStorage.getItem(KEYSTORE);
+    if (!k || force) {
+      k = prompt('Clave de administrador:');
+      if (k) localStorage.setItem(KEYSTORE, k); else k = null;
+    }
+    return k;
+  }
+
+  let teamsToken = 0;
+  function initTeams(slug, game) {
+    const body = document.getElementById('teams-body');
+    if (!body) return;
+    const token = ++teamsToken;
+    const names = {};
+    GAMES[game].chars.forEach(c => { names[c[0]] = c[1]; });
+    let teams = [], active = 0, saveTimer = null;
+
+    // si un icono no carga, usa la imagen de la card
+    body.addEventListener('error', e => {
+      const im = e.target;
+      if (im.tagName === 'IMG' && im.dataset.card && !im.dataset.f) { im.dataset.f = 1; im.src = im.dataset.card; }
+    }, true);
+
+    const clean = list => (Array.isArray(list) ? list : []).slice(0, MAX_TEAMS).map(t => ({
+      n: t && typeof t.n === 'string' ? t.n.slice(0, 40) : '',
+      m: (t && Array.isArray(t.m) ? t.m : []).filter(s => names[s]).slice(0, MAX_TEAM)
+    }));
+
+    /* ---------- vista para visitantes ---------- */
+    function renderView() {
+      const list = teams.filter(t => t.m.length);
+      body.innerHTML = list.map((t, i) => `
+        <div class="team-card">
+          ${(t.n || list.length > 1) ? `<div class="team-title">${esc(t.n || 'Equipo ' + (i + 1))}</div>` : ''}
+          <div class="team-row">${t.m.map(s => `
+            <a class="tm${s === slug ? ' me' : ''}" href="#${encodeURIComponent(s)}" title="${esc(names[s])}">${iconHtml(game, s, names[s])}<small>${esc(names[s])}</small></a>`).join('')}
+          </div>
+        </div>`).join('');
+    }
+
+    /* ---------- modo editor ---------- */
+    function payload() {
+      return { teams: teams.filter(t => t.m.length).map(t => ({ n: t.n.trim(), m: t.m })) };
+    }
+    function doSave(retry) {
+      const key = getKey(retry);
+      if (!key) { toast('Sin clave: no se guardó'); return; }
+      fetch(TEAMS_API(slug), {
+        method: 'PUT',
+        headers: { 'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload())
+      }).then(r => {
+        if (r.status === 401) {
+          localStorage.removeItem(KEYSTORE);
+          if (!retry) return doSave(true);
+          toast('Clave incorrecta'); return;
+        }
+        toast(r.ok ? 'Guardado para todos ✓' : 'Error al guardar (' + r.status + ')');
+      }).catch(() => toast('Error de red'));
+    }
+    function save() { clearTimeout(saveTimer); saveTimer = setTimeout(() => doSave(false), 400); }
+
+    function renderPicker() {
+      const search = document.getElementById('team-search');
+      const q = norm(search ? search.value : '');
+      const act = teams[active];
+      const list = GAMES[game].chars.filter(c => !q || norm(c[1]).includes(q) || norm(c[0]).includes(q));
+      document.getElementById('tp').innerHTML = list.length
+        ? list.map(([s, n]) => `<button type="button" class="pick${act && act.m.includes(s) ? ' used' : ''}" data-s="${esc(s)}" title="${esc(n)}">${iconHtml(game, s, n)}</button>`).join('')
+        : '<p class="pick-empty">Sin resultados.</p>';
+    }
+    function renderTeamsEdit() {
+      document.getElementById('te').innerHTML = teams.map((t, i) => `
+        <div class="team-card edit${i === active ? ' active' : ''}" data-i="${i}">
+          <div class="team-bar">
+            <input class="team-name" data-i="${i}" value="${esc(t.n)}" maxlength="40" placeholder="Equipo ${i + 1}" aria-label="Nombre del equipo ${i + 1}">
+            <button type="button" class="team-del" data-del="${i}" title="Borrar equipo">🗑</button>
+          </div>
+          <div class="team-row">${t.m.map((s, j) => `
+            <span class="tm"><button type="button" class="tm-x" data-rm="${i}:${j}" title="Quitar">✕</button>${iconHtml(game, s, names[s])}<small>${esc(names[s])}</small></span>`).join('')}
+            ${Array.from({ length: MAX_TEAM - t.m.length }, () => '<span class="tm empty"></span>').join('')}
+          </div>
+        </div>`).join('') + (teams.length < MAX_TEAMS ? '<button type="button" class="team-add" id="team-add">+ Nuevo equipo</button>' : '');
+    }
+    function addMember(s) {
+      if (!teams.length) { teams.push({ n: '', m: [] }); active = 0; }
+      const t = teams[active];
+      if (t.m.includes(s)) { toast('Ya está en el equipo'); return; }
+      if (t.m.length >= MAX_TEAM) { toast('Equipo completo (máx. ' + MAX_TEAM + ')'); return; }
+      t.m.push(s);
+      renderTeamsEdit(); renderPicker(); save();
+    }
+
+    function startEdit() {
+      body.innerHTML = '<p class="team-hint">Modo editor: elige un equipo y pulsa los iconos para añadirlos. Se publica para todos.</p><div class="team-picker" id="tp"></div><div id="te"></div>';
+      if (!teams.length) teams.push({ n: '', m: [] });
+      renderTeamsEdit(); renderPicker();
+      document.getElementById('team-search').addEventListener('input', renderPicker);
+
+      document.getElementById('tp').addEventListener('click', e => {
+        const b = e.target.closest('.pick'); if (b) addMember(b.dataset.s);
+      });
+      const te = document.getElementById('te');
+      te.addEventListener('input', e => {
+        if (e.target.classList.contains('team-name')) { teams[+e.target.dataset.i].n = e.target.value; save(); }
+      });
+      te.addEventListener('click', e => {
+        const rm = e.target.closest('[data-rm]');
+        if (rm) {
+          const [i, j] = rm.dataset.rm.split(':').map(Number);
+          teams[i].m.splice(j, 1); active = i;
+          renderTeamsEdit(); renderPicker(); save(); return;
+        }
+        const del = e.target.closest('[data-del]');
+        if (del) {
+          const i = +del.dataset.del;
+          if (teams[i].m.length && !confirm('¿Borrar este equipo?')) return;
+          teams.splice(i, 1);
+          if (!teams.length) teams.push({ n: '', m: [] });
+          active = Math.min(active, teams.length - 1);
+          renderTeamsEdit(); renderPicker(); save(); return;
+        }
+        if (e.target.closest('#team-add')) {
+          teams.push({ n: '', m: [] }); active = teams.length - 1;
+          renderTeamsEdit(); renderPicker(); return;
+        }
+        const card = e.target.closest('.team-card');
+        if (card && +card.dataset.i !== active) {
+          active = +card.dataset.i;
+          te.querySelectorAll('.team-card').forEach(c => c.classList.toggle('active', +c.dataset.i === active));
+          renderPicker();
+        }
+      });
+    }
+
+    /* ---------- carga ---------- */
+    fetch(TEAMS_API(slug), { cache: 'no-store' })
+      .then(r => r.ok ? r.json() : null)
+      .catch(() => null)
+      .then(d => {
+        if (token !== teamsToken || !document.body.contains(body)) return;
+        teams = d ? clean(d.teams) : [];
+        if (EDIT) startEdit();
+        else if (teams.some(t => t.m.length)) renderView();   // si no hay, queda la captura antigua o "Equipos pendientes."
+      });
+  }
+
   /* ============================================================ */
   const $ = id => document.getElementById(id);
   const norm = t => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
@@ -895,8 +1136,8 @@
               </div>
             </section>
             <section class="panel panel-teams">
-              <h2>Equipos</h2>
-              <div class="panel-body">
+              <h2>Equipos${EDIT ? '<input type="search" id="team-search" class="team-search" placeholder="Buscar personaje..." autocomplete="off" aria-label="Buscar personaje para el equipo">' : ''}</h2>
+              <div class="panel-body" id="teams-body">
                 <img class="shot" src="${teamsImg(slug)}" alt="Equipos de ${c[1]}" onerror="${pendingImg('Equipos pendientes.')}">
               </div>
             </section>
@@ -930,6 +1171,7 @@
     }
     const f2 = showDetail && findChar(slug);
     const isHsr = !!(f2 && (elOf(f2.game, slug) || (f2.game === 'zzz' && ZZZ_BG[slug])));
+    if (f2 && $('teams-body')) initTeams(slug, f2.game);
     document.body.classList.toggle('hsr-open', isHsr);
     document.querySelector('main').classList.toggle('wide', isHsr);
     $('detail').hidden = !showDetail;
