@@ -709,7 +709,7 @@
     'argenti':'physical','ashveil':'lightning','asta':'fire','aventurine':'imaginary',
     'aventurine-waveflair':'quantum','bailu':'lightning','black-swan':'wind','blade':'wind',
     'blade-mortenax':'fire','boothill':'physical','bronya':'wind','castorice':'quantum','cerydra':'wind',
-    'cipher':'quantum','clara':'physical','cyrene':'ice','dan-heng-permansor-terrae':'imaginary',
+    'cipher':'quantum','clara':'physical','cyrene':'ice','dan-heng-permansor-terrae':'physical',
     'dr-ratio':'imaginary','evanescia':'physical','feixiao':'wind','firefly':'fire','fu-xuan':'quantum',
     'gallagher':'fire','gepard':'ice','gilgamesh':'lightning','herta':'ice','himeko':'fire',
     'himeko-nova':'fire','huohuo':'wind','hyacine':'wind','hysilens':'physical','imbibitor-lunae':'imaginary',
@@ -736,13 +736,18 @@
     'blade':'destruction', 'clara':'destruction', 'firefly':'destruction', 'imbibitor-lunae':'destruction', 'jingliu':'destruction', 'mydei':'destruction', 'phainon':'destruction', 'yunli':'destruction', 'saber':'destruction', 'gilgamesh':'destruction',
     'aha':'elation', 'aventurine-waveflair':'elation', 'evanescia':'elation', 'pearl':'elation', 'silver-wolf-lv-999':'elation', 'sparxie':'elation', 'trailblazer-elation':'elation', 'yao-guang':'elation',
     'anaxa':'erudition', 'argenti':'erudition', 'herta':'erudition', 'himeko':'erudition', 'himeko-nova':'erudition', 'jade':'erudition', 'jing-yuan':'erudition', 'rappa':'erudition', 'rin-tohsaka':'erudition', 'serval':'erudition', 'the-herta':'erudition',
-    'asta':'harmony', 'bronya':'harmony', 'cerydra':'harmony', 'robin':'harmony', 'ruan-mei':'harmony', 'sparkle':'harmony', 'sunday':'harmony', 'tingyun':'harmony', 'tingyun-fugue':'harmony', 'tribbie':'harmony', 'trailblazer-harmony':'harmony',
+    'asta':'harmony', 'bronya':'harmony', 'cerydra':'harmony', 'robin':'harmony', 'ruan-mei':'harmony', 'sparkle':'harmony', 'sunday':'harmony', 'tingyun':'harmony', 'tribbie':'harmony', 'trailblazer-harmony':'harmony',
     'archer':'hunt', 'ashveil':'hunt', 'boothill':'hunt', 'dr-ratio':'hunt', 'feixiao':'hunt', 'march-7th-swordmaster':'hunt', 'moze':'hunt', 'seele':'hunt', 'topaz':'hunt',
-    'acheron':'nihility', 'black-swan':'nihility', 'blade-mortenax':'nihility', 'cipher':'nihility', 'the-dahlia':'nihility', 'hysilens':'nihility', 'jiaoqiu':'nihility', 'kafka':'nihility', 'pela':'nihility', 'silver-wolf':'nihility', 'welt':'nihility',
+    'acheron':'nihility', 'black-swan':'nihility', 'blade-mortenax':'nihility', 'cipher':'nihility', 'the-dahlia':'nihility', 'hysilens':'nihility', 'tingyun-fugue':'nihility', 'jiaoqiu':'nihility', 'kafka':'nihility', 'pela':'nihility', 'silver-wolf':'nihility', 'welt':'nihility',
     'aventurine':'preservation', 'dan-heng-permansor-terrae':'preservation', 'fu-xuan':'preservation', 'gepard':'preservation',
     'aglaea':'remembrance', 'castorice':'remembrance', 'cyrene':'remembrance', 'hyacine':'remembrance', 'march-7th-evernight':'remembrance', 'robin-summeretto':'remembrance', 'trailblazer-remembrance':'remembrance'
   };
   const PATH_LABEL = { abundance:'Abundancia', destruction:'Destrucción', elation:'Elación', erudition:'Erudición', harmony:'Armonía', hunt:'Cacería', nihility:'Nihilidad', preservation:'Conservación', remembrance:'Recuerdo' };
+  const hsrMini = (game, slug) => {
+    const e = elOf(game, slug), v = pathOf(game, slug);
+    if (!e && !v) return '';
+    return `<em class="mini">${e ? `<img src="${elIcon(e)}" alt="${EL_LABEL[e]}" title="${EL_LABEL[e]}" onerror="this.remove()">` : ''}${v ? `<img src="${pathIcon(v)}" alt="${PATH_LABEL[v]}" title="${PATH_LABEL[v]}" onerror="this.remove()">` : ''}</em>`;
+  };
   const PATH_FILE = { remembrance:'remem' };  /* path_remem.webp es la excepción */
   const pathIcon = v => `./path_${PATH_FILE[v] || v}.webp`;
   const pathOf = (game, slug) => game === 'hsr' ? (HSR_PATH[slug] || null) : null;
@@ -969,12 +974,31 @@
     'phoebe':'spectro', 'phr':'havoc', 'qiu':'aero', 'rover-aero':'aero', 'rover-electro':'electro',
     'rover-spectro':'spectro', 'senhua':'glacio', 'keeper':'spectro', 'verina':'spectro',
     'yangyang-xuanling':'havoc', 'zani':'spectro',
-    /* revisados con fuentes (oct 2026); 'math' sin verificar */
+    /* revisados con fuentes (oct 2026); 'math' = Aemeath */
     'denia':'fusion', 'hiyuki':'glacio', 'hsin':'electro', 'jingran':'fusion', 'lily':'spectro', 'lucilla':'glacio',
-    'lucy':'spectro', 'math':'glacio', 'mornye':'fusion', 'qingxiao':'aero', 'rebecca':'electro', 'sigrika':'aero',
+    'lucy':'spectro', 'math':'fusion', 'mornye':'fusion', 'qingxiao':'aero', 'rebecca':'electro', 'sigrika':'aero',
     'suisui':'glacio', 'suoming':'electro'
   };
   const WUWA_LABEL = { aero:'Aero', electro:'Electro', fusion:'Fusion', glacio:'Glacio', havoc:'Havoc', spectro:'Spectro' };
+  /* Arma de cada Resonator (icono: ./weapon_<arma>.webp). 'math' = Aemeath.
+     Verificado contra wutheringwaves.party y wuwabuild.com (oct 2026) */
+  const WUWA_WEAPON = {
+    'aug':'broadblade', 'brant':'sword', 'buling':'rectifier', 'canta':'rectifier', 'carlotta':'pistols', 'cart':'sword',
+    'changli':'sword', 'chisa':'broadblade', 'cia':'pistols', 'denia':'rectifier', 'gal':'pistols', 'hiyuki':'sword',
+    'hsin':'rectifier', 'iuno':'gauntlets', 'jingran':'broadblade', 'jihni':'broadblade', 'jiyan':'broadblade',
+    'lily':'pistols', 'lucilla':'rectifier', 'lucy':'pistols', 'lupa':'broadblade', 'luuk-herssen':'gauntlets',
+    'lynae':'pistols', 'math':'sword', 'mornye':'broadblade', 'mortefi':'pistols', 'phoebe':'rectifier', 'phr':'rectifier',
+    'qingxiao':'sword', 'qiu':'sword', 'rebecca':'pistols', 'rover-aero':'sword', 'rover-electro':'sword',
+    'rover-spectro':'sword', 'senhua':'sword', 'keeper':'rectifier', 'sigrika':'gauntlets', 'suisui':'rectifier',
+    'suoming':'sword', 'verina':'rectifier', 'yangyang-xuanling':'sword', 'zani':'gauntlets'
+  };
+  const WUWA_WEAPON_LABEL = { sword:'Espada', pistols:'Pistolas', gauntlets:'Guanteletes', rectifier:'Rectificador', broadblade:'Hoja ancha' };
+  const wuwaMini = (game, slug) => {
+    const w = game === 'wuwa' ? WUWA_WEAPON[slug] : null;
+    if (!w) return '';
+    const e = WUWA_EL[slug];
+    return `<em class="mini">${e ? `<img src="./element_${e}.webp" alt="${WUWA_LABEL[e]}" title="${WUWA_LABEL[e]}" onerror="this.remove()">` : ''}<img src="./weapon_${w}.webp" alt="${WUWA_WEAPON_LABEL[w]}" title="${WUWA_WEAPON_LABEL[w]}" onerror="this.remove()"></em>`;
+  };
   const WUWA_HUE = { aero:160, electro:275, fusion:12, glacio:200, havoc:335, spectro:48 };
   function wuwaRand(str) {
     let s = 2166136261;
@@ -1296,7 +1320,7 @@
       .map(([slug, name, role]) => `
         <a class="card" href="#${slug}">
           <img src="${img(currentGame, slug)}" alt="${name}" loading="lazy">
-          <span>${name}${role ? `<small>${role}</small>` : ''}${zzzMini(currentGame, slug)}</span>
+          <span>${name}${role ? `<small>${role}</small>` : ''}${zzzMini(currentGame, slug)}${hsrMini(currentGame, slug)}${wuwaMini(currentGame, slug)}</span>
         </a>`).join('');
     $('grid').innerHTML = list;
     $('empty').hidden = list !== '';
