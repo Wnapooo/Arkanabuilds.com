@@ -210,6 +210,126 @@
   }
   .pending { color: var(--muted); font-size: 15px; margin: 0; }
 
+
+  /* ============================================================
+     HSR: página de personaje (retrato | armas y sets | equipos)
+     ============================================================ */
+  body.hsr-open {
+    --bg:#0b0c10; --text:#e5e7eb; --muted:#a3a8b6; --heading:#f3f4f6;
+    --border:#1a1c23; --card:#14161d; --card-border:#1f222c;
+    --chip:#1c1e27; --chip-border:#2a2d38; --toggle-bg:#23252f; --toggle-knob:#6b7280;
+  }
+  main { isolation: isolate; position: relative; }
+  main.wide { max-width: 1680px; }
+  .navbar { position: relative; z-index: 2; }
+
+  [data-el] { --e1:#2a2a33; --e2:#8a8a9a; --e3:#e6e6ee; }
+  [data-el="physical"]  { --e1:#2b2a33; --e2:#a5a3b5; --e3:#f1f0f6; }
+  [data-el="fire"]      { --e1:#3a0e0a; --e2:#f0592c; --e3:#ffd08a; }
+  [data-el="ice"]       { --e1:#0a2236; --e2:#3fa6ea; --e3:#d6f3ff; }
+  [data-el="lightning"] { --e1:#2a0c3d; --e2:#b858f2; --e3:#f0d6ff; }
+  [data-el="wind"]      { --e1:#082e26; --e2:#2fcfa0; --e3:#d6fff0; }
+  [data-el="quantum"]   { --e1:#14104a; --e2:#6657f5; --e3:#d3ceff; }
+  [data-el="imaginary"] { --e1:#3b3005; --e2:#eacb30; --e3:#fff5b8; }
+
+  /* fondo a pantalla completa */
+  .hsr-bg {
+    position: fixed; inset: 0; z-index: -1; overflow: hidden;
+    background:
+      radial-gradient(90% 70% at 18% 30%, color-mix(in srgb, var(--e2) 38%, transparent), transparent 60%),
+      radial-gradient(70% 60% at 85% 100%, color-mix(in srgb, var(--e2) 30%, transparent), transparent 65%),
+      linear-gradient(160deg, var(--e1), #07080d 75%);
+  }
+  /* el arte del personaje, muy difuminado, da el color propio de cada uno */
+  .hsr-bg::before {
+    content: ""; position: absolute; inset: -8%;
+    background: var(--art) 25% 10% / cover no-repeat;
+    filter: blur(70px) saturate(1.5);
+    opacity: .3;
+  }
+  /* órbitas y estrellas */
+  .hsr-bg::after {
+    content: ""; position: absolute; inset: 0;
+    background:
+      repeating-radial-gradient(circle at 16% 34%, transparent 0 70px, color-mix(in srgb, var(--e3) 13%, transparent) 70px 71px),
+      radial-gradient(circle, var(--e3) 0 1.2px, transparent 1.7px) 8% 12% / 170px 170px,
+      radial-gradient(circle, var(--e3) 0 .9px, transparent 1.4px) 60% 70% / 120px 120px,
+      radial-gradient(circle, #fff 0 .7px, transparent 1.2px) 35% 45% / 90px 90px;
+    -webkit-mask-image: radial-gradient(120% 100% at 16% 34%, #000 20%, transparent 80%);
+            mask-image: radial-gradient(120% 100% at 16% 34%, #000 20%, transparent 80%);
+    opacity: .7;
+  }
+
+  .hsr-grid {
+    display: grid;
+    grid-template-columns: 280px minmax(0, 1fr) 340px;
+    gap: 28px;
+    align-items: start;
+  }
+  .hsr-id h1 { font-size: 38px; line-height: 1.1; margin: 0 0 10px; color: var(--heading); text-shadow: 0 2px 18px color-mix(in srgb, var(--e2) 60%, transparent); }
+  .el-tag { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--e3); font-weight: 600; }
+  .el-tag::before {
+    content: ""; width: 9px; height: 9px; border-radius: 50%;
+    background: var(--e2); box-shadow: 0 0 10px var(--e2);
+  }
+
+  .portrait-stage {
+    position: relative; overflow: hidden; isolation: isolate;
+    aspect-ratio: 1 / 1;
+    border-radius: 16px;
+    border: 1px solid color-mix(in srgb, var(--e2) 55%, transparent);
+    box-shadow: 0 18px 50px -18px var(--e2);
+    margin-bottom: 18px;
+    background:
+      radial-gradient(120% 80% at 50% 108%, color-mix(in srgb, var(--e2) 75%, transparent), transparent 62%),
+      radial-gradient(60% 50% at 50% 34%, color-mix(in srgb, var(--e3) 38%, transparent), transparent 70%),
+      linear-gradient(165deg, var(--e1), #07080d 92%);
+  }
+  .portrait-stage::before {
+    content: ""; position: absolute; inset: -20%; z-index: 0;
+    background: repeating-radial-gradient(circle at 50% 42%, transparent 0 26px, color-mix(in srgb, var(--e3) 22%, transparent) 26px 27px);
+    -webkit-mask-image: radial-gradient(circle at 50% 42%, #000 0, transparent 62%);
+            mask-image: radial-gradient(circle at 50% 42%, #000 0, transparent 62%);
+  }
+  .portrait-stage .portrait {
+    position: relative; z-index: 1; height: 100%;
+    margin: 0; border: 0; border-radius: 0; background: transparent;
+  }
+
+  .panel {
+    border-radius: 16px;
+    border: 1px solid color-mix(in srgb, var(--e2) 38%, var(--card-border));
+    background: linear-gradient(180deg, rgba(14,16,24,.72), rgba(8,9,14,.78));
+    -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+    box-shadow: 0 24px 60px -30px #000;
+    overflow: hidden;
+  }
+  .panel h2 {
+    margin: 0; padding: 16px 20px 14px;
+    font-size: 17px; font-weight: 700; color: var(--heading);
+    display: flex; align-items: center; gap: 10px;
+    border-bottom: 1px solid color-mix(in srgb, var(--e2) 25%, var(--card-border));
+    background: linear-gradient(90deg, color-mix(in srgb, var(--e2) 22%, transparent), transparent 70%);
+  }
+  .panel h2::before { content: ""; width: 4px; height: 18px; border-radius: 2px; background: var(--e2); box-shadow: 0 0 10px var(--e2); }
+  .panel-body { padding: 16px; }
+  .panel-body .shot { border: 0; border-radius: 10px; }
+  .panel-body .pending {
+    display: grid; place-items: center; text-align: center;
+    min-height: 260px; padding: 24px;
+    border: 1px dashed color-mix(in srgb, var(--e2) 45%, transparent);
+    border-radius: 10px; color: var(--muted);
+  }
+
+  @media (max-width: 1100px) {
+    .hsr-grid { grid-template-columns: 240px minmax(0, 1fr); }
+    .hsr-grid .panel:last-child { grid-column: 1 / -1; }
+  }
+  @media (max-width: 800px) {
+    .hsr-grid { grid-template-columns: 1fr; }
+    .hsr-id { max-width: 280px; }
+  }
+
   [hidden] { display: none !important; }
 
   @media (max-width: 800px) {
@@ -354,11 +474,41 @@
   };
 
   /* ============================================================
+     ELEMENTO DE CADA PERSONAJE DE HSR (define el fondo de la card)
+     Valores: physical, fire, ice, lightning, wind, quantum, imaginary
+     Los marcados con (?) no estoy 100% seguro, corrígelos si hace falta.
+     ============================================================ */
+  const HSR_EL = {
+    'acheron':'lightning','aglaea':'lightning','aha':'imaginary', /* (?) */ 'anaxa':'wind','archer':'quantum',
+    'argenti':'physical','ashveil':'lightning', /* (?) */ 'asta':'fire','aventurine':'imaginary',
+    'aventurine-waveflair':'imaginary', /* (?) */ 'bailu':'lightning','black-swan':'wind','blade':'wind',
+    'blade-mortenax':'wind', /* (?) */ 'boothill':'physical','bronya':'wind','castorice':'quantum','cerydra':'wind',
+    'cipher':'quantum','clara':'physical','cyrene':'ice', /* (?) */ 'dan-heng-permansor-terrae':'physical',
+    'dr-ratio':'imaginary','evanescia':'quantum', /* (?) */ 'feixiao':'wind','firefly':'fire','fu-xuan':'quantum',
+    'gallagher':'fire','gepard':'ice','gilgamesh':'imaginary', /* (?) */ 'herta':'ice','himeko':'fire',
+    'himeko-nova':'fire', /* (?) */ 'huohuo':'wind','hyacine':'wind','hysilens':'physical','imbibitor-lunae':'imaginary',
+    'jade':'quantum','jiaoqiu':'fire','jingliu':'ice','jing-yuan':'lightning','kafka':'lightning','lingsha':'fire',
+    'luocha':'imaginary','lynx':'quantum','march-7th-evernight':'ice','march-7th-swordmaster':'imaginary',
+    'moze':'lightning','mydei':'imaginary','pearl':'imaginary', /* (?) */ 'pela':'ice','phainon':'physical',
+    'rappa':'imaginary','rin-tohsaka':'fire', /* (?) */ 'robin':'physical','robin-summeretto':'physical', /* (?) */
+    'ruan-mei':'ice','saber':'wind','seele':'quantum','serval':'lightning','silver-wolf':'quantum',
+    'silver-wolf-lv-999':'quantum','sparkle':'quantum','sparxie':'fire', /* (?) */ 'sunday':'imaginary',
+    'the-dahlia':'fire', /* (?) */ 'the-herta':'ice','tingyun':'lightning','tingyun-fugue':'lightning', /* (?) */
+    'topaz':'fire','trailblazer-elation':'imaginary','trailblazer-harmony':'imaginary',
+    'trailblazer-remembrance':'ice','tribbie':'quantum','welt':'imaginary','yao-guang':'physical','yunli':'physical'
+  };
+  const EL_LABEL = { physical:'Físico', fire:'Fuego', ice:'Hielo', lightning:'Rayo', wind:'Viento', quantum:'Cuántico', imaginary:'Imaginario' };
+  const elOf = (game, slug) => game === 'hsr' ? (HSR_EL[slug] || null) : null;
+
+
+  /* ============================================================
      2) SCREENSHOT DE LA BUILD
      Guarda la captura de cada personaje en la carpeta "builds"
      con el nombre del slug, por ejemplo: builds/claret.png
      ============================================================ */
   const buildImg = slug => `./builds/${slug}.png`;
+  /* Equipos (solo HSR): guarda la captura en la carpeta "equipos" con el slug, ej: equipos/seele.png */
+  const teamsImg = slug => `./equipos/${slug}.png`;
 
 
   /* ============================================================ */
@@ -407,10 +557,42 @@
     $('empty').hidden = list !== '';
   }
 
+  const pendingImg = text => "this.replaceWith(Object.assign(document.createElement('p'),{className:'pending',textContent:'" + text + "'}))";
+
   function renderDetail(slug) {
     const found = findChar(slug);
     if (!found) return false;
     const { game, char: c } = found;
+    const el = elOf(game, slug);
+
+    if (el) {
+      $('detail').innerHTML = `
+        <div data-el="${el}">
+          <div class="hsr-bg" style="--art:url('${img(game, slug)}')"></div>
+          <a class="back" href="#">← Todos los personajes</a>
+          <div class="hsr-grid">
+            <aside class="hsr-id">
+              <div class="portrait-stage"><img class="portrait" src="${img(game, slug)}" alt="${c[1]}"></div>
+              <h1>${c[1]}</h1>
+              <span class="el-tag">${EL_LABEL[el]}${c[2] ? ' · ' + c[2] : ''}</span>
+            </aside>
+            <section class="panel">
+              <h2>Armas y sets</h2>
+              <div class="panel-body">
+                <img class="shot" src="${buildImg(slug)}" alt="Build de ${c[1]}" onerror="${pendingImg('Build pendiente.')}">
+              </div>
+            </section>
+            <section class="panel">
+              <h2>Equipos</h2>
+              <div class="panel-body">
+                <img class="shot" src="${teamsImg(slug)}" alt="Equipos de ${c[1]}" onerror="${pendingImg('Equipos pendientes.')}">
+              </div>
+            </section>
+          </div>
+        </div>`;
+      return true;
+    }
+
     $('detail').innerHTML = `
       <a class="back" href="#">← Todos los personajes</a>
       <div class="detail">
@@ -420,8 +602,7 @@
           <p class="sub">${c[2]}</p>
         </div>
         <div>
-          <img class="shot" src="${buildImg(slug)}" alt="Build de ${c[1]}"
-               onerror="this.replaceWith(Object.assign(document.createElement('p'),{className:'pending',textContent:'Build pendiente.'}))">
+          <img class="shot" src="${buildImg(slug)}" alt="Build de ${c[1]}" onerror="${pendingImg('Build pendiente.')}">
         </div>
       </div>`;
     return true;
@@ -435,6 +616,10 @@
       const f = findChar(slug);
       if (f && f.game !== currentGame) { currentGame = f.game; renderTabs(); renderGrid(); }
     }
+    const f2 = showDetail && findChar(slug);
+    const isHsr = !!(f2 && elOf(f2.game, slug));
+    document.body.classList.toggle('hsr-open', isHsr);
+    document.querySelector('main').classList.toggle('wide', isHsr);
     $('detail').hidden = !showDetail;
     $('gallery').hidden = !!showDetail;
     window.scrollTo(0, 0);
