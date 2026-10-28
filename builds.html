@@ -263,13 +263,13 @@
   .hsr-grid {
     display: grid;
     grid-template-columns: 280px minmax(0, 1fr) 340px;
-    gap: 28px;
+    gap: 20px;
     align-items: start;
   }
   /* paneles más grandes: armas y sets ancho/alto, equipos como columna alta */
-  main.wide { max-width: 1840px; margin: 0 auto; }
+  main.wide { max-width: 1840px; margin: 0 auto; padding-left: 28px; padding-right: 28px; }
   .panel { display: flex; flex-direction: column; }
-  .panel-main  { min-height: 640px; }
+  .panel-main  { min-height: 725px; }
   .panel-teams { min-height: 740px; }
   .panel-body { flex: 1; display: flex; flex-direction: column; }
   .panel-body .shot { flex: none; }
@@ -358,23 +358,21 @@
 
   /* ============================================================
      FONDOS EXCLUSIVOS POR PERSONAJE (HSR)
-     Se activan con CHAR_FX[slug] en el script. Seele = mariposas cuánticas
+     Cada personaje tiene sus colores y composición en CHAR_BG (script)
      ============================================================ */
-  .char-fx { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-  .hsr-bg.fx-seele {
+  .hsr-bg.fx {
     background:
-      radial-gradient(60% 55% at 14% 38%, rgba(120,96,255,.42), transparent 66%),
-      radial-gradient(45% 50% at 92% 96%, rgba(214,32,92,.34), transparent 68%),
-      radial-gradient(40% 35% at 70% 8%, rgba(86,64,214,.28), transparent 70%),
-      linear-gradient(162deg, #130d46 0%, #0a0830 46%, #05040f 100%);
+      radial-gradient(60% 55% at var(--p1x) var(--p1y), color-mix(in srgb, var(--b2) 42%, transparent), transparent 66%),
+      radial-gradient(45% 50% at var(--p2x) var(--p2y), color-mix(in srgb, var(--b3) 34%, transparent), transparent 68%),
+      radial-gradient(40% 35% at var(--p3x) var(--p3y), color-mix(in srgb, var(--b2) 26%, transparent), transparent 70%),
+      linear-gradient(var(--ang), var(--b1), color-mix(in srgb, var(--b1) 45%, #05050c) 48%, #05050c);
   }
-  .fx-seele .bf-float { animation: bf-float 9s ease-in-out infinite; }
-  .fx-seele .bf-wings { animation: bf-flap 2.6s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 50%; }
-  @keyframes bf-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-16px); } }
-  @keyframes bf-flap  { 0%,100% { transform: scaleX(1); } 50% { transform: scaleX(.78); } }
-  @media (prefers-reduced-motion: reduce) {
-    .fx-seele .bf-float, .fx-seele .bf-wings { animation: none; }
-  }
+  .hsr-bg.lay-0 { --p1x:14%; --p1y:38%; --p2x:92%; --p2y:96%; --p3x:70%; --p3y:8%;  --ang:162deg; }
+  .hsr-bg.lay-1 { --p1x:86%; --p1y:30%; --p2x:8%;  --p2y:92%; --p3x:40%; --p3y:6%;  --ang:200deg; }
+  .hsr-bg.lay-2 { --p1x:50%; --p1y:8%;  --p2x:10%; --p2y:70%; --p3x:92%; --p3y:80%; --ang:180deg; }
+  .hsr-bg.lay-3 { --p1x:20%; --p1y:85%; --p2x:88%; --p2y:15%; --p3x:55%; --p3y:55%; --ang:135deg; }
+  .hsr-bg.lay-4 { --p1x:80%; --p1y:75%; --p2x:12%; --p2y:18%; --p3x:60%; --p3y:30%; --ang:215deg; }
+  .hsr-bg.lay-5 { --p1x:30%; --p1y:20%; --p2x:75%; --p2y:90%; --p3x:95%; --p3y:40%; --ang:150deg; }
 
   [hidden] { display: none !important; }
 
@@ -559,50 +557,86 @@
 
 
 
-  /* ============================================================
-     FONDOS EXCLUSIVOS: añade un personaje aquí y define su función
-     ============================================================ */
-  function seeleFx() {
-    // [x, y, tamaño, rotación, opacidad, retraso de animación]
-    const B = [
-      [1180,150,230,14,.55,0], [1420,360,150,-18,.5,1.4], [980,470,110,22,.4,2.6],
-      [1300,640,260,-10,.42,.7], [760,120,95,-24,.38,3.2], [1500,90,120,30,.45,2],
-      [560,640,150,16,.3,4], [900,760,100,-14,.34,1.1], [1120,330,70,8,.5,3.6],
-      [330,780,85,-20,.26,2.3], [1540,760,170,26,.32,.3]
-    ];
-    const wing = (flip) => `
-      <g ${flip ? 'transform="translate(100,0) scale(-1,1)"' : ''}>
-        <path d="M50 38C41 12 10 2 5 22c-3 14 21 25 45 18Z" fill="url(#bfg)"/>
-        <path d="M50 43C39 47 15 52 19 66c4 11 23 2 31-20Z" fill="url(#bfg)" opacity=".8"/>
-        <path d="M48 38C38 24 22 16 10 20" stroke="#f0ebff" stroke-opacity=".55" stroke-width=".8" fill="none"/>
-      </g>`;
-    const bf = ([x,y,sz,rot,op,d]) => `
-      <g transform="translate(${x} ${y}) rotate(${rot}) scale(${sz/100}) translate(-50 -40)" opacity="${op}" filter="url(#bfglow)">
-        <g class="bf-float" style="animation-delay:-${d}s">
-          <g class="bf-wings" style="animation-delay:-${d}s">${wing(false)}${wing(true)}</g>
-          <path d="M50 28v26" stroke="#f0ebff" stroke-width="2" stroke-linecap="round"/>
-        </g>
-      </g>`;
-    return `
-    <svg class="char-fx" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-      <defs>
-        <linearGradient id="bfg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stop-color="#d9d2ff"/><stop offset=".55" stop-color="#7a66ff"/><stop offset="1" stop-color="#e0245e"/>
-        </linearGradient>
-        <linearGradient id="scy" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" stop-color="#e0245e" stop-opacity="0"/><stop offset=".5" stop-color="#ffb3d1" stop-opacity=".75"/><stop offset="1" stop-color="#7a66ff" stop-opacity="0"/>
-        </linearGradient>
-        <filter id="bfglow" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-        </filter>
-      </defs>
-      <!-- corte de guadaña: arco carmesí que cruza el fondo -->
-      <path d="M380 880C700 520 1180 300 1600 250" stroke="url(#scy)" stroke-width="3" fill="none" opacity=".7"/>
-      <path d="M440 900C780 560 1200 360 1600 330" stroke="url(#scy)" stroke-width="1.2" fill="none" opacity=".5"/>
-      ${B.map(bf).join('')}
-    </svg>`;
-  }
-  const CHAR_FX = { 'seele': seeleFx };
+  /* Fondo propio de cada personaje de HSR: [base oscura, color principal, color secundario, composición 0-5] */
+  const CHAR_BG = {
+    'acheron':['#14091f','#9b4dff','#e0305a',2],
+    'aglaea':['#1e1030','#c58bff','#f2c14e',3],
+    'aha':['#2a0f3a','#ff5fb0','#ffd84d',4],
+    'anaxa':['#0a2a2e','#3fd0c0','#e0c070',5],
+    'archer':['#1a0e14','#b8323c','#aab4c8',1],
+    'argenti':['#2a1620','#ff7fa8','#e8e0f0',2],
+    'ashveil':['#14121e','#8f7bd6','#c0c0d0',3],
+    'asta':['#2e0f10','#ff6a3d','#ffb09a',4],
+    'aventurine':['#0f2230','#f2c94c','#3ab0a0',5],
+    'aventurine-waveflair':['#0a1f33','#4aa8ff','#f2d27a',1],
+    'bailu':['#0c2a24','#5fd6a0','#b8f0e0',2],
+    'black-swan':['#0e1626','#5b6fd6','#3ac0b0',3],
+    'blade':['#0b1814','#2fa68a','#c9f0e4',4],
+    'blade-mortenax':['#2a0e0a','#e84a2a','#ffb36b',5],
+    'boothill':['#2a1608','#d98a3a','#f2d29a',1],
+    'bronya':['#0f2024','#7fd8c8','#e8f4ff',2],
+    'castorice':['#120a24','#8a5cf0','#d9c4ff',3],
+    'cerydra':['#0a2a28','#66d9c4','#f0e08a',4],
+    'cipher':['#14121a','#9a63e8','#f5d35a',5],
+    'clara':['#2a0f14','#e0405a','#f3dede',1],
+    'cyrene':['#1a1e3a','#ff9ac8','#bfe6ff',2],
+    'dan-heng-permansor-terrae':['#2a2008','#e2b73c','#8fd0c0',3],
+    'dr-ratio':['#1e1608','#d4a62c','#8a7a5a',4],
+    'evanescia':['#1c1c26','#a5a3b5','#e8d6ff',5],
+    'feixiao':['#0a2a22','#34d39a','#f3f0c0',1],
+    'firefly':['#0b2a2a','#3fe0c8','#ff8a3c',2],
+    'fu-xuan':['#2a1030','#ff6fb5','#f2c14e',3],
+    'gallagher':['#2e1408','#ff9a4a','#ffd6b0',4],
+    'gepard':['#0a2036','#5fa8e8','#dfeaf5',5],
+    'gilgamesh':['#241a06','#f2c230','#ff8a3c',1],
+    'herta':['#1a1030','#b07fe8','#ff9ad0',2],
+    'himeko':['#2a0c10','#e8402a','#f2d6a0',3],
+    'himeko-nova':['#2a0a1a','#ff4a7a','#ffd0a0',4],
+    'huohuo':['#101a3a','#6a7cf0','#3fd0b0',5],
+    'hyacine':['#0c2236','#7fcff0','#fff0b0',1],
+    'hysilens':['#0e1a34','#3a7fd8','#c07be8',2],
+    'imbibitor-lunae':['#1a2236','#e8b83c','#6aa8e8',3],
+    'jade':['#1a0e28','#9a5ae8','#e8c850',4],
+    'jiaoqiu':['#2a0e0e','#e8502a','#ffc070',5],
+    'jingliu':['#0a1c3a','#4a9ae8','#dfeaff',1],
+    'jing-yuan':['#1a1038','#9a6af0','#e8c060',2],
+    'kafka':['#1e0b2e','#c04ae0','#ff5a8a',3],
+    'lingsha':['#2a0e14','#ff6a50','#f5d28a',4],
+    'luocha':['#1e1c10','#e8cc60','#fff4c8',5],
+    'lynx':['#14183a','#7a8cf0','#ffb36b',1],
+    'march-7th-evernight':['#1a1038','#ff8ac0','#8ad0ff',2],
+    'march-7th-swordmaster':['#2a1a2a','#ffb84a','#ff7ab0',3],
+    'moze':['#14101e','#8a5ae8','#5a6a8a',4],
+    'mydei':['#2a0a0a','#e8402a','#f2c230',5],
+    'pearl':['#0a2036','#6ac0f0','#ffd0e8',1],
+    'pela':['#0a1e38','#4a9ae8','#e0f0ff',2],
+    'phainon':['#1a1c28','#f0c850','#9ab8f0',3],
+    'rappa':['#2a1030','#ff5fa0','#ffd84d',4],
+    'rin-tohsaka':['#20080e','#e8304a','#ffd0d0',5],
+    'robin':['#14203a','#9ac4ff','#ffc8e0',1],
+    'robin-summeretto':['#0c2a3a','#4ad0e0','#ffd84d',2],
+    'ruan-mei':['#0c2a2e','#6ad8c0','#e0f8f0',3],
+    'saber':['#0a1c3a','#3a7ae8','#f2d27a',4],
+    'seele':['#0f0a3c','#7a66ff','#e0245e',0],
+    'serval':['#2a1a08','#ffc02a','#e8402a',5],
+    'silver-wolf':['#14183a','#ff6ab0','#4ad0ff',1],
+    'silver-wolf-lv-999':['#0e1a22','#f5e050','#ff5aa0',2],
+    'sparkle':['#240a1a','#e0305a','#8a4ae8',3],
+    'sparxie':['#2e1020','#ff6a8a','#ffc84a',4],
+    'sunday':['#1c1a2a','#f0d060','#8ab0f0',5],
+    'the-dahlia':['#2a0a18','#e83a6a','#ffb0c8',1],
+    'the-herta':['#1a1038','#c08af0','#8ad0ff',2],
+    'tingyun':['#1a1236','#a070f0','#ff9a4a',3],
+    'tingyun-fugue':['#2e1208','#ff7a3a','#ffc0e0',4],
+    'topaz':['#2a1608','#ff9a2a','#ffe08a',5],
+    'trailblazer-elation':['#2a1030','#ff5aa0','#ffd84a',1],
+    'trailblazer-harmony':['#2a2008','#f2c840','#ff8ac8',2],
+    'trailblazer-remembrance':['#0a1c3a','#5aa8f0','#f0a0d0',3],
+    'tribbie':['#241040','#d080ff','#ff90d0',4],
+    'welt':['#1c1a14','#e0c050','#8a8aa0',5],
+    'yao-guang':['#2a1a14','#f0b050','#ff8a9a',1],
+    'yunli':['#2a0e0e','#e8402a','#ffb04a',2]
+  };
 
   /* ============================================================ */
   const $ = id => document.getElementById(id);
@@ -657,11 +691,12 @@
     if (!found) return false;
     const { game, char: c } = found;
     const el = elOf(game, slug);
+    const bg = CHAR_BG[slug];
 
     if (el) {
       $('detail').innerHTML = `
-        <div data-el="${el}">
-          <div class="hsr-bg${CHAR_FX[slug] ? ' fx-' + slug : ''}" style="--art:url('${img(game, slug)}')">${CHAR_FX[slug] ? CHAR_FX[slug]() : ''}</div>
+        <div data-el="${el}"${bg ? ` style="--e1:${bg[0]};--e2:${bg[1]};--e3:color-mix(in srgb, ${bg[1]} 45%, #fff)"` : ''}>
+          <div class="hsr-bg${bg ? ' fx lay-' + bg[3] : ''}" style="${bg ? `--b1:${bg[0]};--b2:${bg[1]};--b3:${bg[2]};` : ''}--art:url('${img(game, slug)}')"></div>
           <a class="back" href="#">← Todos los personajes</a>
           <div class="hsr-grid">
             <aside class="hsr-id">
