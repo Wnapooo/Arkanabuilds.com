@@ -385,6 +385,43 @@
     .portrait { max-width: 280px; }
   }
 
+
+  /* ===== Ajustes extra para móvil ===== */
+  @media (hover: none) {
+    .card:hover { transform: none; border-color: var(--card-border); }
+  }
+  @media (max-width: 800px) {
+    .navbar { padding: 14px 16px; }
+    .nav-right { width: 100%; justify-content: space-between; gap: 12px; }
+    .nav-right > a { padding: 6px 2px; }
+    .social-icons { gap: 10px; }
+    .icon-circle { width: 34px; height: 34px; }
+
+    /* main.wide (páginas de HSR) tenía sus propios márgenes laterales de escritorio */
+    main, main.wide { padding: 28px 16px 48px; }
+    h1.hero-title { font-size: 34px; word-break: break-word; }
+    .hero-sub { font-size: 16px; margin: 14px 0 20px; }
+
+    .game-tabs { padding-bottom: 6px; -webkit-overflow-scrolling: touch; }
+    .game-tab { padding: 10px 16px; }
+    .search { max-width: 100%; font-size: 16px; margin-bottom: 20px; } /* 16px evita el zoom automático en iPhone */
+
+    .grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
+    .card span { padding: 9px 10px; font-size: 13px; }
+
+    .back { padding: 8px 0; margin-bottom: 12px; font-size: 15px; }
+    .hsr-grid { gap: 16px; }
+    .hsr-id { max-width: 340px; }
+    .hsr-id h1 { font-size: 30px; }
+    .panel-main, .panel-teams { min-height: 0; }
+    .panel h2 { padding: 14px 16px 12px; font-size: 16px; }
+    .panel-body { padding: 12px; }
+    .panel-body .pending { min-height: 180px; padding: 18px; }
+
+    /* efectos pesados más ligeros en celulares */
+    .hsr-bg::before { filter: blur(40px) saturate(1.5); }
+    .panel { -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+  }
 </style>
 </head>
 <body>
