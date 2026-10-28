@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Tier List — Wuthering Waves</title>
 <link rel="icon" type="image/png" href="./favicon.png">
 <style>
@@ -169,6 +170,43 @@ td.drop-active, .pool.drop-active { background: rgba(129,140,248,.06); }
   transition: opacity .2s ease, transform .2s ease; pointer-events: none;
 }
 #toast.show { opacity: 1; transform: none; }
+
+/* ===== Adaptación a móvil ===== */
+body.editing a.char-icon { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+@media (max-width: 800px) {
+  .navbar { padding: 14px 16px; }
+  .nav-right { width: 100%; justify-content: space-between; gap: 12px; }
+  .nav-right > a { padding: 6px 2px; }
+  .social-icons { gap: 10px; }
+  .icon-circle { width: 34px; height: 34px; }
+
+  /* Cada fila de tier se apila: etiqueta arriba, luego cada categoría debajo */
+  table.tier-table, table.tier-table tbody, table.tier-table tr, table.tier-table td { display: block; width: 100%; }
+  table.tier-table colgroup, table.tier-table thead { display: none; }
+  table.tier-table tr { border-bottom: 1px solid #1f222f; }
+  table.tier-table td { border-right: none; border-bottom: none; padding: 10px 14px; }
+  table.tier-table td.tier-label-cell {
+    width: 100%; padding: 8px 14px; text-align: left; font-size: 14px;
+    border-right: none; border-bottom: 1px solid #1f222f;
+  }
+  table.tier-table td[data-label]::before {
+    content: attr(data-label); display: block; margin-bottom: 8px;
+    font-size: 11px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase;
+    color: var(--lbl, #8b8f99);
+  }
+  /* Categorías sin personajes se ocultan (en modo editor siguen visibles para soltar íconos) */
+  body:not(.editing) table.tier-table td:has(> .icon-row:empty) { display: none; }
+
+  .char-icon, .empty-icon { width: 58px; height: 58px; border-radius: 8px; }
+  .icon-row { min-height: 58px; gap: 7px; }
+  .divider { padding: 10px 14px; }
+  .pool { padding: 12px 14px 24px; }
+
+  .toolbar { flex-wrap: wrap; padding: 10px 14px 0; }
+  .toolbar .hint { flex-basis: 100%; }
+  .toolbar button { padding: 9px 14px; }
+  #toast { left: 14px; right: 14px; bottom: 14px; text-align: center; }
+}
 </style>
 <script>document.documentElement.classList.add('loading')</script>
 </head>
@@ -237,6 +275,21 @@ td.drop-active, .pool.drop-active { background: rgba(129,140,248,.06); }
   </div>
 
 
+<script>
+/* Copia los títulos de columna (DPS, SOPORTE...) a cada celda para el diseño móvil */
+(function () {
+  var heads = Array.prototype.map.call(document.querySelectorAll('table.tier-table thead th'), function (th) {
+    return { t: th.textContent.trim(), c: th.style.color || '' };
+  });
+  document.querySelectorAll('table.tier-table tr').forEach(function (tr) {
+    Array.prototype.forEach.call(tr.children, function (td, i) {
+      if (i === 0 || !heads[i] || !heads[i].t) return;
+      td.setAttribute('data-label', heads[i].t);
+      if (heads[i].c) td.style.setProperty('--lbl', heads[i].c);
+    });
+  });
+})();
+</script>
 <div id="toast"></div>
 <script>
 (function () {
@@ -390,6 +443,56 @@ td.drop-active, .pool.drop-active { background: rgba(129,140,248,.06); }
       dragged.classList.remove('dragging'); dragged = null;
       document.querySelectorAll('.drop-active').forEach(function (z) { z.classList.remove('drop-active'); });
       save();
+    });
+
+    /* ---------- Soporte táctil: mantén pulsado un ícono ~0.35 s y arrástralo ---------- */
+    var tTimer = null, tActive = false, tStart = null, tBefore = '', tBlockClick = false;
+    function clearZones() {
+      document.querySelectorAll('.drop-active').forEach(function (z) { z.classList.remove('drop-active'); });
+    }
+    document.addEventListener('touchstart', function (e) {
+      var a = e.target.closest && e.target.closest('a.char-icon');
+      if (!a || e.touches.length !== 1) return;
+      var t = e.touches[0];
+      tStart = { x: t.clientX, y: t.clientY };
+      clearTimeout(tTimer);
+      tTimer = setTimeout(function () {
+        tActive = true; dragged = a; tBefore = JSON.stringify(serialize());
+        a.classList.add('dragging');
+        if (navigator.vibrate) navigator.vibrate(15);
+      }, 350);
+    }, { passive: true });
+    document.addEventListener('touchmove', function (e) {
+      var t = e.touches[0];
+      if (!tActive) {
+        // Si el dedo se mueve antes de tiempo, es un scroll normal: cancelar el arrastre
+        if (tStart && Math.abs(t.clientX - tStart.x) + Math.abs(t.clientY - tStart.y) > 10) { clearTimeout(tTimer); tStart = null; }
+        return;
+      }
+      e.preventDefault();
+      var el = document.elementFromPoint(t.clientX, t.clientY);
+      var zone = el && el.closest && el.closest('td, .pool');
+      var row = zone && zone.querySelector('.icon-row');
+      clearZones();
+      if (row) { zone.classList.add('drop-active'); place(row, t.clientX, t.clientY); }
+      if (t.clientY < 80) window.scrollBy(0, -14); else if (t.clientY > window.innerHeight - 80) window.scrollBy(0, 14);
+    }, { passive: false });
+    function tEnd() {
+      clearTimeout(tTimer); tStart = null;
+      if (!tActive) return;
+      tActive = false; tBlockClick = true;
+      setTimeout(function () { tBlockClick = false; }, 400);
+      if (dragged) { dragged.classList.remove('dragging'); dragged = null; }
+      clearZones();
+      if (JSON.stringify(serialize()) !== tBefore) save();
+    }
+    document.addEventListener('touchend', tEnd);
+    document.addEventListener('touchcancel', tEnd);
+    document.addEventListener('click', function (e) {
+      if (tBlockClick) { e.preventDefault(); e.stopPropagation(); }
+    }, true);
+    document.addEventListener('contextmenu', function (e) {
+      if ('ontouchstart' in window && e.target.closest && e.target.closest('a.char-icon')) e.preventDefault();
     });
 
     document.getElementById('btn-reset').addEventListener('click', function () {
