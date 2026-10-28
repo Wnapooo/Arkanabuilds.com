@@ -588,7 +588,10 @@
      Guarda la captura de cada personaje en la carpeta "builds"
      con el nombre del slug, por ejemplo: builds/claret.png
      ============================================================ */
-  const buildImg = slug => `./builds/${slug}.png`;
+  /* Imagen de build: primero busca "<slug> build.png" (ej: builds/seele build.png);
+     si no existe, usa el nombre anterior "<slug>.png" para no romper las builds que ya tienes */
+  const buildImg = slug => `./builds/${encodeURIComponent(slug + ' build')}.png`;
+  const buildErr = slug => "if(!this.dataset.f){this.dataset.f=1;this.src='./builds/" + slug + ".png'}else{" + pendingImg('Build pendiente.') + "}";
   /* Equipos (solo HSR): guarda la captura en la carpeta "equipos" con el slug, ej: equipos/seele.png */
   const teamsImg = slug => `./equipos/${slug}.png`;
 
@@ -747,7 +750,7 @@
             <section class="panel panel-main">
               <h2>Armas y sets</h2>
               <div class="panel-body">
-                <img class="shot" src="${buildImg(slug)}" alt="Build de ${c[1]}" onerror="${pendingImg('Build pendiente.')}">
+                <img class="shot" src="${buildImg(slug)}" alt="Build de ${c[1]}" onerror="${buildErr(slug)}">
               </div>
             </section>
             <section class="panel panel-teams">
@@ -770,7 +773,7 @@
           <p class="sub">${c[2]}</p>
         </div>
         <div>
-          <img class="shot" src="${buildImg(slug)}" alt="Build de ${c[1]}" onerror="${pendingImg('Build pendiente.')}">
+          <img class="shot" src="${buildImg(slug)}" alt="Build de ${c[1]}" onerror="${buildErr(slug)}">
         </div>
       </div>`;
     return true;
