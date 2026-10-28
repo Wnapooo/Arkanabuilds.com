@@ -177,6 +177,9 @@
     border-top: 1px solid var(--card-border);
   }
   .card small { display: block; font-weight: 400; font-size: 12px; color: var(--muted); }
+  /* ZZZ: iconos de elemento y especialidad en la card */
+  .card .mini { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-style: normal; }
+  .card .mini img { display: inline-block; width: 20px; height: 20px; aspect-ratio: auto; object-fit: contain; background: none; }
 
   /* ===== Detalle ===== */
   .back {
@@ -744,6 +747,49 @@
   const pathIcon = v => `./path_${PATH_FILE[v] || v}.webp`;
   const pathOf = (game, slug) => game === 'hsr' ? (HSR_PATH[slug] || null) : null;
 
+  /* ============================================================
+     ZZZ: ELEMENTO Y ESPECIALIDAD DE CADA AGENTE
+     [elemento, especialidad]
+     Iconos: ./ele_<elemento>2.webp  y  ./style_<especialidad>.webp
+     Elementos: electric, ether, fire, ice, lumiflux, physical, wind
+     Especialidades: anomaly, armorer, attack, defence, rupture, stun, support
+     Variantes (Frost, Auric Ink, Honed Edge) usan el icono de su elemento base.
+     Verificado contra Timesaver, Game8, zzz.gg y Prydwen (v3.2/3.3, oct 2026)
+     ============================================================ */
+  const ZZZ_INFO = {
+    // Crit DPS
+    'claret':['electric','armorer'], 'sigrid':['ice','attack'], 'ye-shunguang':['physical','attack'],
+    'banyue':['fire','rupture'], 'billy-starlight':['physical','rupture'], 'cissia':['electric','attack'],
+    'pyrois':['ether','attack'], 'seed':['electric','attack'], 'yidhari':['ice','rupture'], 'yixuan':['ether','rupture'],
+    'anby-demara-soldier-0':['electric','attack'], 'evelyn':['fire','attack'], 'harumasa':['electric','attack'],
+    'nekomata':['physical','attack'], 'orphie-and-magus':['fire','attack'], 'soldier-11':['fire','attack'],
+    'ellen':['ice','attack'], 'hugo':['ice','attack'], 'manato':['fire','rupture'], 'zhu-yuan':['ether','attack'],
+    // Anomaly DPS
+    'phoenix':['fire','anomaly'], 'remielle':['lumiflux','anomaly'], 'velina':['wind','anomaly'],
+    'alice':['physical','anomaly'], 'aria':['ether','anomaly'], 'burnice':['fire','anomaly'],
+    'miyabi':['ice','anomaly'], 'promeia':['ice','anomaly'], 'grace-howard':['electric','anomaly'],
+    'jane-doe':['physical','anomaly'], 'piper':['physical','anomaly'], 'vivian':['ether','anomaly'],
+    'yanagi':['electric','anomaly'],
+    // Support
+    'dialyn':['physical','stun'], 'lucia':['ether','support'], 'nangong-yu':['ether','stun'], 'norma':['fire','stun'],
+    'roxy':['wind','stun'], 'sunna':['physical','support'], 'ukinami-yuzuha':['physical','support'],
+    'astra-yao':['ether','support'], 'koleda':['fire','stun'], 'nicole-demara':['ether','support'],
+    'rina':['electric','support'], 'trigger':['electric','stun'], 'zhao':['ice','defence'],
+    'ju-fufu':['fire','stun'], 'lighter':['fire','stun'], 'lycaon':['ice','stun'],
+    'pan-yinhu':['physical','defence'], 'qingyi':['electric','stun']
+  };
+  const ZZZ_VARIANT = { 'miyabi':'Frost', 'yixuan':'Auric Ink', 'ye-shunguang':'Honed Edge' };
+  const ZZZ_EL_LABEL = { electric:'Eléctrico', ether:'Éter', fire:'Fuego', ice:'Hielo', lumiflux:'Lumiflux', physical:'Físico', wind:'Viento' };
+  const ZZZ_SPEC_LABEL = { anomaly:'Anomalía', armorer:'Armorer', attack:'Ataque', defence:'Defensa', rupture:'Ruptura', stun:'Aturdimiento', support:'Apoyo' };
+  const zzzElIcon = e => `./ele_${e}2.webp`;
+  const zzzSpecIcon = s => `./style_${s}.webp`;
+  const zzzElName = slug => { const i = ZZZ_INFO[slug]; if (!i) return ''; const v = ZZZ_VARIANT[slug]; return ZZZ_EL_LABEL[i[0]] + (v ? ' (' + v + ')' : ''); };
+  const zzzMini = (game, slug) => {
+    const i = game === 'zzz' ? ZZZ_INFO[slug] : null;
+    if (!i) return '';
+    return `<em class="mini"><img src="${zzzElIcon(i[0])}" alt="${zzzElName(slug)}" title="${zzzElName(slug)}" onerror="this.remove()"><img src="${zzzSpecIcon(i[1])}" alt="${ZZZ_SPEC_LABEL[i[1]]}" title="${ZZZ_SPEC_LABEL[i[1]]}" onerror="this.remove()"></em>`;
+  };
+
 
   /* ============================================================
      2) SCREENSHOT DE LA BUILD
@@ -1250,7 +1296,7 @@
       .map(([slug, name, role]) => `
         <a class="card" href="#${slug}">
           <img src="${img(currentGame, slug)}" alt="${name}" loading="lazy">
-          <span>${name}${role ? `<small>${role}</small>` : ''}</span>
+          <span>${name}${role ? `<small>${role}</small>` : ''}${zzzMini(currentGame, slug)}</span>
         </a>`).join('');
     $('grid').innerHTML = list;
     $('empty').hidden = list !== '';
@@ -1267,6 +1313,8 @@
     const isWw = game === 'wuwa';
     const wb = isWw ? wuwaBg(slug) : null;
     const pa = pathOf(game, slug);
+    const zi = isZzz ? (ZZZ_INFO[slug] || null) : null;
+    const zTag = zi ? `<img class="el-ico" src="${zzzElIcon(zi[0])}" alt="" onerror="this.remove()">${zzzElName(slug)}${c[2] ? ' · ' + c[2] : ''}<span class="path-tag"><img class="path-ico" src="${zzzSpecIcon(zi[1])}" alt="" onerror="this.remove()">${ZZZ_SPEC_LABEL[zi[1]]}</span>` : '';
     const bg = isZzz ? ZZZ_BG[slug] : isWw ? wb.bg : CHAR_BG[slug];
 
     if (el || ((isZzz || isWw) && bg)) {
@@ -1278,10 +1326,10 @@
             <aside class="hsr-id">
               <div class="portrait-stage">
                 <img class="portrait" src="${img(game, slug)}" alt="${c[1]}">
-                ${el ? `<img class="el-badge" src="${elIcon(el)}" alt="${EL_LABEL[el]}" onerror="this.remove()">` : isWw ? `<img class="el-badge" src="./element_${wb.el}.webp" alt="${WUWA_LABEL[wb.el]}" title="${WUWA_LABEL[wb.el]}" onerror="this.remove()">` : ''}${pa ? `<img class="path-badge" src="${pathIcon(pa)}" alt="${PATH_LABEL[pa]}" title="${PATH_LABEL[pa]}" onerror="this.remove()">` : ''}
+                ${el ? `<img class="el-badge" src="${elIcon(el)}" alt="${EL_LABEL[el]}" onerror="this.remove()">` : isWw ? `<img class="el-badge" src="./element_${wb.el}.webp" alt="${WUWA_LABEL[wb.el]}" title="${WUWA_LABEL[wb.el]}" onerror="this.remove()">` : zi ? `<img class="el-badge" src="${zzzElIcon(zi[0])}" alt="${zzzElName(slug)}" title="${zzzElName(slug)}" onerror="this.remove()">` : ''}${pa ? `<img class="path-badge" src="${pathIcon(pa)}" alt="${PATH_LABEL[pa]}" title="${PATH_LABEL[pa]}" onerror="this.remove()">` : zi ? `<img class="path-badge" src="${zzzSpecIcon(zi[1])}" alt="${ZZZ_SPEC_LABEL[zi[1]]}" title="${ZZZ_SPEC_LABEL[zi[1]]}" onerror="this.remove()">` : ''}
               </div>
               <h1>${c[1]}</h1>
-              <span class="el-tag">${el ? `<img class="el-ico" src="${elIcon(el)}" alt="" onerror="this.remove()">${EL_LABEL[el]}${c[2] ? ' · ' + c[2] : ''}` : (c[2] || (isWw ? `<img class="el-ico" src="./element_${wb.el}.webp" alt="" onerror="this.remove()">${WUWA_LABEL[wb.el]}` : ''))}${pa ? `<span class="path-tag"><img class="path-ico" src="${pathIcon(pa)}" alt="" onerror="this.remove()">${PATH_LABEL[pa]}</span>` : ''}</span>
+              <span class="el-tag">${el ? `<img class="el-ico" src="${elIcon(el)}" alt="" onerror="this.remove()">${EL_LABEL[el]}${c[2] ? ' · ' + c[2] : ''}` : zi ? zTag : (c[2] || (isWw ? `<img class="el-ico" src="./element_${wb.el}.webp" alt="" onerror="this.remove()">${WUWA_LABEL[wb.el]}` : ''))}${pa ? `<span class="path-tag"><img class="path-ico" src="${pathIcon(pa)}" alt="" onerror="this.remove()">${PATH_LABEL[pa]}</span>` : ''}</span>
             </aside>
             <section class="panel panel-main">
               <h2>Armas y sets</h2>
