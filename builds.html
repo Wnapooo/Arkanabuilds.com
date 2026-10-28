@@ -374,6 +374,66 @@
   .hsr-bg.lay-4 { --p1x:80%; --p1y:75%; --p2x:12%; --p2y:18%; --p3x:60%; --p3y:30%; --ang:215deg; }
   .hsr-bg.lay-5 { --p1x:30%; --p1y:20%; --p2x:75%; --p2y:90%; --p3x:95%; --p3y:40%; --ang:150deg; }
 
+  /* ============================================================
+     FONDOS EXCLUSIVOS POR PERSONAJE (ZZZ)
+     Estilo propio: rayas diagonales, trama de puntos, líneas de
+     escaneo y el nombre del personaje gigante de fondo.
+     Colores y composición de cada uno en ZZZ_BG (script)
+     ============================================================ */
+  .hsr-bg.zzz::before { opacity: .38; filter: blur(60px) saturate(1.7); }
+  .hsr-bg.zzz::after {
+    background:
+      repeating-linear-gradient(-55deg, transparent 0 46px, color-mix(in srgb, var(--b2) 11%, transparent) 46px 49px, transparent 49px 52px, color-mix(in srgb, var(--b3) 7%, transparent) 52px 54px),
+      radial-gradient(circle, color-mix(in srgb, var(--b3) 38%, transparent) 0 1.3px, transparent 1.8px) 0 0 / 15px 15px,
+      repeating-linear-gradient(0deg, rgba(255,255,255,.035) 0 1px, transparent 1px 4px);
+    -webkit-mask-image: linear-gradient(var(--ang), #000 0%, rgba(0,0,0,.35) 45%, transparent 85%);
+            mask-image: linear-gradient(var(--ang), #000 0%, rgba(0,0,0,.35) 45%, transparent 85%);
+    opacity: .85;
+  }
+  .zzz-slash {
+    position: absolute; left: -10%; right: -10%; height: 150px; top: var(--p1y);
+    transform: rotate(-9deg) translateY(-50%);
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--b2) 24%, transparent) 30%, color-mix(in srgb, var(--b3) 18%, transparent) 70%, transparent);
+    border-top: 2px solid color-mix(in srgb, var(--b2) 55%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--b3) 40%, transparent);
+    filter: blur(.5px);
+  }
+  .zzz-word {
+    position: absolute; left: 50%; bottom: -3%;
+    transform: translateX(-50%) rotate(-6deg);
+    font: 900 clamp(120px, 22vw, 360px)/0.85 Impact, "Arial Black", system-ui, sans-serif;
+    letter-spacing: -.02em; text-transform: uppercase; white-space: nowrap;
+    color: transparent;
+    -webkit-text-stroke: 2px color-mix(in srgb, var(--b2) 34%, transparent);
+    opacity: .55; user-select: none; pointer-events: none;
+  }
+  .hsr-bg.lay-1 .zzz-word, .hsr-bg.lay-4 .zzz-word { left: 42%; bottom: auto; top: 6%; transform: translateX(-50%) rotate(5deg); }
+  .hsr-bg.lay-2 .zzz-word { left: 60%; }
+  .hsr-bg.lay-3 .zzz-word { left: 38%; bottom: 2%; }
+  [data-el="zzz"] .panel {
+    border-top: 2px solid var(--e2);
+    border-radius: 6px 22px 6px 22px;
+  }
+  [data-el="zzz"] .portrait-stage { border-radius: 6px 26px 6px 26px; }
+  [data-el="zzz"] .panel h2 { text-transform: uppercase; letter-spacing: .06em; font-size: 15px; }
+  [data-el="zzz"] .panel h2::before { width: 12px; height: 12px; border-radius: 0; transform: skewX(-20deg); }
+  [data-el="zzz"] .panel-body .pending { border-style: solid; border-radius: 6px 16px 6px 16px; }
+  @media (max-width: 800px) { .zzz-word { opacity: .35; } }
+
+  /* Icono de Vía (HSR): insignia a la derecha del retrato y etiqueta junto al elemento */
+  .path-badge {
+    position: absolute; top: 10px; right: 10px; z-index: 2;
+    width: 38px; height: 38px; padding: 5px; object-fit: contain;
+    border-radius: 50%;
+    background: rgba(8,9,14,.62);
+    border: 1px solid color-mix(in srgb, var(--e2) 70%, transparent);
+    box-shadow: 0 0 16px -2px var(--e2);
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  }
+  .hsr-id .el-tag { flex-wrap: wrap; row-gap: 6px; }
+  .path-tag { display: inline-flex; align-items: center; gap: 6px; padding-left: 10px; margin-left: 2px; border-left: 1px solid color-mix(in srgb, var(--e2) 45%, transparent); }
+  .path-ico { width: 20px; height: 20px; object-fit: contain; }
+
   [hidden] { display: none !important; }
 
   @media (max-width: 800px) {
@@ -582,6 +642,26 @@
   const elIcon = el => `./ele_${el}.webp`;
   const elOf = (game, slug) => game === 'hsr' ? (HSR_EL[slug] || null) : null;
 
+  /* ============================================================
+     VÍA DE CADA PERSONAJE DE HSR (icono: ./path_<via>.webp)
+     Verificado contra Beebom, Game8 y Prydwen (oct 2026)
+     ============================================================ */
+  const HSR_PATH = {
+    'bailu':'abundance', 'gallagher':'abundance', 'huohuo':'abundance', 'lingsha':'abundance', 'luocha':'abundance', 'lynx':'abundance',
+    'blade':'destruction', 'clara':'destruction', 'firefly':'destruction', 'imbibitor-lunae':'destruction', 'jingliu':'destruction', 'mydei':'destruction', 'phainon':'destruction', 'yunli':'destruction', 'saber':'destruction', 'gilgamesh':'destruction',
+    'aha':'elation', 'aventurine-waveflair':'elation', 'evanescia':'elation', 'pearl':'elation', 'silver-wolf-lv-999':'elation', 'sparxie':'elation', 'trailblazer-elation':'elation', 'yao-guang':'elation',
+    'anaxa':'erudition', 'argenti':'erudition', 'herta':'erudition', 'himeko':'erudition', 'himeko-nova':'erudition', 'jade':'erudition', 'jing-yuan':'erudition', 'rappa':'erudition', 'rin-tohsaka':'erudition', 'serval':'erudition', 'the-herta':'erudition',
+    'asta':'harmony', 'bronya':'harmony', 'cerydra':'harmony', 'robin':'harmony', 'ruan-mei':'harmony', 'sparkle':'harmony', 'sunday':'harmony', 'tingyun':'harmony', 'tingyun-fugue':'harmony', 'tribbie':'harmony', 'trailblazer-harmony':'harmony',
+    'archer':'hunt', 'ashveil':'hunt', 'boothill':'hunt', 'dr-ratio':'hunt', 'feixiao':'hunt', 'march-7th-swordmaster':'hunt', 'moze':'hunt', 'seele':'hunt', 'topaz':'hunt',
+    'acheron':'nihility', 'black-swan':'nihility', 'blade-mortenax':'nihility', 'cipher':'nihility', 'the-dahlia':'nihility', 'hysilens':'nihility', 'jiaoqiu':'nihility', 'kafka':'nihility', 'pela':'nihility', 'silver-wolf':'nihility', 'welt':'nihility',
+    'aventurine':'preservation', 'dan-heng-permansor-terrae':'preservation', 'fu-xuan':'preservation', 'gepard':'preservation',
+    'aglaea':'remembrance', 'castorice':'remembrance', 'cyrene':'remembrance', 'hyacine':'remembrance', 'march-7th-evernight':'remembrance', 'robin-summeretto':'remembrance', 'trailblazer-remembrance':'remembrance'
+  };
+  const PATH_LABEL = { abundance:'Abundancia', destruction:'Destrucción', elation:'Elación', erudition:'Erudición', harmony:'Armonía', hunt:'Cacería', nihility:'Nihilidad', preservation:'Conservación', remembrance:'Recuerdo' };
+  const PATH_FILE = { remembrance:'remem' };  /* path_remem.webp es la excepción */
+  const pathIcon = v => `./path_${PATH_FILE[v] || v}.webp`;
+  const pathOf = (game, slug) => game === 'hsr' ? (HSR_PATH[slug] || null) : null;
+
 
   /* ============================================================
      2) SCREENSHOT DE LA BUILD
@@ -682,6 +762,61 @@
     'yunli':['#2a0e0e','#e8402a','#ffb04a',2]
   };
 
+  /* Fondo propio de cada personaje de ZZZ: [base oscura, color principal, color secundario, composición 0-5] */
+  const ZZZ_BG = {
+    'claret':['#1c0a10','#e8365a','#f2c14e',0],
+    'sigrid':['#0d1a2e','#4aa8ff','#ffd27a',1],
+    'ye-shunguang':['#0c2218','#3fd08a','#f0d28a',2],
+    'banyue':['#1a1030','#9a6af0','#ffcf5a',3],
+    'billy-starlight':['#2a0e1a','#ff4a8a','#4ad0ff',4],
+    'cissia':['#0a1c30','#5ac8f0','#f0f4ff',5],
+    'pyrois':['#2a0c0a','#ff5a2a','#ffc070',0],
+    'seed':['#0e1a18','#4ad8b0','#e8e0a0',1],
+    'yidhari':['#0a1a34','#4a8cf0','#bfe6ff',2],
+    'yixuan':['#10141a','#2fd0b8','#e8c25a',3],
+    'anby-demara-soldier-0':['#0a1830','#4aa8ff','#ffe14a',4],
+    'evelyn':['#2a0c10','#ff4a4a','#f2d6a0',5],
+    'harumasa':['#16102a','#8a6aff','#ffe14a',0],
+    'nekomata':['#2a0a14','#ff4a7a','#f0c0a0',1],
+    'orphie-and-magus':['#2a1206','#ff8a2a','#ffd84a',2],
+    'soldier-11':['#2a0e06','#ff6a2a','#ffb04a',3],
+    'ellen':['#0a2036','#6ad0ff','#e0f4ff',4],
+    'hugo':['#0a1a34','#4a9af0','#c0e0ff',5],
+    'manato':['#2a1008','#ff7a3a','#f0d0a0',0],
+    'zhu-yuan':['#1a1408','#e8b82c','#8a7aff',1],
+    'phoenix':['#2a0c06','#ff5a2a','#ffd070',2],
+    'remielle':['#1a1030','#b070f0','#ff90c0',3],
+    'velina':['#140e2a','#a070f8','#ffb0e0',4],
+    'alice':['#2a0a1a','#ff4a8a','#ffc0d8',5],
+    'aria':['#1a1030','#c080ff','#80e0ff',0],
+    'burnice':['#2a0e08','#ff6a2a','#ffe24a',1],
+    'miyabi':['#0a1c34','#6ac8f8','#f0f8ff',2],
+    'promeia':['#20102a','#d060f0','#ffd070',3],
+    'grace-howard':['#14102a','#ffd23a','#6a8aff',4],
+    'jane-doe':['#2a0a14','#e8305a','#ffb0c0',5],
+    'piper':['#14183a','#6a9af0','#ffc050',0],
+    'vivian':['#1a1030','#b078f0','#ffd0f0',1],
+    'yanagi':['#0a1a3a','#4a7af0','#e0e8ff',2],
+    'dialyn':['#2a1806','#ffa82a','#ffe8a0',3],
+    'lucia':['#0a2a2a','#3fe0c8','#fff0b0',4],
+    'nangong-yu':['#0a2a1e','#3fd09a','#e8f0b0',5],
+    'norma':['#2a1020','#ff7ab0','#ffe0a0',0],
+    'roxy':['#2a0e1e','#ff4aa0','#ffd84a',1],
+    'sunna':['#2a1c08','#ffc04a','#ffe8c0',2],
+    'ukinami-yuzuha':['#2a0e1a','#ff7ac0','#a0e0ff',3],
+    'astra-yao':['#101a3a','#6a8cff','#ffd0f0',4],
+    'koleda':['#2a0c06','#e8502a','#f2d6a0',5],
+    'nicole-demara':['#2a1020','#ff5a9a','#ffe04a',0],
+    'rina':['#1a1030','#c070ff','#ffb0e0',1],
+    'trigger':['#0e1420','#6a8aa8','#ff6a3a',2],
+    'zhao':['#14102a','#8a7af0','#f0c0a0',3],
+    'ju-fufu':['#2a1206','#ff8a2a','#ffe0a0',4],
+    'lighter':['#2a0a08','#ff4a2a','#ffc050',5],
+    'lycaon':['#0a1a34','#4a9aff','#d0e8ff',0],
+    'pan-yinhu':['#0e1a14','#4ad08a','#f0d890',1],
+    'qingyi':['#14122a','#7a8aff','#ffb0d0',2]
+  };
+
   /* ============================================================ */
   const $ = id => document.getElementById(id);
   const norm = t => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
@@ -735,21 +870,23 @@
     if (!found) return false;
     const { game, char: c } = found;
     const el = elOf(game, slug);
-    const bg = CHAR_BG[slug];
+    const isZzz = game === 'zzz';
+    const pa = pathOf(game, slug);
+    const bg = isZzz ? ZZZ_BG[slug] : CHAR_BG[slug];
 
-    if (el) {
+    if (el || (isZzz && bg)) {
       $('detail').innerHTML = `
-        <div data-el="${el}"${bg ? ` style="--e1:${bg[0]};--e2:${bg[1]};--e3:color-mix(in srgb, ${bg[1]} 45%, #fff)"` : ''}>
-          <div class="hsr-bg${bg ? ' fx lay-' + bg[3] : ''}" style="${bg ? `--b1:${bg[0]};--b2:${bg[1]};--b3:${bg[2]};` : ''}--art:url('${img(game, slug)}')"></div>
+        <div data-el="${el || 'zzz'}"${bg ? ` style="--e1:${bg[0]};--e2:${bg[1]};--e3:color-mix(in srgb, ${bg[1]} 45%, #fff)"` : ''}>
+          <div class="hsr-bg${isZzz ? ' zzz' : ''}${bg ? ' fx lay-' + bg[3] : ''}" style="${bg ? `--b1:${bg[0]};--b2:${bg[1]};--b3:${bg[2]};` : ''}--art:url('${img(game, slug)}')">${isZzz ? `<i class="zzz-slash"></i><span class="zzz-word">${c[1]}</span>` : ''}</div>
           <a class="back" href="#">← Todos los personajes</a>
           <div class="hsr-grid">
             <aside class="hsr-id">
               <div class="portrait-stage">
                 <img class="portrait" src="${img(game, slug)}" alt="${c[1]}">
-                <img class="el-badge" src="${elIcon(el)}" alt="${EL_LABEL[el]}" onerror="this.remove()">
+                ${el ? `<img class="el-badge" src="${elIcon(el)}" alt="${EL_LABEL[el]}" onerror="this.remove()">` : ''}${pa ? `<img class="path-badge" src="${pathIcon(pa)}" alt="${PATH_LABEL[pa]}" title="${PATH_LABEL[pa]}" onerror="this.remove()">` : ''}
               </div>
               <h1>${c[1]}</h1>
-              <span class="el-tag"><img class="el-ico" src="${elIcon(el)}" alt="" onerror="this.remove()">${EL_LABEL[el]}${c[2] ? ' · ' + c[2] : ''}</span>
+              <span class="el-tag">${el ? `<img class="el-ico" src="${elIcon(el)}" alt="" onerror="this.remove()">${EL_LABEL[el]}${c[2] ? ' · ' + c[2] : ''}` : c[2]}${pa ? `<span class="path-tag"><img class="path-ico" src="${pathIcon(pa)}" alt="" onerror="this.remove()">${PATH_LABEL[pa]}</span>` : ''}</span>
             </aside>
             <section class="panel panel-main">
               <h2>Armas y sets</h2>
@@ -792,7 +929,7 @@
       if (f && f.game !== currentGame) { currentGame = f.game; renderTabs(); renderGrid(); }
     }
     const f2 = showDetail && findChar(slug);
-    const isHsr = !!(f2 && elOf(f2.game, slug));
+    const isHsr = !!(f2 && (elOf(f2.game, slug) || (f2.game === 'zzz' && ZZZ_BG[slug])));
     document.body.classList.toggle('hsr-open', isHsr);
     document.querySelector('main').classList.toggle('wide', isHsr);
     $('detail').hidden = !showDetail;
