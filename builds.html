@@ -661,7 +661,7 @@
         ['cia','Ciaccona',''], ['denia','Denia',''], ['gal','Galbrena',''], ['hiyuki','Hiyuki',''],
         ['hsin','Hsin',''], ['iuno','Iuno',''], ['jingran','Jingran',''], ['jihni','Jinhsi',''],
         ['jiyan','Jiyan',''], ['lily','Lily',''], ['lucilla','Lucilla',''], ['lucy','Lucy',''], ['lupa','Lupa',''],
-        ['luuk-herssen','Luuk Herssen',''], ['lynae','Lynae',''], ['math','Math',''], ['mornye','Mornye',''],
+        ['luuk-herssen','Luuk Herssen',''], ['lynae','Lynae',''], ['math','Aemeath',''], ['mornye','Mornye',''],
         ['mortefi','Mortefi',''], ['phoebe','Phoebe',''], ['phr','Phrolova',''], ['qingxiao','Qingxiao',''],
         ['qiu','Qiuyuan',''], ['rebecca','Rebecca',''], ['rover-aero','Rover Aero',''], ['rover-electro','Rover Electro',''],
         ['rover-spectro','Rover Spectro',''], ['senhua','Senhua',''], ['keeper','Shorekeeper',''], ['sigrika','Sigrika',''],
@@ -781,10 +781,34 @@
   const ZZZ_VARIANT = { 'miyabi':'Frost', 'yixuan':'Auric Ink', 'ye-shunguang':'Honed Edge' };
   const ZZZ_EL_LABEL = { electric:'Eléctrico', ether:'Éter', fire:'Fuego', ice:'Hielo', lumiflux:'Lumiflux', physical:'Físico', wind:'Viento' };
   const ZZZ_SPEC_LABEL = { anomaly:'Anomalía', armorer:'Armorer', attack:'Ataque', defence:'Defensa', rupture:'Ruptura', stun:'Aturdimiento', support:'Apoyo' };
+  /* ============================================================
+     WUTHERING WAVES: TIPO DE ARMA DE CADA RESONADOR
+     Iconos: ./weapon_<arma>.webp  (broadblade, gauntlets, pistols, rectifier, sword)
+     'math' = Aemeath.
+     Verificado contra Gamevika, MMO Culture, Allthings.how y WuWa Wiki (oct 2026)
+     ============================================================ */
+  const WW_WEAPON = {
+    'aug':'broadblade', 'brant':'sword', 'buling':'rectifier', 'canta':'rectifier', 'carlotta':'pistols',
+    'cart':'sword', 'changli':'sword', 'chisa':'broadblade', 'cia':'pistols', 'denia':'rectifier',
+    'gal':'pistols', 'hiyuki':'sword', 'hsin':'rectifier', 'iuno':'gauntlets', 'jingran':'broadblade',
+    'math':'sword', 'jihni':'broadblade', 'jiyan':'broadblade', 'lily':'pistols', 'lucilla':'rectifier', 'lucy':'pistols',
+    'lupa':'broadblade', 'luuk-herssen':'gauntlets', 'lynae':'pistols', 'mornye':'broadblade',
+    'mortefi':'pistols', 'phoebe':'rectifier', 'phr':'rectifier', 'qingxiao':'sword', 'qiu':'sword',
+    'rebecca':'pistols', 'rover-aero':'sword', 'rover-electro':'sword', 'rover-spectro':'sword',
+    'senhua':'sword', 'keeper':'rectifier', 'sigrika':'gauntlets', 'suisui':'rectifier', 'suoming':'sword',
+    'verina':'rectifier', 'yangyang-xuanling':'sword', 'zani':'gauntlets'
+  };
+  const WW_WEAPON_LABEL = { broadblade:'Mandoble', gauntlets:'Guanteletes', pistols:'Pistolas', rectifier:'Rectificador', sword:'Espada' };
+  const wwWeaponIcon = w => `./weapon_${w}.webp`;
   const zzzElIcon = e => `./ele_${e}2.webp`;
   const zzzSpecIcon = s => `./style_${s}.webp`;
   const zzzElName = slug => { const i = ZZZ_INFO[slug]; if (!i) return ''; const v = ZZZ_VARIANT[slug]; return ZZZ_EL_LABEL[i[0]] + (v ? ' (' + v + ')' : ''); };
   const zzzMini = (game, slug) => {
+    if (game === 'wuwa') {
+      const w = WW_WEAPON[slug], e = WUWA_EL[slug];
+      if (!w && !e) return '';
+      return `<em class="mini">${e ? `<img src="./element_${e}.webp" alt="${WUWA_LABEL[e]}" title="${WUWA_LABEL[e]}" onerror="this.remove()">` : ''}${w ? `<img src="${wwWeaponIcon(w)}" alt="${WW_WEAPON_LABEL[w]}" title="${WW_WEAPON_LABEL[w]}" onerror="this.remove()">` : ''}</em>`;
+    }
     const i = game === 'zzz' ? ZZZ_INFO[slug] : null;
     if (!i) return '';
     return `<em class="mini"><img src="${zzzElIcon(i[0])}" alt="${zzzElName(slug)}" title="${zzzElName(slug)}" onerror="this.remove()"><img src="${zzzSpecIcon(i[1])}" alt="${ZZZ_SPEC_LABEL[i[1]]}" title="${ZZZ_SPEC_LABEL[i[1]]}" onerror="this.remove()"></em>`;
@@ -969,9 +993,9 @@
     'phoebe':'spectro', 'phr':'havoc', 'qiu':'aero', 'rover-aero':'aero', 'rover-electro':'electro',
     'rover-spectro':'spectro', 'senhua':'glacio', 'keeper':'spectro', 'verina':'spectro',
     'yangyang-xuanling':'havoc', 'zani':'spectro',
-    /* revisados con fuentes (oct 2026); 'math' sin verificar */
+    /* revisados con fuentes (oct 2026); 'math' = Aemeath (Fusion) */
     'denia':'fusion', 'hiyuki':'glacio', 'hsin':'electro', 'jingran':'fusion', 'lily':'spectro', 'lucilla':'glacio',
-    'lucy':'spectro', 'math':'glacio', 'mornye':'fusion', 'qingxiao':'aero', 'rebecca':'electro', 'sigrika':'aero',
+    'lucy':'spectro', 'math':'fusion', 'mornye':'fusion', 'qingxiao':'aero', 'rebecca':'electro', 'sigrika':'aero',
     'suisui':'glacio', 'suoming':'electro'
   };
   const WUWA_LABEL = { aero:'Aero', electro:'Electro', fusion:'Fusion', glacio:'Glacio', havoc:'Havoc', spectro:'Spectro' };
@@ -1314,6 +1338,7 @@
     const wb = isWw ? wuwaBg(slug) : null;
     const pa = pathOf(game, slug);
     const zi = isZzz ? (ZZZ_INFO[slug] || null) : null;
+    const ww = isWw ? (WW_WEAPON[slug] || null) : null;
     const zTag = zi ? `<img class="el-ico" src="${zzzElIcon(zi[0])}" alt="" onerror="this.remove()">${zzzElName(slug)}${c[2] ? ' · ' + c[2] : ''}<span class="path-tag"><img class="path-ico" src="${zzzSpecIcon(zi[1])}" alt="" onerror="this.remove()">${ZZZ_SPEC_LABEL[zi[1]]}</span>` : '';
     const bg = isZzz ? ZZZ_BG[slug] : isWw ? wb.bg : CHAR_BG[slug];
 
@@ -1326,10 +1351,10 @@
             <aside class="hsr-id">
               <div class="portrait-stage">
                 <img class="portrait" src="${img(game, slug)}" alt="${c[1]}">
-                ${el ? `<img class="el-badge" src="${elIcon(el)}" alt="${EL_LABEL[el]}" onerror="this.remove()">` : isWw ? `<img class="el-badge" src="./element_${wb.el}.webp" alt="${WUWA_LABEL[wb.el]}" title="${WUWA_LABEL[wb.el]}" onerror="this.remove()">` : zi ? `<img class="el-badge" src="${zzzElIcon(zi[0])}" alt="${zzzElName(slug)}" title="${zzzElName(slug)}" onerror="this.remove()">` : ''}${pa ? `<img class="path-badge" src="${pathIcon(pa)}" alt="${PATH_LABEL[pa]}" title="${PATH_LABEL[pa]}" onerror="this.remove()">` : zi ? `<img class="path-badge" src="${zzzSpecIcon(zi[1])}" alt="${ZZZ_SPEC_LABEL[zi[1]]}" title="${ZZZ_SPEC_LABEL[zi[1]]}" onerror="this.remove()">` : ''}
+                ${el ? `<img class="el-badge" src="${elIcon(el)}" alt="${EL_LABEL[el]}" onerror="this.remove()">` : isWw ? `<img class="el-badge" src="./element_${wb.el}.webp" alt="${WUWA_LABEL[wb.el]}" title="${WUWA_LABEL[wb.el]}" onerror="this.remove()">` : zi ? `<img class="el-badge" src="${zzzElIcon(zi[0])}" alt="${zzzElName(slug)}" title="${zzzElName(slug)}" onerror="this.remove()">` : ''}${pa ? `<img class="path-badge" src="${pathIcon(pa)}" alt="${PATH_LABEL[pa]}" title="${PATH_LABEL[pa]}" onerror="this.remove()">` : zi ? `<img class="path-badge" src="${zzzSpecIcon(zi[1])}" alt="${ZZZ_SPEC_LABEL[zi[1]]}" title="${ZZZ_SPEC_LABEL[zi[1]]}" onerror="this.remove()">` : ww ? `<img class="path-badge" src="${wwWeaponIcon(ww)}" alt="${WW_WEAPON_LABEL[ww]}" title="${WW_WEAPON_LABEL[ww]}" onerror="this.remove()">` : ''}
               </div>
               <h1>${c[1]}</h1>
-              <span class="el-tag">${el ? `<img class="el-ico" src="${elIcon(el)}" alt="" onerror="this.remove()">${EL_LABEL[el]}${c[2] ? ' · ' + c[2] : ''}` : zi ? zTag : (c[2] || (isWw ? `<img class="el-ico" src="./element_${wb.el}.webp" alt="" onerror="this.remove()">${WUWA_LABEL[wb.el]}` : ''))}${pa ? `<span class="path-tag"><img class="path-ico" src="${pathIcon(pa)}" alt="" onerror="this.remove()">${PATH_LABEL[pa]}</span>` : ''}</span>
+              <span class="el-tag">${el ? `<img class="el-ico" src="${elIcon(el)}" alt="" onerror="this.remove()">${EL_LABEL[el]}${c[2] ? ' · ' + c[2] : ''}` : zi ? zTag : (c[2] || (isWw ? `<img class="el-ico" src="./element_${wb.el}.webp" alt="" onerror="this.remove()">${WUWA_LABEL[wb.el]}` : ''))}${pa ? `<span class="path-tag"><img class="path-ico" src="${pathIcon(pa)}" alt="" onerror="this.remove()">${PATH_LABEL[pa]}</span>` : ww ? `<span class="path-tag"><img class="path-ico" src="${wwWeaponIcon(ww)}" alt="" onerror="this.remove()">${WW_WEAPON_LABEL[ww]}</span>` : ''}</span>
             </aside>
             <section class="panel panel-main">
               <h2>Armas y sets</h2>
