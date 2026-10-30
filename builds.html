@@ -513,6 +513,14 @@
     font-size: 11px; line-height: 1; cursor: pointer;
   }
   .tm-x:hover { background: #7f1d1d; border-color: #ef4444; }
+  /* Dupes recomendados (debajo del nombre) */
+  .dupes { margin-top: 18px; padding: 12px 14px; border-radius: 12px; border: 1px solid color-mix(in srgb, var(--e2) 38%, var(--card-border)); background: linear-gradient(180deg, rgba(14,16,24,.72), rgba(8,9,14,.78)); }
+  .dupes h3 { margin: 0 0 8px; font-size: 14px; color: var(--heading); display: flex; align-items: center; gap: 8px; }
+  .dupes h3::before { content: ""; width: 4px; height: 14px; border-radius: 2px; background: var(--e2); box-shadow: 0 0 10px var(--e2); }
+  .dupes-view { margin: 0; font-size: 14px; line-height: 1.5; white-space: pre-wrap; word-break: break-word; color: var(--muted); }
+  .dupes-edit { width: 100%; min-height: 90px; resize: vertical; box-sizing: border-box; padding: 8px 10px; border-radius: 8px; border: 1px dashed var(--e2); background: rgba(0,0,0,.35); color: #fff; font: inherit; font-size: 14px; line-height: 1.5; }
+  .dupes-edit:focus { outline: 2px solid var(--e2); outline-offset: 1px; }
+  .dupes-hint { margin: 6px 0 0; font-size: 12px; color: var(--muted); }
   #toast {
     position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 20px); z-index: 50;
     padding: 10px 16px; border-radius: 10px; font-size: 14px; color: #fff;
@@ -1147,6 +1155,57 @@
     return k;
   }
 
+
+  /* ============================================================
+     DUPES RECOMENDADOS: texto libre por personaje (editar con ?edit)
+     GET  /api/dupes?g=<juego>&c=<slug>  -> { text }
+     PUT  /api/dupes?g=<juego>&c=<slug>  -> guarda (clave de administrador)
+     Si el servidor aún no tiene ese endpoint, se guarda en este navegador.
+     ============================================================ */
+  let dupesToken = 0;
+  function initDupes(slug, game) {
+    const box = document.getElementById('dupes');
+    if (!box) return;
+    const token = ++dupesToken;
+    const lk = 'dupes:' + game + ':' + slug;
+    const api = '/api/dupes?g=' + encodeURIComponent(game) + '&c=' + encodeURIComponent(slug);
+    const view = document.getElementById('dupes-view');
+    const ed = document.getElementById('dupes-edit');
+    let timer = null;
+    const local = () => { try { return localStorage.getItem(lk) || ''; } catch (e) { return ''; } };
+    function show(text) {
+      if (token !== dupesToken) return;
+      if (view) view.textContent = text;
+      if (ed && document.activeElement !== ed) ed.value = text;
+      box.hidden = !(EDIT || text.trim());
+    }
+    show(local());
+    fetch(api).then(r => r.ok ? r.json() : Promise.reject()).then(d => {
+      if (d && typeof d.text === 'string') show(d.text);
+    }).catch(() => {});
+    if (!ed) return;
+    function doSave(retry) {
+      const key = getKey(retry);
+      if (!key) { toast('Sin clave: solo guardado en este navegador'); return; }
+      fetch(api, {
+        method: 'PUT',
+        headers: { 'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: ed.value.trim() })
+      }).then(r => {
+        if (r.status === 401) {
+          localStorage.removeItem(KEYSTORE);
+          if (!retry) return doSave(true);
+          toast('Clave incorrecta'); return;
+        }
+        toast(r.ok ? 'Dupes guardados para todos ✓' : 'Guardado solo en este navegador (' + r.status + ')');
+      }).catch(() => toast('Guardado solo en este navegador'));
+    }
+    ed.addEventListener('input', () => {
+      try { localStorage.setItem(lk, ed.value); } catch (e) {}
+      clearTimeout(timer); timer = setTimeout(() => doSave(false), 800);
+    });
+  }
+
   let teamsToken = 0;
   function initTeams(slug, game) {
     const body = document.getElementById('teams-body');
@@ -1360,6 +1419,10 @@
               </div>
               <h1>${c[1]}</h1>
               <span class="el-tag">${el ? `<img class="el-ico" src="${elIcon(el)}" alt="" onerror="this.remove()">${EL_LABEL[el]}${c[2] ? ' · ' + c[2] : ''}` : zi ? zTag : (c[2] || (isWw ? `<img class="el-ico" src="./element_${wb.el}.webp" alt="" onerror="this.remove()">${WUWA_LABEL[wb.el]}` : ''))}${pa ? `<span class="path-tag"><img class="path-ico" src="${pathIcon(pa)}" alt="" onerror="this.remove()">${PATH_LABEL[pa]}</span>` : ''}</span>
+              <div class="dupes" id="dupes" hidden>
+                <h3>Dupes recomendados</h3>
+                ${EDIT ? '<textarea id="dupes-edit" class="dupes-edit" maxlength="600" placeholder="Escribe aquí los dupes recomendados..."></textarea><p class="dupes-hint">Se guarda solo al escribir.</p>' : '<p class="dupes-view" id="dupes-view"></p>'}
+              </div>
             </aside>
             <section class="panel panel-main">
               <h2>Armas y sets</h2>
@@ -1404,6 +1467,7 @@
     const f2 = showDetail && findChar(slug);
     const isHsr = !!(f2 && (elOf(f2.game, slug) || (f2.game === 'zzz' && ZZZ_BG[slug]) || f2.game === 'wuwa'));
     if (f2 && $('teams-body')) initTeams(slug, f2.game);
+    if (f2 && $('dupes')) initDupes(slug, f2.game);
     document.body.classList.toggle('hsr-open', isHsr);
     document.querySelector('main').classList.toggle('wide', isHsr);
     $('detail').hidden = !showDetail;
