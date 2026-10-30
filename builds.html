@@ -339,6 +339,8 @@
   .panel h2::before { content: ""; width: 4px; height: 18px; border-radius: 2px; background: var(--e2); box-shadow: 0 0 10px var(--e2); }
   .panel-body { padding: 16px; }
   .panel-body .shot { border: 0; border-radius: 10px; }
+  /* build con fondo transparente: el negro de la imagen se funde con el panel */
+  .panel-main .panel-body .shot { mix-blend-mode: screen; background: transparent; border-radius: 0; }
   .panel-body .pending {
     display: grid; place-items: center; text-align: center;
     min-height: 260px; padding: 24px;
