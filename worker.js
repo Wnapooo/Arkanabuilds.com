@@ -1,4 +1,4 @@
-// Cloudflare Worker  ->  /api/layout?page=wuwa  y  /api/teams?c=<slug>  (todo lo demás lo sirven los archivos del sitio)
+// Cloudflare Worker  ->  /api/layout?page=wuwa, /api/teams?c=<slug> y /api/dupes?g=<juego>&c=<slug>  (todo lo demás lo sirven los archivos del sitio)
 // Requiere: KV binding "TIERLIST" y secreto "ADMIN_KEY".
 
 const PAGE_RE = /^[a-z0-9-]{1,40}$/;
@@ -122,6 +122,37 @@ async function teamsPut({ request, env }) {
   return json({ ok: true });
 }
 
+/* ---------------- DUPES: /api/dupes?g=<juego>&c=<slug> ---------------- */
+const MAX_DUPES = 600;
+
+async function dupesGet({ request, env }) {
+  const c = getChar(request);
+  const g = new URL(request.url).searchParams.get('g') || '';
+  if (!c || !PAGE_RE.test(g)) return json({ error: 'personaje inválido' }, 400);
+  if (!env.TIERLIST) return json({ error: 'KV TIERLIST no configurado' }, 500);
+  const value = await env.TIERLIST.get('dupes:' + g + ':' + c);
+  return new Response(value || JSON.stringify({ text: '' }), {
+    headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
+  });
+}
+
+async function dupesPut({ request, env }) {
+  if (!(await authorized(request, env))) return json({ error: 'no autorizado' }, 401);
+  const c = getChar(request);
+  const g = new URL(request.url).searchParams.get('g') || '';
+  if (!c || !PAGE_RE.test(g)) return json({ error: 'personaje inválido' }, 400);
+  if (!env.TIERLIST) return json({ error: 'KV TIERLIST no configurado' }, 500);
+  const text = await request.text();
+  if (text.length > MAX_BODY) return json({ error: 'demasiado grande' }, 413);
+  let body;
+  try { body = JSON.parse(text); } catch { return json({ error: 'JSON inválido' }, 400); }
+  if (!body || typeof body.text !== 'string') return json({ error: 'formato inválido' }, 400);
+  const clean = body.text.slice(0, MAX_DUPES);
+  if (clean.trim()) await env.TIERLIST.put('dupes:' + g + ':' + c, JSON.stringify({ text: clean }));
+  else await env.TIERLIST.delete('dupes:' + g + ':' + c);
+  return json({ ok: true });
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -139,6 +170,14 @@ export default {
       switch (request.method) {
         case 'GET': return teamsGet(ctx);
         case 'PUT': return teamsPut(ctx);
+        default: return json({ error: 'método no permitido' }, 405);
+      }
+    }
+    if (url.pathname === '/api/dupes') {
+      const ctx = { request, env };
+      switch (request.method) {
+        case 'GET': return dupesGet(ctx);
+        case 'PUT': return dupesPut(ctx);
         default: return json({ error: 'método no permitido' }, 405);
       }
     }
