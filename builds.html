@@ -553,8 +553,10 @@
   .bd-ph { width: 72px; height: 72px; border-radius: 10px; background: rgba(255,255,255,.06); }
   .bd-tal-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
   .bd-tal-chip { display: inline-flex; align-items: center; gap: 7px; padding: 5px 10px 5px 5px; border-radius: 999px; background: rgba(255,255,255,.06); border: 1px solid var(--card-border); font-size: 14px; font-weight: 700; color: var(--text); }
-  .bd-tal-ic { width: 22px; height: 22px; border-radius: 50%; background: #ff6b4a; color: #1a0a06; display: flex; align-items: center; justify-content: center; flex: none; }
+  .bd-tal-ic { width: 24px; height: 24px; border-radius: 50%; background: #ff6b4a; color: #1a0a06; display: flex; align-items: center; justify-content: center; flex: none; overflow: hidden; }
   .bd-tal-ic svg { width: 13px; height: 13px; }
+  .bd-tal-ic.bd-tal-ic-real { background: rgba(255,255,255,.12); }
+  .bd-tal-ic img { width: 20px; height: 20px; object-fit: contain; }
   .bd-tal-sep { color: var(--muted); font-size: 13px; }
   .bd-msg { padding: 10px; font-size: 13px; color: var(--muted); }
   #toast {
@@ -1313,22 +1315,77 @@
       basic: '<svg viewBox="0 0 24 24"><g transform="rotate(45 12 12)"><rect x="11" y="2" width="2" height="14" rx="0.6" fill="currentColor"/><rect x="7.5" y="14" width="9" height="2.2" rx="0.6" fill="currentColor"/><rect x="11" y="16.2" width="2" height="5.8" rx="0.6" fill="currentColor"/></g></svg>',
       tech: '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="6" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>'
     };
-    const talentIcon = label => {
+    const talentKey = label => {
       const f = flat(label);
-      let key = '';
-      if (f.includes('ultimate') || f.includes('definitiva')) key = 'ultimate';
-      else if (f.includes('tecnica') || f.includes('technique')) key = 'tech';
-      else if (f.includes('talento') || f.includes('talent') || f.includes('cadena') || f.includes('nucleo')) key = 'talent';
-      else if (f.includes('habilidad') || f.includes('skill') || f.includes('especial')) key = 'skill';
-      else if (f.includes('basic') || f.includes('atk') || f.includes('bas')) key = 'basic';
-      return key ? `<span class="bd-tal-ic">${TAL_SVG[key]}</span>` : '';
+      if (f.includes('ultimate') || f.includes('definitiva')) return 'ultimate';
+      if (f.includes('tecnica') || f.includes('technique')) return 'tech';
+      if (f.includes('talento') || f.includes('talent') || f.includes('cadena') || f.includes('nucleo')) return 'talent';
+      if (f.includes('habilidad') || f.includes('skill') || f.includes('especial')) return 'skill';
+      if (f.includes('basic') || f.includes('atk') || f.includes('bas')) return 'basic';
+      return '';
     };
     const talentsDisplay = v => {
       const parts = String(v || '').split('>').map(s => s.trim()).filter(Boolean);
       if (!parts.length) return '';
-      return `<div class="bd-tal-row">${parts.map((p, i) => `${i ? '<span class="bd-tal-sep">›</span>' : ''}<span class="bd-tal-chip">${talentIcon(p)}${esc(p)}</span>`).join('')}</div>`;
+      return `<div class="bd-tal-row">${parts.map((p, i) => {
+        const key = talentKey(p);
+        return `${i ? '<span class="bd-tal-sep">›</span>' : ''}<span class="bd-tal-chip" data-tk="${key}"><span class="bd-tal-ic">${key ? TAL_SVG[key] : ''}</span>${esc(p)}</span>`;
+      }).join('')}</div>`;
     };
     const fldTalents = v => EDIT ? `<input class="bd-in" data-f="talents" maxlength="160" placeholder="Ej: Ultimate &gt; Habilidad &gt; Talento &gt; Atk básico" value="${esc(v || '')}">` : talentsDisplay(v);
+
+    // ---- Iconos OFICIALES del personaje (StarRailRes), con reemplazo async y fallback seguro ----
+    let hsrSkillsP = null;
+    function loadHsrSkills() {
+      if (hsrSkillsP) return hsrSkillsP;
+      hsrSkillsP = Promise.all(['characters', 'character_skills'].map(f =>
+        fetch(SRR + 'index_min/en/' + f + '.json').then(r => r.ok ? r.json() : Promise.reject())
+      )).then(([chars, sk]) => ({
+        chars: Array.isArray(chars) ? chars : Object.values(chars || {}),
+        sk: Array.isArray(sk) ? sk : Object.values(sk || {})
+      })).catch(e => { hsrSkillsP = null; throw e; });
+      return hsrSkillsP;
+    }
+    const SKILL_TYPE_KEY = { Normal: 'basic', BPSkill: 'skill', Ultra: 'ultimate', Talent: 'talent', Maze: 'tech' };
+    function findCharIcons(displayName) {
+      if (!displayName) return Promise.resolve(null);
+      return loadHsrSkills().then(({ chars, sk }) => {
+        const target = flat(displayName);
+        const c = chars.find(x => x && x.name && flat(x.name) === target);
+        if (!c || !Array.isArray(c.skills)) return null;
+        const skById = {};
+        sk.forEach(s => { if (s && s.id != null) skById[String(s.id)] = s; });
+        const map = {};
+        c.skills.forEach(sid => {
+          const s = skById[String(sid)];
+          const key = s && SKILL_TYPE_KEY[s.type];
+          if (key && s.icon && !map[key]) map[key] = s.icon;
+        });
+        return Object.keys(map).length ? map : null;
+      }).catch(() => null);
+    }
+    function upgradeTalentIcons() {
+      if (Z || EDIT || !b.talents) return;
+      const row = body.querySelector('.bd-tal-row');
+      if (!row) return;
+      const entry = (GAMES.hsr.chars || []).find(c => c[0] === slug);
+      const dispName = entry && entry[1];
+      if (!dispName) return;
+      findCharIcons(dispName).then(map => {
+        if (!map || token !== buildToken) return;
+        const liveRow = body.querySelector('.bd-tal-row');
+        if (!liveRow) return;
+        liveRow.querySelectorAll('.bd-tal-chip[data-tk]').forEach(chip => {
+          const url = map[chip.dataset.tk];
+          const ic = chip.querySelector('.bd-tal-ic');
+          if (!url || !ic) return;
+          const img = new Image();
+          img.alt = ''; img.loading = 'lazy';
+          img.onload = () => { ic.innerHTML = ''; ic.appendChild(img); ic.classList.add('bd-tal-ic-real'); };
+          img.src = SRR + url;
+        });
+      });
+    }
     function rows() {
       SEC.forEach(([k]) => {
         body.querySelector(`.bd-row[data-k="${k}"]`).innerHTML = b[k].map((x, j) => card(x, k, j)).join('');
@@ -1355,7 +1412,7 @@
         <section class="bd-box"><h4>Stats secundarias <small>(prioridad)</small></h4><div class="bd-big" data-l="sub">${fld('sub', 'Ej: CRIT Rate &gt; CRIT DMG &gt; ATK% &gt; SPD', b.sub)}</div><div class="bd-note" data-l="note">${fld('note', 'Objetivo: ~100% CRIT Rate, 130-150% CRIT DMG...', b.note)}</div></section>
         <section class="bd-box"><h4>${Z ? 'Habilidades' : 'Talentos'}</h4><div class="bd-big" data-l="talents">${fldTalents(b.talents)}</div></section>
       </div></div>`;
-      rows(); vis();
+      rows(); vis(); upgradeTalentIcons();
     }
     function doSave(retry) {
       const key = getKey(retry);
