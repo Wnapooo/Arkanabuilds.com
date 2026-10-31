@@ -522,7 +522,11 @@
   .dupes-edit:focus { outline: 2px solid var(--e2); outline-offset: 1px; }
   .dupes-hint { margin: 6px 0 0; font-size: 12px; color: var(--muted); }
   /* Build estructurada (conos, sets, stats) */
-  .bd { display: flex; flex-direction: column; gap: 14px; padding: 4px; }
+  .bd { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 420px); gap: 18px; align-items: start; padding: 4px; }
+  .bd.solo { grid-template-columns: minmax(0, 1fr); }
+  .bd-l, .bd-r { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+  .bd-r .bd-line { grid-template-columns: 74px 1fr; padding: 6px 10px; }
+  @media (max-width: 1100px) { .bd { grid-template-columns: minmax(0, 1fr); } }
   .bd h4 { margin: 0 0 8px; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: #ff6b4a; }
   .bd h4 small { text-transform: none; letter-spacing: 0; color: #ff8a70; font-weight: 600; }
   .bd-row { display: flex; flex-wrap: wrap; gap: 10px; }
@@ -1305,17 +1309,22 @@
       if (EDIT) return;
       body.querySelectorAll('[data-l]').forEach(el => { el.hidden = !(b.main[el.dataset.l] || b[el.dataset.l]); });
       body.querySelectorAll('.bd-box').forEach(bx => { bx.hidden = !bx.querySelector('[data-l]:not([hidden])'); });
+      const l = body.querySelector('.bd-l'), r = body.querySelector('.bd-r');
+      l.hidden = !l.querySelector('section:not([hidden])');
+      r.hidden = !r.querySelector('.bd-box:not([hidden])');
+      body.querySelector('.bd').classList.toggle('solo', l.hidden || r.hidden);
     }
     function build() {
       if (token !== buildToken) return;
       if (!EDIT && !has(b)) { body.innerHTML = original; return; }
       const find = (k, w) => EDIT ? `<div class="bd-find"><input type="search" class="bd-q" data-k="${k}" placeholder="Buscar ${w}... (Enter añade el texto)" autocomplete="off" aria-label="Buscar"><div class="bd-res" hidden></div></div>` : '';
-      body.innerHTML = `<div class="bd">
+      body.innerHTML = `<div class="bd"><div class="bd-l">
         ${SEC.map(([k, t, w]) => `<section data-s="${k}"><h4>${t}</h4>${find(k, w)}<div class="bd-row" data-k="${k}"></div></section>`).join('')}
+      </div><div class="bd-r">
         <section class="bd-box"><h4>Stats principales</h4>${MAIN.map(([k, l]) => `<div class="bd-line" data-l="${k}"><span>${l}</span><div>${fld('main.' + k, 'Ej: CRIT Rate &gt; CRIT DMG', b.main[k])}</div></div>`).join('')}</section>
         <section class="bd-box"><h4>Stats secundarias <small>(prioridad)</small></h4><div class="bd-big" data-l="sub">${fld('sub', 'Ej: CRIT Rate &gt; CRIT DMG &gt; ATK% &gt; SPD', b.sub)}</div><div class="bd-note" data-l="note">${fld('note', 'Objetivo: ~100% CRIT Rate, 130-150% CRIT DMG...', b.note)}</div></section>
         <section class="bd-box"><h4>${Z ? 'Habilidades' : 'Talentos'}</h4><div class="bd-big" data-l="talents">${fld('talents', 'Ej: Ultimate &gt; Habilidad &gt; Talento &gt; Atk básico', b.talents)}</div></section>
-      </div>`;
+      </div></div>`;
       rows(); vis();
     }
     function doSave(retry) {
