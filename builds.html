@@ -535,6 +535,14 @@
   .bd-it b { font-size: 12px; line-height: 1.25; color: var(--text); }
   .bd-it em { font-style: normal; font-size: 11px; font-weight: 800; padding: 1px 7px; border-radius: 99px; background: #ff6b4a; color: #1a0a06; }
   .bd-it em[data-t] { cursor: pointer; }
+  .bd-row[data-k="echoes"] { flex-wrap: nowrap; gap: 8px; }
+  .bd-row[data-k="echoes"] .bd-it { box-sizing: border-box; flex: 1 1 0; min-width: 0; width: auto; max-width: 112px; }
+  .bd-it[draggable="true"] { cursor: grab; }
+  .bd-it[draggable="true"]:active { cursor: grabbing; }
+  .bd-it img { -webkit-user-drag: none; user-select: none; }
+  .bd-drag { opacity: .4; }
+  .bd-over { outline: 2px dashed #ff6b4a; outline-offset: 2px; }
+  @media (max-width: 700px) { .bd-row[data-k="echoes"] { flex-wrap: wrap; } .bd-row[data-k="echoes"] .bd-it { flex: 0 0 auto; width: 104px; } }
   .bd-cost { font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #ff8a70; margin-bottom: 4px; }
   .bd-pcs { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin-top: 4px; }
   .bd-pcs button { font: inherit; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 99px; border: 1px solid var(--card-border); background: rgba(255,255,255,.06); color: var(--text); cursor: pointer; }
@@ -1438,7 +1446,7 @@
     try { b = fix(JSON.parse(localStorage.getItem(lk))); } catch (e) {}
 
     const ECO_COST = [4, 3, 3, 1, 1];  /* coste de cada hueco de eco, en orden */
-    const card = (x, k, j) => `<div class="bd-it">${k === 'echoes' && ECO_COST[j] ? `<span class="bd-cost">Coste ${ECO_COST[j]}</span>` : ''}${W ? wwImgTag(x, wk(k)) : x.c ? `<img src="${iconUrl(x.c)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">` : '<div class="bd-ph"></div>'}<b>${esc(x.n)}</b>${x.p ? `<em${EDIT && k === 'arts' ? ` data-t="${j}" title="${W ? 'Elegir piezas del set' : 'Cambiar piezas del set'}"` : ''}>${x.p}-PC</em>` : ''}${EDIT && W && k === 'arts' && openPc === j ? `<div class="bd-pcs">${[1, 2, 3, 5].map(n => `<button type="button" data-pc="${j}:${n}" class="${x.p === n ? 'on' : ''}">${n}-PC</button>`).join('')}</div>` : ''}${EDIT ? `<button type="button" class="bd-x" data-d="${k}:${j}" aria-label="Quitar">×</button>` : ''}</div>`;
+    const card = (x, k, j) => `<div class="bd-it"${EDIT ? ` draggable="true" data-dk="${k}" data-dj="${j}"` : ''}>${k === 'echoes' && ECO_COST[j] ? `<span class="bd-cost">Coste ${ECO_COST[j]}</span>` : ''}${W ? wwImgTag(x, wk(k)) : x.c ? `<img src="${iconUrl(x.c)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">` : '<div class="bd-ph"></div>'}<b>${esc(x.n)}</b>${x.p ? `<em${EDIT && k === 'arts' ? ` data-t="${j}" title="${W ? 'Elegir piezas del set' : 'Cambiar piezas del set'}"` : ''}>${x.p}-PC</em>` : ''}${EDIT && W && k === 'arts' && openPc === j ? `<div class="bd-pcs">${[1, 2, 3, 5].map(n => `<button type="button" data-pc="${j}:${n}" class="${x.p === n ? 'on' : ''}">${n}-PC</button>`).join('')}</div>` : ''}${EDIT ? `<button type="button" class="bd-x" data-d="${k}:${j}" aria-label="Quitar">×</button>` : ''}</div>`;
     const fld = (f, ph, v) => EDIT ? `<input class="bd-in" data-f="${f}" maxlength="160" placeholder="${ph}" value="${esc(v || '')}">` : esc(v || '');
 
     // ---- Iconos de talentos (Ultimate / Habilidad / Talento / Atk básico / Técnica) ----
@@ -1698,6 +1706,35 @@
       if (t && W) { const j = +t.dataset.t; openPc = openPc === j ? -1 : j; rows(); return; }
       if (t) { const x = b.arts[+t.dataset.t]; x.p = nextP(x.p); rows(); save(); return; }
       if (!e.target.closest('.bd-find')) body.querySelectorAll('.bd-res').forEach(r => { r.hidden = true; });
+    });
+    /* Reordenar: mantén pulsado un icono y suéltalo sobre otro de la misma fila */
+    let drag = null;
+    const itOf = e => e.target.closest && e.target.closest('.bd-it[data-dk]');
+    body.addEventListener('dragstart', e => {
+      const it = itOf(e); if (!it) return;
+      drag = { k: it.dataset.dk, j: +it.dataset.dj };
+      it.classList.add('bd-drag');
+      try { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', drag.k + ':' + drag.j); } catch (x) {}
+    });
+    body.addEventListener('dragover', e => {
+      const it = itOf(e);
+      if (!drag || !it || it.dataset.dk !== drag.k) return;
+      e.preventDefault();
+      body.querySelectorAll('.bd-over').forEach(x => x.classList.remove('bd-over'));
+      if (+it.dataset.dj !== drag.j) it.classList.add('bd-over');
+    });
+    body.addEventListener('drop', e => {
+      const it = itOf(e);
+      if (!drag || !it || it.dataset.dk !== drag.k) return;
+      e.preventDefault();
+      const k = drag.k, from = drag.j, to = +it.dataset.dj;
+      drag = null;
+      if (from !== to) { const m = b[k].splice(from, 1)[0]; b[k].splice(to, 0, m); openPc = -1; save(); }
+      rows();
+    });
+    body.addEventListener('dragend', () => {
+      drag = null;
+      body.querySelectorAll('.bd-drag, .bd-over').forEach(x => x.classList.remove('bd-drag', 'bd-over'));
     });
     body.addEventListener('keydown', e => {
       const t = e.target;
