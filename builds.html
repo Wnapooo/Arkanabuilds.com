@@ -535,6 +535,7 @@
   .bd-it b { font-size: 12px; line-height: 1.25; color: var(--text); }
   .bd-it em { font-style: normal; font-size: 11px; font-weight: 800; padding: 1px 7px; border-radius: 99px; background: #ff6b4a; color: #1a0a06; }
   .bd-it em[data-t] { cursor: pointer; }
+  .bd-cost { font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #ff8a70; margin-bottom: 4px; }
   .bd-pcs { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin-top: 4px; }
   .bd-pcs button { font: inherit; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 99px; border: 1px solid var(--card-border); background: rgba(255,255,255,.06); color: var(--text); cursor: pointer; }
   .bd-pcs button:hover { border-color: #ff6b4a; }
@@ -1436,7 +1437,8 @@
     let b = empty(), timer = null, openPc = -1, dirty = false;
     try { b = fix(JSON.parse(localStorage.getItem(lk))); } catch (e) {}
 
-    const card = (x, k, j) => `<div class="bd-it">${W ? wwImgTag(x, wk(k)) : x.c ? `<img src="${iconUrl(x.c)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">` : '<div class="bd-ph"></div>'}<b>${esc(x.n)}</b>${x.p ? `<em${EDIT && k === 'arts' ? ` data-t="${j}" title="${W ? 'Elegir piezas del set' : 'Cambiar piezas del set'}"` : ''}>${x.p}-PC</em>` : ''}${EDIT && W && k === 'arts' && openPc === j ? `<div class="bd-pcs">${[1, 2, 3, 5].map(n => `<button type="button" data-pc="${j}:${n}" class="${x.p === n ? 'on' : ''}">${n}-PC</button>`).join('')}</div>` : ''}${EDIT ? `<button type="button" class="bd-x" data-d="${k}:${j}" aria-label="Quitar">×</button>` : ''}</div>`;
+    const ECO_COST = [4, 3, 3, 1, 1];  /* coste de cada hueco de eco, en orden */
+    const card = (x, k, j) => `<div class="bd-it">${k === 'echoes' && ECO_COST[j] ? `<span class="bd-cost">Coste ${ECO_COST[j]}</span>` : ''}${W ? wwImgTag(x, wk(k)) : x.c ? `<img src="${iconUrl(x.c)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">` : '<div class="bd-ph"></div>'}<b>${esc(x.n)}</b>${x.p ? `<em${EDIT && k === 'arts' ? ` data-t="${j}" title="${W ? 'Elegir piezas del set' : 'Cambiar piezas del set'}"` : ''}>${x.p}-PC</em>` : ''}${EDIT && W && k === 'arts' && openPc === j ? `<div class="bd-pcs">${[1, 2, 3, 5].map(n => `<button type="button" data-pc="${j}:${n}" class="${x.p === n ? 'on' : ''}">${n}-PC</button>`).join('')}</div>` : ''}${EDIT ? `<button type="button" class="bd-x" data-d="${k}:${j}" aria-label="Quitar">×</button>` : ''}</div>`;
     const fld = (f, ph, v) => EDIT ? `<input class="bd-in" data-f="${f}" maxlength="160" placeholder="${ph}" value="${esc(v || '')}">` : esc(v || '');
 
     // ---- Iconos de talentos (Ultimate / Habilidad / Talento / Atk básico / Técnica) ----
