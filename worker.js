@@ -154,14 +154,14 @@ async function dupesPut({ request, env }) {
 }
 
 /* ---------------- BUILDS: /api/builds?g=<juego>&c=<slug> ---------------- */
-const ICON_RE = /^[\w\-\/.]{0,120}$/;
+const ICON_RE = /^(?:[\w\-\/.]{0,120}|https:\/\/static\.nanoka\.cc\/[\w\-\/.]{1,160})$/;  // ruta relativa o URL de nanoka (WuWa guarda la URL completa)
 const LIMITS = { cones: 5, arts: 4, orn: 3 };
 const str = (v, n) => (typeof v === 'string' ? v.slice(0, n) : '');
 
 function cleanItems(a, k) {
   return (Array.isArray(a) ? a : []).slice(0, LIMITS[k]).map((x) => ({
-    i: str(x && x.i, 12), n: str(x && x.n, 80), c: str(x && x.c, 120),
-    p: x && (x.p === 2 || x.p === 4) ? x.p : undefined,
+    i: str(x && x.i, 12), n: str(x && x.n, 80), c: str(x && x.c, 200),
+    p: x && [1, 2, 3, 4, 5].includes(x.p) ? x.p : undefined,  // WuWa usa 1, 2, 3 y 5 piezas
   })).filter((x) => x.i && x.n && ICON_RE.test(x.c) && !x.c.includes('..'));
 }
 
