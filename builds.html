@@ -555,7 +555,7 @@
   .bd-tal-chip { display: inline-flex; align-items: center; gap: 7px; padding: 5px 10px 5px 5px; border-radius: 999px; background: rgba(255,255,255,.06); border: 1px solid var(--card-border); font-size: 14px; font-weight: 700; color: var(--text); }
   .bd-tal-ic { width: 24px; height: 24px; border-radius: 50%; background: #ff6b4a; color: #1a0a06; display: flex; align-items: center; justify-content: center; flex: none; overflow: hidden; }
   .bd-tal-ic svg { width: 13px; height: 13px; }
-  .bd-tal-ic.bd-tal-ic-real { width: 30px; height: 30px; border-radius: 50%; background: #ff6b4a; }
+  .bd-tal-ic.bd-tal-ic-real { width: 30px; height: 30px; border-radius: 50%; background: transparent; }
   .bd-tal-ic-real img { width: 28px; height: 28px; object-fit: contain; }
   .bd-tal-sep { color: var(--muted); font-size: 13px; }
   .bd-msg { padding: 10px; font-size: 13px; color: var(--muted); }
@@ -1324,12 +1324,27 @@
       if (f.includes('basic') || f.includes('atk') || f.includes('bas')) return 'basic';
       return '';
     };
+    // ---- ZZZ: iconos genericos por tipo de habilidad (archivos en la raiz del repo) ----
+    const ZZZ_SKILL_IMG = { basic: 'zzz_skill_basic.png', dodge: 'zzz_skill_dodge.png', assist: 'zzz_skill_assist.png', chain: 'zzz_skill_chain.png', core: 'zzz_skill_core.png' };
+    const ZZZ_SVG_FALLBACK = { basic: 'basic', dodge: 'tech', assist: 'tech', chain: 'ultimate', special: 'skill', core: 'talent' };
+    const zzzKey = label => {
+      const f = flat(label);
+      if (f.includes('basic') || f.includes('basico')) return 'basic';
+      if (f.includes('evasion') || f.includes('esquiva') || f.includes('dodge')) return 'dodge';
+      if (f.includes('asist') || f.includes('assist')) return 'assist';
+      if (f.includes('cadena') || f.includes('chain') || f.includes('definitiva') || f.includes('ultimate')) return 'chain';
+      if (f.includes('especial') || f.includes('special')) return 'special';
+      if (f.includes('nucleo') || f.includes('core') || f.includes('pasiv')) return 'core';
+      return '';
+    };
     const talentsDisplay = v => {
       const parts = String(v || '').split('>').map(s => s.trim()).filter(Boolean);
       if (!parts.length) return '';
       return `<div class="bd-tal-row">${parts.map((p, i) => {
-        const key = talentKey(p);
-        return `${i ? '<span class="bd-tal-sep">›</span>' : ''}<span class="bd-tal-chip" data-tk="${key}"><span class="bd-tal-ic">${key ? TAL_SVG[key] : ''}</span>${esc(p)}</span>`;
+        const key = Z ? zzzKey(p) : talentKey(p);
+        const img = Z && ZZZ_SKILL_IMG[key];
+        const icon = img ? `<img src="./${img}" alt="" onerror="this.remove()">` : (key ? TAL_SVG[Z ? ZZZ_SVG_FALLBACK[key] : key] || '' : '');
+        return `${i ? '<span class="bd-tal-sep">›</span>' : ''}<span class="bd-tal-chip" data-tk="${key}"><span class="bd-tal-ic${img ? ' bd-tal-ic-real' : ''}">${icon}</span>${esc(p)}</span>`;
       }).join('')}</div>`;
     };
     const fldTalents = v => EDIT ? `<input class="bd-in" data-f="talents" maxlength="160" placeholder="Ej: Ultimate &gt; Habilidad &gt; Talento &gt; Atk básico" value="${esc(v || '')}">` : talentsDisplay(v);
@@ -1376,6 +1391,7 @@
           const cand = list.filter(x => { const n = flat(x.name); return n.startsWith(target) || target.startsWith(n); });
           if (cand.length === 1) c = cand[0];
         }
+        if (!c) console.warn('[Talentos] Sin ID para "' + slug + '" (' + displayName + '). Agregalo en HSR_ID_OVERRIDE o HSR_NAME_ALIAS.');
         return c ? String(c.id) : null;
       }).catch(() => null);
     }
