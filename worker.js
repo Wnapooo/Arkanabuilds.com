@@ -155,7 +155,7 @@ async function dupesPut({ request, env }) {
 
 /* ---------------- BUILDS: /api/builds?g=<juego>&c=<slug> ---------------- */
 const ICON_RE = /^(?:[\w\-\/.]{0,120}|https:\/\/static\.nanoka\.cc\/[\w\-\/.]{1,160})$/;  // ruta relativa o URL de nanoka (WuWa guarda la URL completa)
-const LIMITS = { cones: 5, arts: 4, orn: 3 };
+const LIMITS = { cones: 5, arts: 4, orn: 3, echoes: 5 };
 const str = (v, n) => (typeof v === 'string' ? v.slice(0, n) : '');
 
 function cleanItems(a, k) {
@@ -192,6 +192,7 @@ async function buildsPut({ request, env }) {
     cones: cleanItems(body.cones, 'cones'),
     arts: cleanItems(body.arts, 'arts'),
     orn: cleanItems(body.orn, 'orn'),
+    echoes: cleanItems(body.echoes, 'echoes'),
     main: { torso: str(m.torso, 160), botas: str(m.botas, 160), esfera: str(m.esfera, 160), cuerda: str(m.cuerda, 160) },
     sub: str(body.sub, 160), talents: str(body.talents, 160), note: str(body.note, 160),
   };
