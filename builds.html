@@ -1325,7 +1325,7 @@
       return '';
     };
     // ---- ZZZ: iconos genericos por tipo de habilidad (archivos en la raiz del repo) ----
-    const ZZZ_SKILL_IMG = { basic: 'zzz_skill_basic.png', dodge: 'zzz_skill_dodge.png', assist: 'zzz_skill_assist.png', chain: 'zzz_skill_chain.png', core: 'zzz_skill_core.png' };
+    const ZZZ_SKILL_IMG = { basic: 'zzz_skill_basic.png', dodge: 'zzz_skill_dodge.png', assist: 'zzz_skill_assist.png', special: 'zzz_skill_special.png', chain: 'zzz_skill_ultimate.png' };
     const ZZZ_SVG_FALLBACK = { basic: 'basic', dodge: 'tech', assist: 'tech', chain: 'ultimate', special: 'skill', core: 'talent' };
     const zzzKey = label => {
       const f = flat(label);
@@ -1333,8 +1333,8 @@
       if (f.includes('evasion') || f.includes('esquiva') || f.includes('dodge')) return 'dodge';
       if (f.includes('asist') || f.includes('assist')) return 'assist';
       if (f.includes('cadena') || f.includes('chain') || f.includes('definitiva') || f.includes('ultimate')) return 'chain';
-      if (f.includes('especial') || f.includes('special')) return 'special';
-      if (f.includes('nucleo') || f.includes('core') || f.includes('pasiv')) return 'core';
+      if (f.includes('nucleo') || f.includes('core') || f.includes('central') || f.includes('pasiv')) return 'core';
+      if (f.includes('especial') || f.includes('special') || f.includes('habilidad') || f.includes('skill')) return 'special';
       return '';
     };
     const talentsDisplay = v => {
