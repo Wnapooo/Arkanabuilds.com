@@ -199,6 +199,33 @@ async function buildsPut({ request, env }) {
   return json({ ok: true });
 }
 
+/* ---------------- ZZZ: /api/zzz-catalog (motores-W y discos desde nanoka) ---------------- */
+const NANOKA = 'https://static.nanoka.cc';
+const bareName = (p) => String(p || '').split('/').pop().replace(/\.[a-z0-9]+$/i, '');
+const nameOf = (x) => {
+  const v = x && (x.en || x.zh || x.name);
+  return typeof v === 'string' ? v : (v && v.name) || '';
+};
+
+async function zzzCatalog() {
+  try {
+    const opt = { cf: { cacheTtl: 3600, cacheEverything: true } };
+    const man = await (await fetch(NANOKA + '/manifest.json', opt)).json();
+    const ver = man && man.zzz && man.zzz.live;
+    if (!ver) return json({ error: 'sin versión' }, 502);
+    const [w, e] = await Promise.all(['weapon', 'equipment'].map((f) =>
+      fetch(NANOKA + '/zzz/' + ver + '/' + f + '.json', opt).then((r) => (r.ok ? r.json() : Promise.reject()))));
+    const lst = (o) => Object.entries(o || {})
+      .map(([i, x]) => ({ i: String(i), n: nameOf(x).slice(0, 80), c: bareName(x && x.icon).slice(0, 100) }))
+      .filter((x) => x.n);
+    return new Response(JSON.stringify({ cones: lst(w), sets: lst(e) }), {
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=600' },
+    });
+  } catch {
+    return json({ error: 'catálogo no disponible' }, 502);
+  }
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -227,6 +254,7 @@ export default {
         default: return json({ error: 'método no permitido' }, 405);
       }
     }
+    if (url.pathname === '/api/zzz-catalog' && request.method === 'GET') return zzzCatalog();
     if (url.pathname === '/api/builds') {
       const ctx = { request, env };
       switch (request.method) {
