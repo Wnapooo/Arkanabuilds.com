@@ -1273,12 +1273,55 @@
      (nombre en minúsculas y con guiones, ej: ww_weapon_static-mist.webp, ww_echo_celestial-light.webp) */
   const wwIcon = (kind, name) => './ww_' + kind + '_' + String(name).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') + '.webp';
   let wwP = null;
+  /* WuWa: catálogo automático (igual que HSR/ZZZ). Lee static.nanoka.cc: manifest -> revisión actual ->
+     weapon.json / echo.json. Cuando salga un parche, las armas y sets nuevos aparecen solos.
+     Si la fuente falla, usa la última copia guardada en el navegador y, si no hay, la lista básica de arriba. */
   function loadWuwa() {
     if (wwP) return wwP;
-    wwP = Promise.resolve({
+    const CK = 'wwcat:v1';
+    const basic = () => ({
       basic: true,
       cones: WW_BASIC.cones.map((n, i) => ({ i: 'w' + i, n, c: wwIcon('weapon', n) })),
       sets: WW_BASIC.sets.map((n, i) => ({ i: 'e' + i, n, c: wwIcon('echo', n) }))
+    });
+    const bare = p => String(p || '').split('/').pop().replace(/\.[a-z0-9]+$/i, '');
+    const txt = v => typeof v === 'string' ? v : (v && (v.en || v.name || v.Name)) || '';
+    const nm = x => txt(x && (x.en || x.name || x.Name || x.title)) || txt(x && x.zh);
+    const icn = x => {
+      const p = x && (x.icon || x.Icon || x.image || x.img || x.IconPath);
+      if (!p || typeof p !== 'string') return '';
+      return /^https?:/i.test(p) ? p : NK + '/assets/ww/' + bare(p) + '.webp';
+    };
+    const lst = o => (Array.isArray(o) ? o.map((x, k) => [x && x.id != null ? x.id : k, x]) : Object.entries(o || {}))
+      .map(([k, x]) => ({ i: String(k), n: nm(x), c: icn(x) })).filter(x => x.n);
+    const get = u => fetch(u).then(r => r.ok ? r.json() : Promise.reject(new Error(u + ' ' + r.status)));
+    const known = (list, ref) => { const f = new Set(ref.map(flatName)); return list.filter(x => f.has(flatName(x.n))).length; };
+    const flatName = t => String(t).toLowerCase().replace(/[^a-z0-9]/g, '');
+    const revOf = m => {
+      const e = m && (m.ww || m.wuwa || m.wutheringwaves || m.WW);
+      if (!e) return null;
+      return typeof e === 'string' ? e : (e.live || e.latest || e.current || e.version || null);
+    };
+    const pick = (rev, files, ref) => files.reduce((p, f) => p.catch(() =>
+      get(NK + '/ww/' + rev + '/' + f + '.json').then(lst).then(l => known(l, ref) >= 3 ? l : Promise.reject(new Error(f + ' no coincide')))
+    ), Promise.reject());
+    const fresh = () => get(NK + '/manifest.json').then(m => {
+      const rev = revOf(m);
+      if (!rev) throw new Error('manifest sin revisión de ww');
+      return Promise.all([
+        pick(rev, ['weapon'], WW_BASIC.cones),
+        pick(rev, ['sonata', 'echoset', 'fetter', 'echo'], WW_BASIC.sets)
+      ]).then(([cones, sets]) => ({ rev, cones, sets }));
+    });
+    const saved = () => { try { return JSON.parse(localStorage.getItem(CK)); } catch (e) { return null; } };
+    wwP = fresh().then(c => {
+      try { localStorage.setItem(CK, JSON.stringify(c)); } catch (e) {}
+      console.info('[WuWa] catálogo ' + c.rev + ': ' + c.cones.length + ' armas, ' + c.sets.length + ' sets');
+      return c;
+    }).catch(e => {
+      console.warn('[WuWa] catálogo online no disponible:', e && e.message);
+      const c = saved();
+      return (c && c.cones && c.cones.length && c.sets && c.sets.length) ? c : basic();
     });
     return wwP;
   }
@@ -1325,7 +1368,7 @@
     let b = empty(), timer = null;
     try { b = fix(JSON.parse(localStorage.getItem(lk))); } catch (e) {}
 
-    const card = (x, k, j) => `<div class="bd-it">${W ? `<img src="${esc(x.c || wwIcon(k === 'cones' ? 'weapon' : 'echo', x.n))}" alt="" loading="lazy" onerror="this.outerHTML='<div class=&quot;bd-ph&quot;></div>'">` : x.c ? `<img src="${iconUrl(x.c)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">` : '<div class="bd-ph"></div>'}<b>${esc(x.n)}</b>${x.p ? `<em${EDIT && k === 'arts' ? ` data-t="${j}" title="Cambiar piezas del set"` : ''}>${x.p}-PC</em>` : ''}${EDIT ? `<button type="button" class="bd-x" data-d="${k}:${j}" aria-label="Quitar">×</button>` : ''}</div>`;
+    const card = (x, k, j) => `<div class="bd-it">${W ? `<img src="${esc(x.c || wwIcon(k === 'cones' ? 'weapon' : 'echo', x.n))}" data-f="${esc(wwIcon(k === 'cones' ? 'weapon' : 'echo', x.n))}" alt="" loading="lazy" onerror="if(!this.dataset.t){this.dataset.t=1;this.src=this.dataset.f}else{this.outerHTML='<div class=&quot;bd-ph&quot;></div>'}">` : x.c ? `<img src="${iconUrl(x.c)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">` : '<div class="bd-ph"></div>'}<b>${esc(x.n)}</b>${x.p ? `<em${EDIT && k === 'arts' ? ` data-t="${j}" title="Cambiar piezas del set"` : ''}>${x.p}-PC</em>` : ''}${EDIT ? `<button type="button" class="bd-x" data-d="${k}:${j}" aria-label="Quitar">×</button>` : ''}</div>`;
     const fld = (f, ph, v) => EDIT ? `<input class="bd-in" data-f="${f}" maxlength="160" placeholder="${ph}" value="${esc(v || '')}">` : esc(v || '');
 
     // ---- Iconos de talentos (Ultimate / Habilidad / Talento / Atk básico / Técnica) ----
@@ -1485,7 +1528,7 @@
           if (flat(t.value.trim()) !== q) return;
           const src = k === 'cones' ? cat.cones : (Z || W) ? cat.sets : cat.sets.filter(x => x.planar === (k === 'orn'));
           const hit = src.filter(x => flat(x.n).includes(q)).slice(0, 30);
-          res.innerHTML = hit.length ? hit.map(x => `<button type="button" class="bd-opt${b[k].some(y => y.i === x.i) ? ' used' : ''}" data-k="${k}" data-i="${esc(x.i)}">${x.c ? `<img src="${iconUrl(x.c)}" alt="" loading="lazy">` : ''}${esc(x.n)}</button>`).join('') : '<div class="bd-msg">Sin resultados. Pulsa Enter para añadir el texto tal cual.</div>';
+          res.innerHTML = hit.length ? hit.map(x => `<button type="button" class="bd-opt${b[k].some(y => y.i === x.i) ? ' used' : ''}" data-k="${k}" data-i="${esc(x.i)}">${x.c ? `<img src="${iconUrl(x.c)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">` : ''}${esc(x.n)}</button>`).join('') : '<div class="bd-msg">Sin resultados. Pulsa Enter para añadir el texto tal cual.</div>';
           if (cat.basic && hit.length) res.insertAdjacentHTML('beforeend', '<div class="bd-msg">Lista básica sin iconos. Enter añade otro nombre tal cual.</div>');
           res._hit = hit;
         }).catch(() => { res.innerHTML = '<div class="bd-msg">No se pudo cargar el catálogo. Pulsa Enter para añadir el texto tal cual.</div>'; });
