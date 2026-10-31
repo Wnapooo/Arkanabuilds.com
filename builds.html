@@ -1344,7 +1344,7 @@
   }
   /* ---- Iconos WuWa: prueba varias rutas de nanoka, luego el archivo local, y al final un cuadro vacío ---- */
   const WW_UI = 'UIResources/Common/Image/';
-  const WW_DIRS = { weapon: [WW_UI + 'IconWeapon', ''], echo: [WW_UI + 'IconMonsterHead', WW_UI + 'IconFetter', WW_UI + 'IconSonata', ''] };
+  const WW_DIRS = { skill: [''], weapon: [WW_UI + 'IconWeapon', ''], echo: [WW_UI + 'IconMonsterHead', WW_UI + 'IconFetter', WW_UI + 'IconSonata', ''] };
   const WW_LIVE = { weapon: new Map(), echo: new Map() };
   const wwFlat = t => String(t).toLowerCase().replace(/[^a-z0-9]/g, '');
   function wwIndex(c) {
@@ -1462,17 +1462,29 @@
       if (f.includes('especial') || f.includes('special') || f.includes('habilidad') || f.includes('skill')) return 'special';
       return '';
     };
+    // ---- WuWa: tipos de habilidad ----
+    const WW_SVG = { basic: 'basic', skill: 'skill', forte: 'talent', ultimate: 'ultimate', intro: 'tech', outro: 'tech' };
+    const wwKey = label => {
+      const f = flat(label);
+      if (f.includes('forte') || f.includes('circuito')) return 'forte';
+      if (f.includes('liberacion') || f.includes('liberation') || f.includes('ultimate') || f.includes('definitiva')) return 'ultimate';
+      if (f.includes('intro')) return 'intro';
+      if (f.includes('outro')) return 'outro';
+      if (f.includes('habilidad') || f.includes('skill')) return 'skill';
+      if (f.includes('basic') || f.includes('normal') || f.includes('ataque') || f.includes('atk') || f.includes('atq')) return 'basic';
+      return '';
+    };
     const talentsDisplay = v => {
       const parts = String(v || '').split('>').map(s => s.trim()).filter(Boolean);
       if (!parts.length) return '';
       return `<div class="bd-tal-row">${parts.map((p, i) => {
-        const key = Z ? zzzKey(p) : talentKey(p);
+        const key = Z ? zzzKey(p) : W ? wwKey(p) : talentKey(p);
         const img = Z && ZZZ_SKILL_IMG[key];
-        const icon = img ? `<img src="./${img}" alt="" onerror="this.remove()">` : (key ? TAL_SVG[Z ? ZZZ_SVG_FALLBACK[key] : key] || '' : '');
+        const icon = img ? `<img src="./${img}" alt="" onerror="this.remove()">` : (key ? TAL_SVG[Z ? ZZZ_SVG_FALLBACK[key] : W ? WW_SVG[key] : key] || '' : '');
         return `${i ? '<span class="bd-tal-sep">›</span>' : ''}<span class="bd-tal-chip" data-tk="${key}"><span class="bd-tal-ic${img ? ' bd-tal-ic-real' : ''}">${icon}</span>${esc(p)}</span>`;
       }).join('')}</div>`;
     };
-    const fldTalents = v => EDIT ? `<input class="bd-in" data-f="talents" maxlength="160" placeholder="Ej: Ultimate &gt; Habilidad &gt; Talento &gt; Atk básico" value="${esc(v || '')}">` : talentsDisplay(v);
+    const fldTalents = v => EDIT ? `<input class="bd-in" data-f="talents" maxlength="160" placeholder="${W ? 'Ej: Atq básico &gt; Forte &gt; Habilidad de Resonancia &gt; Intro' : 'Ej: Ultimate &gt; Habilidad &gt; Talento &gt; Atk básico'}" value="${esc(v || '')}">` : talentsDisplay(v);
 
     // ---- Iconos OFICIALES del personaje (nanoka.cc), con reemplazo async y fallback seguro ----
     // CDN de iconos reales: https://static.nanoka.cc/assets/hsr/skillicons/SkillIcon_<id>_<Tipo>.webp
@@ -1529,6 +1541,67 @@
         });
       });
     }
+    // ---- WuWa: iconos OFICIALES de habilidades (nanoka). Si no se encuentran, quedan los genéricos ----
+    const WW_ID_OVERRIDE = {};  /* 'slug': idNanoka, por si algún personaje no se encuentra por nombre */
+    const WW_SK_RE = { basic: /normal attack|basic attack/i, skill: /resonance skill/i, forte: /forte circuit/i, ultimate: /resonance liberation/i, intro: /intro skill/i, outro: /outro skill/i };
+    const wwSkCache = {};
+    function wwSkillPaths(slug, dispName) {
+      if (wwSkCache[slug]) return wwSkCache[slug];
+      const fl = s => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+      const getJ = u => fetch(u).then(r => r.ok ? r.json() : Promise.reject(new Error(u + ' ' + r.status)));
+      const unwrap = o => (o && !Array.isArray(o) && (o.data || o.list || o.items)) || o;
+      wwSkCache[slug] = loadWuwa().then(c => {
+        if (!c.rev) throw new Error('sin revisión de catálogo');
+        const idP = WW_ID_OVERRIDE[slug] ? Promise.resolve(String(WW_ID_OVERRIDE[slug])) :
+          getJ(NK + '/ww/' + c.rev + '/character.json').then(o => {
+            o = unwrap(o);
+            const arr = Array.isArray(o) ? o.map((x, k) => [x && x.id != null ? x.id : k, x]) : Object.entries(o || {});
+            const hit = arr.find(([k, x]) => { const n = x && (x.en || x.name || x.Name); const s = typeof n === 'string' ? n : (n && (n.en || n.name)); return s && fl(s) === fl(dispName); });
+            if (!hit) throw new Error('personaje no encontrado: ' + dispName + ' (agrégalo en WW_ID_OVERRIDE)');
+            return String(hit[0]);
+          });
+        return idP.then(id => getJ(NK + '/ww/' + c.rev + '/en/character/' + id + '.json'));
+      }).then(d => {
+        const found = {}, isIcon = v => typeof v === 'string' && (/\.(webp|png)$/i.test(v) || /UIResources|Icon/i.test(v)) && v.indexOf(' ') < 0;
+        const walk = (o, key, depth) => {
+          if (!o || typeof o !== 'object' || depth > 7) return;
+          if (!Array.isArray(o)) {
+            const ik = Object.keys(o).find(k => /icon/i.test(k) && isIcon(o[k]));
+            if (ik) {
+              const label = [key].concat(Object.values(o).filter(v => typeof v === 'string' && v.length < 60)).join(' | ');
+              Object.keys(WW_SK_RE).forEach(tp => { if (!found[tp] && WW_SK_RE[tp].test(label)) found[tp] = o[ik]; });
+            }
+          }
+          Object.entries(o).forEach(([k, v]) => walk(v, Array.isArray(o) ? key : k, depth + 1));
+        };
+        walk(d, '', 0);
+        if (Object.keys(found).length) console.info('[WuWa] iconos de habilidades de ' + slug + ':', JSON.stringify(found));
+        else console.warn('[WuWa] no encontré iconos de habilidades para ' + slug + '. Claves del JSON:', Object.keys(d || {}).join(', '));
+        return found;
+      }).catch(e => { console.warn('[WuWa] habilidades:', e && e.message); return {}; });
+      return wwSkCache[slug];
+    }
+    function upgradeWwTalentIcons() {
+      if (!W || EDIT || !b.talents) return;
+      const entry = (GAMES.wuwa.chars || []).find(c => c[0] === slug);
+      if (!entry) return;
+      wwSkillPaths(slug, entry[1]).then(found => {
+        if (token !== buildToken) return;
+        body.querySelectorAll('.bd-tal-chip[data-tk]').forEach(chip => {
+          const p = found[chip.dataset.tk], ic = chip.querySelector('.bd-tal-ic');
+          if (!p || !ic) return;
+          const bare = String(p).split('/').pop().split('.')[0];
+          const list = wwCand('skill', { r: p, b: bare, c: '', n: '' });
+          const next = () => {
+            const u = list.shift(); if (!u) return;
+            const im = new Image(); im.alt = ''; im.referrerPolicy = 'no-referrer';
+            im.onload = () => { ic.innerHTML = ''; ic.appendChild(im); ic.classList.add('bd-tal-ic-real'); };
+            im.onerror = next; im.src = u;
+          };
+          next();
+        });
+      });
+    }
     function rows() {
       SEC.forEach(([k]) => {
         body.querySelector(`.bd-row[data-k="${k}"]`).innerHTML = b[k].map((x, j) => card(x, k, j)).join('');
@@ -1555,7 +1628,7 @@
         <section class="bd-box"><h4>Stats secundarias <small>(prioridad)</small></h4><div class="bd-big" data-l="sub">${fld('sub', 'Ej: CRIT Rate &gt; CRIT DMG &gt; ATK% &gt; SPD', b.sub)}</div><div class="bd-note" data-l="note">${fld('note', 'Objetivo: ~100% CRIT Rate, 130-150% CRIT DMG...', b.note)}</div></section>
         <section class="bd-box"><h4>${(Z || W) ? 'Habilidades' : 'Talentos'}</h4><div class="bd-big" data-l="talents">${fldTalents(b.talents)}</div></section>
       </div></div>`;
-      rows(); vis(); upgradeTalentIcons();
+      rows(); vis(); upgradeTalentIcons(); upgradeWwTalentIcons();
     }
     function doSave(retry) {
       const key = getKey(retry);
