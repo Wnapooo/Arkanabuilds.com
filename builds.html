@@ -1299,7 +1299,7 @@
     const empty = () => ({ cones: [], arts: [], orn: [], main: {}, sub: '', talents: '', note: '' });
     const fix = x => Object.assign(empty(), x || {}, { main: Object.assign({}, x && x.main) });
     const has = x => x.cones.length || x.arts.length || x.orn.length || Object.values(x.main).some(Boolean) || x.sub || x.talents || x.note;
-    const flat = t => String(t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const flat = t => String(t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim();
     const original = body.innerHTML;
     let b = empty(), timer = null;
     try { b = fix(JSON.parse(localStorage.getItem(lk))); } catch (e) {}
@@ -1345,10 +1345,28 @@
       return hsrCharsP;
     }
     const SKILL_TYPE_SUFFIX = { basic: 'Normal', skill: 'BPSkill', ultimate: 'Ultra', talent: 'Talent', tech: 'Maze' };
+    // Alias para slugs cuyo nombre en esta web no coincide literal con el nombre oficial del juego
+    // (variantes Trailblazer, Imbibitor Lunae, skins fan-made, etc.). Si algún personaje no te
+    // muestra el icono real, agrégalo aquí: 'slug-de-tu-web': 'Nombre oficial en inglés'.
+    const HSR_NAME_ALIAS = {
+      'imbibitor-lunae': 'Dan Heng Imbibitor Lunae',
+      'dan-heng-permansor-terrae': 'Dan Heng',
+      'march-7th-evernight': 'March 7th',
+      'march-7th-swordmaster': 'March 7th',
+      'robin-summeretto': 'Robin',
+      'aventurine-waveflair': 'Aventurine',
+      'silver-wolf-lv-999': 'Silver Wolf',
+      'himeko-nova': 'Himeko',
+      'blade-mortenax': 'Blade',
+      'sparxie': 'Sparkle',
+      'trailblazer-elation': 'Trailblazer',
+      'trailblazer-harmony': 'Trailblazer',
+      'trailblazer-remembrance': 'Trailblazer'
+    };
     function findCharId(displayName) {
       if (!displayName) return Promise.resolve(null);
       return loadHsrChars().then(chars => {
-        const target = flat(displayName);
+        const target = flat(HSR_NAME_ALIAS[slug] || displayName);
         const c = chars.find(x => x && x.name && flat(x.name) === target);
         return c ? String(c.id) : null;
       }).catch(() => null);
