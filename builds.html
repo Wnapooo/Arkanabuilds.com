@@ -1285,7 +1285,7 @@
       cones: WW_BASIC.cones.map((n, i) => ({ i: 'w' + i, n, c: wwIcon('weapon', n) })),
       sets: WW_BASIC.sets.map((n, i) => ({ i: 'e' + i, n, c: wwIcon('echo', n) }))
     });
-    const bare = p => String(p || '').split('/').pop().replace(/\.[a-z0-9]+$/i, '');
+    const bare = p => String(p || '').split('/').pop().split('.')[0];
     const txt = v => typeof v === 'string' ? v : (v && (v.en || v.name || v.Name)) || '';
     const nm = x => txt(x && (x.en || x.name || x.Name || x.title)) || txt(x && x.zh);
     const rawIcon = x => { const p = x && (x.icon || x.Icon || x.image || x.img || x.IconPath); return typeof p === 'string' ? p : ''; };
@@ -1307,7 +1307,7 @@
       return typeof e === 'string' ? e : (e.live || e.latest || e.current || e.version || null);
     };
     const pick = (rev, files, ref, min) => files.reduce((p, f) => p.catch(() =>
-      get(NK + '/ww/' + rev + '/' + f + '.json').then(lst).then(l => known(l, ref) >= min ? l : Promise.reject(new Error(f + ' no coincide')))
+      get(NK + '/ww/' + rev + '/' + f + '.json').then(j => { try { console.info('[WuWa] ' + f + '.json ejemplo:', JSON.stringify(Object.entries(unw(j) || {})[0]).slice(0, 500)); } catch (e) {} return j; }).then(lst).then(l => known(l, ref) >= min ? l : Promise.reject(new Error(f + ' no coincide')))
     ), Promise.reject());
     const fresh = () => get(NK + '/manifest.json').then(m => {
       const rev = revOf(m);
@@ -1351,10 +1351,13 @@
   /* un arma/set guardado antes guarda una URL vieja: se busca por nombre en el catálogo actual */
   const wwLive = (x, kind) => { const l = WW_LIVE[kind].get(wwFlat(x.n)); return l ? Object.assign({}, x, { c: l.c, b: l.b, r: l.r }) : x; };
   function wwCand(kind, x) {
-    const out = [], http = /^https?:/i;
+    const out = [], http = /^https?:/i, strip = s => s.replace(/\.[^/]*$/, '');
     const u = x.r ? x.r.indexOf('UIResources') : -1;
-    if (u >= 0) out.push(NK + '/assets/ww/' + x.r.slice(u).replace(/\.[a-z0-9]+$/i, '') + '.webp');
-    if (x.b) WW_DIRS[kind].forEach(d => out.push(NK + '/assets/ww/' + (d ? d + '/' : '') + x.b + '.webp'));
+    if (u >= 0) { const p = strip(x.r.slice(u)); out.push(NK + '/assets/ww/UI/' + p + '.webp', NK + '/assets/ww/' + p + '.webp'); }
+    if (x.b) WW_DIRS[kind].forEach(d => {
+      const q = (d ? d + '/' : '') + x.b + '.webp';
+      out.push(NK + '/assets/ww/UI/' + q, NK + '/assets/ww/' + q);
+    });
     if (x.c && http.test(x.c)) out.push(x.c);
     out.push(wwIcon(kind, x.n));
     return out.filter((v, k) => out.indexOf(v) === k);
