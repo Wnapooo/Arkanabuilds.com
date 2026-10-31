@@ -1270,12 +1270,25 @@
       if (kind === 'sets') out.planar = null; // desconocido: aparece en artefactos y ornamentos
       return out;
     }).filter(Boolean);
+    // Prueba la version publicada y la mas reciente (los conos nuevos a veces solo estan en "latest")
     return fetch(NKU + '/manifest.json').then(r => r.json()).then(m => {
-      const v = m && m.hsr && (m.hsr.live || m.hsr.latest);
-      return Promise.all(['lightcone', 'relicset'].map(f =>
-        fetch(NKU + '/hsr/' + v + '/' + f + '.json').then(r => r.ok ? r.json() : Promise.reject())));
-    }).then(([lc, rs]) => ({ cones: list(lc, 'cones'), sets: list(rs, 'sets') }));
+      const h = (m && m.hsr) || {};
+      const vers = [...new Set([h.latest, h.live].filter(Boolean))];
+      return Promise.all(vers.map(v => Promise.all(['lightcone', 'relicset'].map(f =>
+        fetch(NKU + '/hsr/' + v + '/' + f + '.json').then(r => r.ok ? r.json() : null).catch(() => null)))));
+    }).then(res => {
+      const uniq = a => { const seen = new Set(); return a.filter(x => !seen.has(x.i) && seen.add(x.i)); };
+      return {
+        cones: uniq([].concat(...res.map(([lc]) => lc ? list(lc, 'cones') : []))),
+        sets: uniq([].concat(...res.map(([, rs]) => rs ? list(rs, 'sets') : [])))
+      };
+    });
   }
+  // Conos que quedaron fuera de los listados (agregalos aqui: id y nombre)
+  const HSR_EXTRA_CONES = [
+    ['23065', 'Upon the First Echo of "Aha"'],
+    ['22009', "See You at the World's End!"]
+  ];
   function loadCatalog() {
     if (catP) return catP;
     const get = l => Promise.all(['light_cones', 'relic_sets'].map(f =>
@@ -1287,7 +1300,8 @@
     })).catch(() => ({ cones: [], sets: [] }));
     // Lo que no esta en StarRailRes (conos/sets nuevos) se completa con nanoka.cc
     catP = Promise.all([base, loadNanokaHsr().catch(() => null)]).then(([b, nk]) => {
-      if (!nk) { if (!b.cones.length) throw new Error('catalogo vacio'); return b; }
+      const extra = { cones: HSR_EXTRA_CONES.map(([i, n]) => ({ i, n, c: NKU + '/assets/hsr/lightconemediumicon/' + i + '.webp' })), sets: [] };
+      if (!nk) { if (!b.cones.length) throw new Error('catalogo vacio'); nk = extra; } else { nk = { cones: nk.cones.concat(extra.cones), sets: nk.sets }; }
       const merge = (a, extra) => { const ids = new Set(a.map(x => x.i)); return a.concat(extra.filter(x => !ids.has(x.i))); };
       const out = { cones: merge(b.cones, nk.cones), sets: merge(b.sets, nk.sets) };
       if (!nk.cones.length) console.warn('[Catalogo] nanoka.cc no devolvio conos (formato distinto).');
