@@ -1264,6 +1264,21 @@
     cones: 'Steel Cushion|The Restrained|Bashful Demon|The Vault|Riot Suppressor Mark VI|Rainforest Gourmet|Precious Fossilized Core|Demara Battery Mark II|Cannon Rotor|Drill Rig - Red Axis|Kaboom the Cannon|Marcato Desire|Roaring Ride|Street Superstar|Slice of Time|Housekeeper|Zanshin Herb Case|Tusks of Fury|Original Transmorpher|Unfettered Game Ball|Sharpened Stinger|Fusion Compiler|Electro-Lip Gloss|Gilded Blossom|Hailstorm Shrine|Ice-Jade Teapot|Qingming Birdcage|Bunny Band|Big Cylinder|Box Cutter|Deep Sea Visitor|Starlight Engine|Hellfire Gears|The Brimstone|Weeping Cradle|Severed Innocence|Heartstring Nocturne|Flamemaker Shaker|Spring Embrace|Timeweaver|Dreamlit Hearth|Lunar Decrescent|Elegant Vanity|Weeping Gemini|Kraken\'s Cradle|Thoughtbop|Blazing Laurel|Cloudcleave Radiance'.split('|'),
     sets: 'Woodpecker Electro|Puffer Electro|Chaos Jazz|Fanged Metal|Polar Metal|Thunder Metal|Inferno Metal|Hormone Punk|Freedom Blues|Swing Jazz|Shockstar Disco|Soul Rock|Proto Punk|Chaotic Metal|Branch & Blade Song|Yunkui Tales|King of the Summit|Astral Voice|Phaethon\'s Melody|Shadow Harmony|White Water Ballad|Moonlit Hunt?'.split('|').filter(n => !n.endsWith('?'))
   };
+  /* Wuthering Waves: lista de armas y sets de ecos (sin iconos). Para otras, escribe el nombre y pulsa Enter. */
+  const WW_BASIC = {
+    cones: 'Verdant Summit|Emerald of Genesis|Stringmaster|Static Mist|Blazing Brilliance|Lustrous Razor|Cosmic Ripples|Abyss Surges|The Last Dance|Tragicomedy|Red Spring|Ages of Harvest|Rime-Draped Sprouts|Defier\'s Thorn|Bloodpact\'s Pledge|Thunderflare Dominion|Fusion Accretion|Lunar Cutter|Kumokiri|Lumingloss|Originite: Type I|Originite: Type II|Originite: Type III|Originite: Type IV|Originite: Type V|Discord|Hollow Mirage|Dauntless Evernight|Sage|Beguiling Melody|Overture|Variation|Stonard|Tyro Broadblade|Tyro Sword|Tyro Gauntlets|Tyro Pistols|Tyro Rectifier|Autumntrace|Commando of Conviction|Helios Cleaver|Waltz in Masquerade|Augment|Amity Accord|Aureate Zenith|Cadenza|Call of the Abyss|Comet Flare|Emerald Sentence|Feather Edge|Fusion Bracers|Jinzhou Keeper|Laser Shearer|Legend of Drunken Hero|Monument Bridge|Oceanic Euphony|Onyx Slicer|Undying Flame|Unflickering Valor'.split('|'),
+    sets: 'Freezing Frost|Molten Rift|Void Thunder|Sierra Gale|Celestial Light|Sun-sinking Eclipse|Rejuvenating Glow|Moonlit Clouds|Lingering Tunes|Frosty Resolve|Eternal Radiance|Midnight Veil|Empyrean Anthem|Tidebreaking Courage|Gusts of Welkin|Windward Pilgrimage|Flaming Clawprint|Dream of the Lost|Crown of Valor|Law of Harmony|Flamewing\'s Shadow|Thread of Severed Fate|Halo of Starry Radiance|Pact of Neonlight Leap|Rite of Gilded Revelation|Trailblazing Star|Chromatic Foam|Sound of True Name'.split('|')
+  };
+  let wwP = null;
+  function loadWuwa() {
+    if (wwP) return wwP;
+    wwP = Promise.resolve({
+      basic: true,
+      cones: WW_BASIC.cones.map((n, i) => ({ i: 'w' + i, n, c: '' })),
+      sets: WW_BASIC.sets.map((n, i) => ({ i: 'e' + i, n, c: '' }))
+    });
+    return wwP;
+  }
   let zzP = null;
   function loadZzz() {
     if (zzP) return zzP;
@@ -1291,11 +1306,14 @@
     const lk = 'build:' + game + ':' + slug;
     const api = '/api/builds?g=' + encodeURIComponent(game) + '&c=' + encodeURIComponent(slug);
     const Z = game === 'zzz';
-    const LIM = Z ? { cones: 2, arts: 4, orn: 3 } : { cones: 5, arts: 4, orn: 3 };
-    const SEC = Z ? [['cones', 'Motores-W', 'motor-W'], ['arts', 'Discos de motor (4-PC)', 'disco de motor'], ['orn', 'Discos de motor (2-PC)', 'disco de motor 2-PC']] : [['cones', 'Conos de luz', 'cono de luz'], ['arts', 'Artefactos', 'artefacto'], ['orn', 'Ornamentos', 'ornamento']];
-    const MAIN = Z ? [['torso', 'Disco 4'], ['botas', 'Disco 5'], ['esfera', 'Disco 6']] : [['torso', 'Torso'], ['botas', 'Botas'], ['esfera', 'Esfera'], ['cuerda', 'Cuerda']];
-    const iconUrl = c => !c ? '' : Z ? NK + '/assets/zzz/' + c + '.webp' : SRR + c;
-    const catalog = () => Z ? loadZzz() : loadCatalog();
+    const W = game === 'wuwa';
+    const LIM = W ? { cones: 5, arts: 3, orn: 0 } : Z ? { cones: 2, arts: 4, orn: 3 } : { cones: 5, arts: 4, orn: 3 };
+    const SEC = W ? [['cones', 'Armas', 'arma'], ['arts', 'Sets de ecos', 'set de ecos']] : Z ? [['cones', 'Motores-W', 'motor-W'], ['arts', 'Discos de motor (4-PC)', 'disco de motor'], ['orn', 'Discos de motor (2-PC)', 'disco de motor 2-PC']] : [['cones', 'Conos de luz', 'cono de luz'], ['arts', 'Artefactos', 'artefacto'], ['orn', 'Ornamentos', 'ornamento']];
+    const MAIN = W ? [['torso', 'Eco costo 4'], ['botas', 'Eco costo 3'], ['esfera', 'Eco costo 1']] : Z ? [['torso', 'Disco 4'], ['botas', 'Disco 5'], ['esfera', 'Disco 6']] : [['torso', 'Torso'], ['botas', 'Botas'], ['esfera', 'Esfera'], ['cuerda', 'Cuerda']];
+    const iconUrl = c => !c ? '' : W ? '' : Z ? NK + '/assets/zzz/' + c + '.webp' : SRR + c;
+    const catalog = () => W ? loadWuwa() : Z ? loadZzz() : loadCatalog();
+    const defP = k => W ? 5 : (k === 'orn' ? 2 : 4);
+    const nextP = p => W ? (p === 2 ? 3 : p === 3 ? 5 : 2) : (p === 4 ? 2 : 4);
     const empty = () => ({ cones: [], arts: [], orn: [], main: {}, sub: '', talents: '', note: '' });
     const fix = x => Object.assign(empty(), x || {}, { main: Object.assign({}, x && x.main) });
     const has = x => x.cones.length || x.arts.length || x.orn.length || Object.values(x.main).some(Boolean) || x.sub || x.talents || x.note;
@@ -1304,7 +1322,7 @@
     let b = empty(), timer = null;
     try { b = fix(JSON.parse(localStorage.getItem(lk))); } catch (e) {}
 
-    const card = (x, k, j) => `<div class="bd-it">${x.c ? `<img src="${iconUrl(x.c)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">` : '<div class="bd-ph"></div>'}<b>${esc(x.n)}</b>${x.p ? `<em${EDIT && k === 'arts' ? ` data-t="${j}" title="Cambiar 2-PC / 4-PC"` : ''}>${x.p}-PC</em>` : ''}${EDIT ? `<button type="button" class="bd-x" data-d="${k}:${j}" aria-label="Quitar">×</button>` : ''}</div>`;
+    const card = (x, k, j) => `<div class="bd-it">${x.c ? `<img src="${iconUrl(x.c)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">` : '<div class="bd-ph"></div>'}<b>${esc(x.n)}</b>${x.p ? `<em${EDIT && k === 'arts' ? ` data-t="${j}" title="Cambiar piezas del set"` : ''}>${x.p}-PC</em>` : ''}${EDIT ? `<button type="button" class="bd-x" data-d="${k}:${j}" aria-label="Quitar">×</button>` : ''}</div>`;
     const fld = (f, ph, v) => EDIT ? `<input class="bd-in" data-f="${f}" maxlength="160" placeholder="${ph}" value="${esc(v || '')}">` : esc(v || '');
 
     // ---- Iconos de talentos (Ultimate / Habilidad / Talento / Atk básico / Técnica) ----
@@ -1383,7 +1401,7 @@
       }).catch(() => null);
     }
     function upgradeTalentIcons() {
-      if (Z || EDIT || !b.talents) return;
+      if (Z || W || EDIT || !b.talents) return;
       const row = body.querySelector('.bd-tal-row');
       if (!row) return;
       const entry = (GAMES.hsr.chars || []).find(c => c[0] === slug);
@@ -1428,7 +1446,7 @@
       </div><div class="bd-r">
         <section class="bd-box"><h4>Stats principales</h4>${MAIN.map(([k, l]) => `<div class="bd-line" data-l="${k}"><span>${l}</span><div>${fld('main.' + k, 'Ej: CRIT Rate &gt; CRIT DMG', b.main[k])}</div></div>`).join('')}</section>
         <section class="bd-box"><h4>Stats secundarias <small>(prioridad)</small></h4><div class="bd-big" data-l="sub">${fld('sub', 'Ej: CRIT Rate &gt; CRIT DMG &gt; ATK% &gt; SPD', b.sub)}</div><div class="bd-note" data-l="note">${fld('note', 'Objetivo: ~100% CRIT Rate, 130-150% CRIT DMG...', b.note)}</div></section>
-        <section class="bd-box"><h4>${Z ? 'Habilidades' : 'Talentos'}</h4><div class="bd-big" data-l="talents">${fldTalents(b.talents)}</div></section>
+        <section class="bd-box"><h4>${(Z || W) ? 'Habilidades' : 'Talentos'}</h4><div class="bd-big" data-l="talents">${fldTalents(b.talents)}</div></section>
       </div></div>`;
       rows(); vis(); upgradeTalentIcons();
     }
@@ -1462,7 +1480,7 @@
         res.hidden = false; res.innerHTML = '<div class="bd-msg">Cargando…</div>';
         catalog().then(cat => {
           if (flat(t.value.trim()) !== q) return;
-          const src = k === 'cones' ? cat.cones : Z ? cat.sets : cat.sets.filter(x => x.planar === (k === 'orn'));
+          const src = k === 'cones' ? cat.cones : (Z || W) ? cat.sets : cat.sets.filter(x => x.planar === (k === 'orn'));
           const hit = src.filter(x => flat(x.n).includes(q)).slice(0, 30);
           res.innerHTML = hit.length ? hit.map(x => `<button type="button" class="bd-opt${b[k].some(y => y.i === x.i) ? ' used' : ''}" data-k="${k}" data-i="${esc(x.i)}">${x.c ? `<img src="${iconUrl(x.c)}" alt="" loading="lazy">` : ''}${esc(x.n)}</button>`).join('') : '<div class="bd-msg">Sin resultados. Pulsa Enter para añadir el texto tal cual.</div>';
           if (cat.basic && hit.length) res.insertAdjacentHTML('beforeend', '<div class="bd-msg">Lista básica sin iconos. Enter añade otro nombre tal cual.</div>');
@@ -1476,14 +1494,14 @@
         const res = o.parentElement, k = o.dataset.k, x = (res._hit || []).find(y => y.i === o.dataset.i);
         if (!x || b[k].some(y => y.i === x.i)) return;
         if (b[k].length >= LIM[k]) { toast('Máximo ' + LIM[k]); return; }
-        b[k].push(k === 'cones' ? { i: x.i, n: x.n, c: x.c } : { i: x.i, n: x.n, c: x.c, p: k === 'orn' ? 2 : 4 });
+        b[k].push(k === 'cones' ? { i: x.i, n: x.n, c: x.c } : { i: x.i, n: x.n, c: x.c, p: defP(k) });
         const q = res.previousElementSibling; q.value = ''; res.hidden = true;
         rows(); save(); return;
       }
       const d = e.target.closest('.bd-x');
       if (d) { const [k, j] = d.dataset.d.split(':'); b[k].splice(+j, 1); rows(); save(); return; }
       const t = e.target.closest('em[data-t]');
-      if (t) { const x = b.arts[+t.dataset.t]; x.p = x.p === 4 ? 2 : 4; rows(); save(); return; }
+      if (t) { const x = b.arts[+t.dataset.t]; x.p = nextP(x.p); rows(); save(); return; }
       if (!e.target.closest('.bd-find')) body.querySelectorAll('.bd-res').forEach(r => { r.hidden = true; });
     });
     body.addEventListener('keydown', e => {
@@ -1496,7 +1514,7 @@
       if (first) { first.click(); return; }
       if (b[k].length >= LIM[k]) { toast('Máximo ' + LIM[k]); return; }
       const id = 'x' + Date.now().toString(36);
-      b[k].push(k === 'cones' ? { i: id, n: v.slice(0, 80), c: '' } : { i: id, n: v.slice(0, 80), c: '', p: k === 'orn' ? 2 : 4 });
+      b[k].push(k === 'cones' ? { i: id, n: v.slice(0, 80), c: '' } : { i: id, n: v.slice(0, 80), c: '', p: defP(k) });
       t.value = ''; res.hidden = true; rows(); save();
     });
   }
@@ -1763,7 +1781,7 @@
     const isHsr = !!(f2 && (elOf(f2.game, slug) || (f2.game === 'zzz' && ZZZ_BG[slug]) || f2.game === 'wuwa'));
     if (f2 && $('teams-body')) initTeams(slug, f2.game);
     if (f2 && $('dupes')) initDupes(slug, f2.game);
-    if (f2 && $('build-body') && (f2.game === 'hsr' || f2.game === 'zzz')) initBuild(slug, f2.game);
+    if (f2 && $('build-body') && (f2.game === 'hsr' || f2.game === 'zzz' || f2.game === 'wuwa')) initBuild(slug, f2.game);
     document.body.classList.toggle('hsr-open', isHsr);
     document.querySelector('main').classList.toggle('wide', isHsr);
     $('detail').hidden = !showDetail;
