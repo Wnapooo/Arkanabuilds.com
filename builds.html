@@ -1248,14 +1248,29 @@
     })).catch(e => { catP = null; throw e; });
     return catP;
   }
-  const ZZ = 'https://api.hakush.in/zzz/';
+  const NK = 'https://static.nanoka.cc';
+  const ZZ_BASIC = {
+    cones: 'Steel Cushion|The Restrained|Bashful Demon|The Vault|Riot Suppressor Mark VI|Rainforest Gourmet|Precious Fossilized Core|Demara Battery Mark II|Cannon Rotor|Drill Rig - Red Axis|Kaboom the Cannon|Marcato Desire|Roaring Ride|Street Superstar|Slice of Time|Housekeeper|Zanshin Herb Case|Tusks of Fury|Original Transmorpher|Unfettered Game Ball|Sharpened Stinger|Fusion Compiler|Electro-Lip Gloss|Gilded Blossom|Hailstorm Shrine|Ice-Jade Teapot|Qingming Birdcage|Bunny Band|Big Cylinder|Box Cutter|Deep Sea Visitor|Starlight Engine|Hellfire Gears|The Brimstone|Weeping Cradle|Severed Innocence|Heartstring Nocturne|Flamemaker Shaker|Spring Embrace|Timeweaver|Dreamlit Hearth|Lunar Decrescent|Elegant Vanity|Weeping Gemini|Kraken\'s Cradle|Thoughtbop|Blazing Laurel|Cloudcleave Radiance'.split('|'),
+    sets: 'Woodpecker Electro|Puffer Electro|Chaos Jazz|Fanged Metal|Polar Metal|Thunder Metal|Inferno Metal|Hormone Punk|Freedom Blues|Swing Jazz|Shockstar Disco|Soul Rock|Proto Punk|Chaotic Metal|Branch & Blade Song|Yunkui Tales|King of the Summit|Astral Voice|Phaethon\'s Melody|Shadow Harmony|White Water Ballad|Moonlit Hunt?'.split('|').filter(n => !n.endsWith('?'))
+  };
   let zzP = null;
   function loadZzz() {
     if (zzP) return zzP;
-    const nm = x => { const e = x && (x.EN || x.en || x.name); return typeof e === 'string' ? e : (e && e.name) || ''; };
-    const lst = o => Object.entries(o || {}).map(([i, x]) => ({ i: String(i), n: nm(x), c: x && x.icon ? String(x.icon) : '' })).filter(x => x.n);
-    zzP = Promise.all(['weapon', 'equipment'].map(f => fetch(ZZ + 'data/' + f + '.json').then(r => r.ok ? r.json() : Promise.reject())))
-      .then(([w, e]) => ({ cones: lst(w), sets: lst(e) })).catch(e => { zzP = null; throw e; });
+    const bare = p => String(p || '').split('/').pop().replace(/\.[a-z0-9]+$/i, '');
+    const nm = x => { const v = x && (x.en || x.zh || x.name); return typeof v === 'string' ? v : (v && v.name) || ''; };
+    const lst = o => Object.entries(o || {}).map(([i, x]) => ({ i: String(i), n: nm(x), c: bare(x && x.icon) })).filter(x => x.n);
+    const viaApi = () => fetch('/api/zzz-catalog').then(r => r.ok ? r.json() : Promise.reject());
+    const direct = () => fetch(NK + '/manifest.json').then(r => r.json()).then(m => {
+      const v = m.zzz.live;
+      return Promise.all(['weapon', 'equipment'].map(f => fetch(NK + '/zzz/' + v + '/' + f + '.json').then(r => r.ok ? r.json() : Promise.reject())));
+    }).then(([w, e]) => ({ cones: lst(w), sets: lst(e) }));
+    zzP = viaApi().catch(direct)
+      .then(c => (c && c.cones && c.cones.length && c.sets && c.sets.length) ? c : Promise.reject())
+      .catch(() => ({
+        basic: true,
+        cones: ZZ_BASIC.cones.map((n, i) => ({ i: 'w' + i, n, c: '' })),
+        sets: ZZ_BASIC.sets.map((n, i) => ({ i: 'd' + i, n, c: '' }))
+      }));
     return zzP;
   }
   function initBuild(slug, game) {
@@ -1268,7 +1283,7 @@
     const LIM = Z ? { cones: 2, arts: 4, orn: 0 } : { cones: 5, arts: 4, orn: 3 };
     const SEC = Z ? [['cones', 'Motores-W', 'motor-W'], ['arts', 'Discos de motor', 'disco de motor']] : [['cones', 'Conos de luz', 'cono de luz'], ['arts', 'Artefactos', 'artefacto'], ['orn', 'Ornamentos', 'ornamento']];
     const MAIN = Z ? [['torso', 'Disco 4'], ['botas', 'Disco 5'], ['esfera', 'Disco 6']] : [['torso', 'Torso'], ['botas', 'Botas'], ['esfera', 'Esfera'], ['cuerda', 'Cuerda']];
-    const iconUrl = c => !c ? '' : Z ? ZZ + 'UI/' + c + (c.includes('.') ? '' : '.webp') : SRR + c;
+    const iconUrl = c => !c ? '' : Z ? NK + '/assets/zzz/' + c + '.webp' : SRR + c;
     const catalog = () => Z ? loadZzz() : loadCatalog();
     const empty = () => ({ cones: [], arts: [], orn: [], main: {}, sub: '', talents: '', note: '' });
     const fix = x => Object.assign(empty(), x || {}, { main: Object.assign({}, x && x.main) });
@@ -1336,6 +1351,7 @@
           const src = k === 'cones' ? cat.cones : Z ? cat.sets : cat.sets.filter(x => x.planar === (k === 'orn'));
           const hit = src.filter(x => flat(x.n).includes(q)).slice(0, 30);
           res.innerHTML = hit.length ? hit.map(x => `<button type="button" class="bd-opt${b[k].some(y => y.i === x.i) ? ' used' : ''}" data-k="${k}" data-i="${esc(x.i)}">${x.c ? `<img src="${iconUrl(x.c)}" alt="" loading="lazy">` : ''}${esc(x.n)}</button>`).join('') : '<div class="bd-msg">Sin resultados. Pulsa Enter para añadir el texto tal cual.</div>';
+          if (cat.basic && hit.length) res.insertAdjacentHTML('beforeend', '<div class="bd-msg">Lista básica sin iconos. Enter añade otro nombre tal cual.</div>');
           res._hit = hit;
         }).catch(() => { res.innerHTML = '<div class="bd-msg">No se pudo cargar el catálogo. Pulsa Enter para añadir el texto tal cual.</div>'; });
       }
