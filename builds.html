@@ -555,8 +555,8 @@
   .bd-tal-chip { display: inline-flex; align-items: center; gap: 7px; padding: 5px 10px 5px 5px; border-radius: 999px; background: rgba(255,255,255,.06); border: 1px solid var(--card-border); font-size: 14px; font-weight: 700; color: var(--text); }
   .bd-tal-ic { width: 24px; height: 24px; border-radius: 50%; background: #ff6b4a; color: #1a0a06; display: flex; align-items: center; justify-content: center; flex: none; overflow: hidden; }
   .bd-tal-ic svg { width: 13px; height: 13px; }
-  .bd-tal-ic.bd-tal-ic-real { background: rgba(255,255,255,.12); }
-  .bd-tal-ic img { width: 20px; height: 20px; object-fit: contain; }
+  .bd-tal-ic.bd-tal-ic-real { width: 28px; height: 28px; border-radius: 8px; background: rgba(255,255,255,.08); }
+  .bd-tal-ic-real img { width: 26px; height: 26px; object-fit: contain; }
   .bd-tal-sep { color: var(--muted); font-size: 13px; }
   .bd-msg { padding: 10px; font-size: 13px; color: var(--muted); }
   #toast {
@@ -1334,34 +1334,23 @@
     };
     const fldTalents = v => EDIT ? `<input class="bd-in" data-f="talents" maxlength="160" placeholder="Ej: Ultimate &gt; Habilidad &gt; Talento &gt; Atk básico" value="${esc(v || '')}">` : talentsDisplay(v);
 
-    // ---- Iconos OFICIALES del personaje (StarRailRes), con reemplazo async y fallback seguro ----
-    let hsrSkillsP = null;
-    function loadHsrSkills() {
-      if (hsrSkillsP) return hsrSkillsP;
-      hsrSkillsP = Promise.all(['characters', 'character_skills'].map(f =>
-        fetch(SRR + 'index_min/en/' + f + '.json').then(r => r.ok ? r.json() : Promise.reject())
-      )).then(([chars, sk]) => ({
-        chars: Array.isArray(chars) ? chars : Object.values(chars || {}),
-        sk: Array.isArray(sk) ? sk : Object.values(sk || {})
-      })).catch(e => { hsrSkillsP = null; throw e; });
-      return hsrSkillsP;
+    // ---- Iconos OFICIALES del personaje (nanoka.cc), con reemplazo async y fallback seguro ----
+    // CDN de iconos reales: https://static.nanoka.cc/assets/hsr/skillicons/SkillIcon_<id>_<Tipo>.webp
+    let hsrCharsP = null;
+    function loadHsrChars() {
+      if (hsrCharsP) return hsrCharsP;
+      hsrCharsP = fetch(SRR + 'index_min/en/characters.json').then(r => r.ok ? r.json() : Promise.reject())
+        .then(chars => Array.isArray(chars) ? chars : Object.values(chars || {}))
+        .catch(e => { hsrCharsP = null; throw e; });
+      return hsrCharsP;
     }
-    const SKILL_TYPE_KEY = { Normal: 'basic', BPSkill: 'skill', Ultra: 'ultimate', Talent: 'talent', Maze: 'tech' };
-    function findCharIcons(displayName) {
+    const SKILL_TYPE_SUFFIX = { basic: 'Normal', skill: 'BPSkill', ultimate: 'Ultra', talent: 'Talent', tech: 'Maze' };
+    function findCharId(displayName) {
       if (!displayName) return Promise.resolve(null);
-      return loadHsrSkills().then(({ chars, sk }) => {
+      return loadHsrChars().then(chars => {
         const target = flat(displayName);
         const c = chars.find(x => x && x.name && flat(x.name) === target);
-        if (!c || !Array.isArray(c.skills)) return null;
-        const skById = {};
-        sk.forEach(s => { if (s && s.id != null) skById[String(s.id)] = s; });
-        const map = {};
-        c.skills.forEach(sid => {
-          const s = skById[String(sid)];
-          const key = s && SKILL_TYPE_KEY[s.type];
-          if (key && s.icon && !map[key]) map[key] = s.icon;
-        });
-        return Object.keys(map).length ? map : null;
+        return c ? String(c.id) : null;
       }).catch(() => null);
     }
     function upgradeTalentIcons() {
@@ -1371,18 +1360,18 @@
       const entry = (GAMES.hsr.chars || []).find(c => c[0] === slug);
       const dispName = entry && entry[1];
       if (!dispName) return;
-      findCharIcons(dispName).then(map => {
-        if (!map || token !== buildToken) return;
+      findCharId(dispName).then(id => {
+        if (!id || token !== buildToken) return;
         const liveRow = body.querySelector('.bd-tal-row');
         if (!liveRow) return;
         liveRow.querySelectorAll('.bd-tal-chip[data-tk]').forEach(chip => {
-          const url = map[chip.dataset.tk];
+          const suf = SKILL_TYPE_SUFFIX[chip.dataset.tk];
           const ic = chip.querySelector('.bd-tal-ic');
-          if (!url || !ic) return;
+          if (!suf || !ic) return;
           const img = new Image();
           img.alt = ''; img.loading = 'lazy';
           img.onload = () => { ic.innerHTML = ''; ic.appendChild(img); ic.classList.add('bd-tal-ic-real'); };
-          img.src = SRR + url;
+          img.src = NK + '/assets/hsr/skillicons/SkillIcon_' + id + '_' + suf + '.webp';
         });
       });
     }
