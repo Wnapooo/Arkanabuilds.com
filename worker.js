@@ -1,4 +1,4 @@
-// Cloudflare Worker  ->  /api/layout?page=wuwa, /api/teams?c=<slug> y /api/dupes?g=<juego>&c=<slug>  (todo lo demás lo sirven los archivos del sitio)
+// Cloudflare Worker  ->  /api/layout?page=wuwa, /api/teams?c=<slug> /api/dupes y /api/builds?g=<juego>&c=<slug>  (todo lo demás lo sirven los archivos del sitio)
 // Requiere: KV binding "TIERLIST" y secreto "ADMIN_KEY".
 
 const PAGE_RE = /^[a-z0-9-]{1,40}$/;
@@ -153,6 +153,52 @@ async function dupesPut({ request, env }) {
   return json({ ok: true });
 }
 
+/* ---------------- BUILDS: /api/builds?g=<juego>&c=<slug> ---------------- */
+const ICON_RE = /^icon\/[\w\-\/.]{1,100}$/;
+const LIMITS = { cones: 5, arts: 4, orn: 3 };
+const str = (v, n) => (typeof v === 'string' ? v.slice(0, n) : '');
+
+function cleanItems(a, k) {
+  return (Array.isArray(a) ? a : []).slice(0, LIMITS[k]).map((x) => ({
+    i: str(x && x.i, 12), n: str(x && x.n, 80), c: str(x && x.c, 120),
+    p: x && (x.p === 2 || x.p === 4) ? x.p : undefined,
+  })).filter((x) => x.i && x.n && ICON_RE.test(x.c));
+}
+
+async function buildsGet({ request, env }) {
+  const c = getChar(request);
+  const g = new URL(request.url).searchParams.get('g') || '';
+  if (!c || !PAGE_RE.test(g)) return json({ error: 'personaje inválido' }, 400);
+  if (!env.TIERLIST) return json({ error: 'KV TIERLIST no configurado' }, 500);
+  const value = await env.TIERLIST.get('build:' + g + ':' + c);
+  return new Response(value || '{}', {
+    headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
+  });
+}
+
+async function buildsPut({ request, env }) {
+  if (!(await authorized(request, env))) return json({ error: 'no autorizado' }, 401);
+  const c = getChar(request);
+  const g = new URL(request.url).searchParams.get('g') || '';
+  if (!c || !PAGE_RE.test(g)) return json({ error: 'personaje inválido' }, 400);
+  if (!env.TIERLIST) return json({ error: 'KV TIERLIST no configurado' }, 500);
+  const text = await request.text();
+  if (text.length > MAX_BODY) return json({ error: 'demasiado grande' }, 413);
+  let body;
+  try { body = JSON.parse(text); } catch { return json({ error: 'JSON inválido' }, 400); }
+  if (!body || typeof body !== 'object') return json({ error: 'formato inválido' }, 400);
+  const m = body.main && typeof body.main === 'object' ? body.main : {};
+  const out = {
+    cones: cleanItems(body.cones, 'cones'),
+    arts: cleanItems(body.arts, 'arts'),
+    orn: cleanItems(body.orn, 'orn'),
+    main: { torso: str(m.torso, 160), botas: str(m.botas, 160), esfera: str(m.esfera, 160), cuerda: str(m.cuerda, 160) },
+    sub: str(body.sub, 160), talents: str(body.talents, 160), note: str(body.note, 160),
+  };
+  await env.TIERLIST.put('build:' + g + ':' + c, JSON.stringify(out));
+  return json({ ok: true });
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -178,6 +224,14 @@ export default {
       switch (request.method) {
         case 'GET': return dupesGet(ctx);
         case 'PUT': return dupesPut(ctx);
+        default: return json({ error: 'método no permitido' }, 405);
+      }
+    }
+    if (url.pathname === '/api/builds') {
+      const ctx = { request, env };
+      switch (request.method) {
+        case 'GET': return buildsGet(ctx);
+        case 'PUT': return buildsPut(ctx);
         default: return json({ error: 'método no permitido' }, 405);
       }
     }
