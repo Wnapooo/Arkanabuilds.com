@@ -546,6 +546,7 @@
   .bd-opt:hover { background: rgba(255,255,255,.08); }
   .bd-opt img { width: 36px; height: 36px; object-fit: contain; }
   .bd-opt.used { opacity: .45; }
+  .bd-ph { width: 72px; height: 72px; border-radius: 10px; background: rgba(255,255,255,.06); }
   .bd-msg { padding: 10px; font-size: 13px; color: var(--muted); }
   #toast {
     position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 20px); z-index: 50;
@@ -1247,14 +1248,28 @@
     })).catch(e => { catP = null; throw e; });
     return catP;
   }
+  const ZZ = 'https://api.hakush.in/zzz/';
+  let zzP = null;
+  function loadZzz() {
+    if (zzP) return zzP;
+    const nm = x => { const e = x && (x.EN || x.en || x.name); return typeof e === 'string' ? e : (e && e.name) || ''; };
+    const lst = o => Object.entries(o || {}).map(([i, x]) => ({ i: String(i), n: nm(x), c: x && x.icon ? String(x.icon) : '' })).filter(x => x.n);
+    zzP = Promise.all(['weapon', 'equipment'].map(f => fetch(ZZ + 'data/' + f + '.json').then(r => r.ok ? r.json() : Promise.reject())))
+      .then(([w, e]) => ({ cones: lst(w), sets: lst(e) })).catch(e => { zzP = null; throw e; });
+    return zzP;
+  }
   function initBuild(slug, game) {
     const body = document.getElementById('build-body');
     if (!body) return;
     const token = ++buildToken;
     const lk = 'build:' + game + ':' + slug;
     const api = '/api/builds?g=' + encodeURIComponent(game) + '&c=' + encodeURIComponent(slug);
-    const LIM = { cones: 5, arts: 4, orn: 3 };
-    const MAIN = [['torso', 'Torso'], ['botas', 'Botas'], ['esfera', 'Esfera'], ['cuerda', 'Cuerda']];
+    const Z = game === 'zzz';
+    const LIM = Z ? { cones: 2, arts: 4, orn: 0 } : { cones: 5, arts: 4, orn: 3 };
+    const SEC = Z ? [['cones', 'Motores-W', 'motor-W'], ['arts', 'Discos de motor', 'disco de motor']] : [['cones', 'Conos de luz', 'cono de luz'], ['arts', 'Artefactos', 'artefacto'], ['orn', 'Ornamentos', 'ornamento']];
+    const MAIN = Z ? [['torso', 'Disco 4'], ['botas', 'Disco 5'], ['esfera', 'Disco 6']] : [['torso', 'Torso'], ['botas', 'Botas'], ['esfera', 'Esfera'], ['cuerda', 'Cuerda']];
+    const iconUrl = c => !c ? '' : Z ? ZZ + 'UI/' + c + (c.includes('.') ? '' : '.webp') : SRR + c;
+    const catalog = () => Z ? loadZzz() : loadCatalog();
     const empty = () => ({ cones: [], arts: [], orn: [], main: {}, sub: '', talents: '', note: '' });
     const fix = x => Object.assign(empty(), x || {}, { main: Object.assign({}, x && x.main) });
     const has = x => x.cones.length || x.arts.length || x.orn.length || Object.values(x.main).some(Boolean) || x.sub || x.talents || x.note;
@@ -1263,10 +1278,10 @@
     let b = empty(), timer = null;
     try { b = fix(JSON.parse(localStorage.getItem(lk))); } catch (e) {}
 
-    const card = (x, k, j) => `<div class="bd-it"><img src="${SRR}${esc(x.c)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'"><b>${esc(x.n)}</b>${x.p ? `<em${EDIT && k === 'arts' ? ` data-t="${j}" title="Cambiar 2-PC / 4-PC"` : ''}>${x.p}-PC</em>` : ''}${EDIT ? `<button type="button" class="bd-x" data-d="${k}:${j}" aria-label="Quitar">×</button>` : ''}</div>`;
+    const card = (x, k, j) => `<div class="bd-it">${x.c ? `<img src="${iconUrl(x.c)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">` : '<div class="bd-ph"></div>'}<b>${esc(x.n)}</b>${x.p ? `<em${EDIT && k === 'arts' ? ` data-t="${j}" title="Cambiar 2-PC / 4-PC"` : ''}>${x.p}-PC</em>` : ''}${EDIT ? `<button type="button" class="bd-x" data-d="${k}:${j}" aria-label="Quitar">×</button>` : ''}</div>`;
     const fld = (f, ph, v) => EDIT ? `<input class="bd-in" data-f="${f}" maxlength="160" placeholder="${ph}" value="${esc(v || '')}">` : esc(v || '');
     function rows() {
-      ['cones', 'arts', 'orn'].forEach(k => {
+      SEC.forEach(([k]) => {
         body.querySelector(`.bd-row[data-k="${k}"]`).innerHTML = b[k].map((x, j) => card(x, k, j)).join('');
         body.querySelector(`[data-s="${k}"]`).hidden = !EDIT && !b[k].length;
       });
@@ -1279,12 +1294,12 @@
     function build() {
       if (token !== buildToken) return;
       if (!EDIT && !has(b)) { body.innerHTML = original; return; }
-      const find = k => EDIT ? `<div class="bd-find"><input type="search" class="bd-q" data-k="${k}" placeholder="Buscar ${k === 'cones' ? 'cono de luz' : k === 'arts' ? 'artefacto' : 'ornamento'}..." autocomplete="off" aria-label="Buscar"><div class="bd-res" hidden></div></div>` : '';
+      const find = (k, w) => EDIT ? `<div class="bd-find"><input type="search" class="bd-q" data-k="${k}" placeholder="Buscar ${w}... (Enter añade el texto)" autocomplete="off" aria-label="Buscar"><div class="bd-res" hidden></div></div>` : '';
       body.innerHTML = `<div class="bd">
-        ${[['cones', 'Conos de luz'], ['arts', 'Artefactos'], ['orn', 'Ornamentos']].map(([k, t]) => `<section data-s="${k}"><h4>${t}</h4>${find(k)}<div class="bd-row" data-k="${k}"></div></section>`).join('')}
+        ${SEC.map(([k, t, w]) => `<section data-s="${k}"><h4>${t}</h4>${find(k, w)}<div class="bd-row" data-k="${k}"></div></section>`).join('')}
         <section class="bd-box"><h4>Stats principales</h4>${MAIN.map(([k, l]) => `<div class="bd-line" data-l="${k}"><span>${l}</span><div>${fld('main.' + k, 'Ej: CRIT Rate &gt; CRIT DMG', b.main[k])}</div></div>`).join('')}</section>
         <section class="bd-box"><h4>Stats secundarias <small>(prioridad)</small></h4><div class="bd-big" data-l="sub">${fld('sub', 'Ej: CRIT Rate &gt; CRIT DMG &gt; ATK% &gt; SPD', b.sub)}</div><div class="bd-note" data-l="note">${fld('note', 'Objetivo: ~100% CRIT Rate, 130-150% CRIT DMG...', b.note)}</div></section>
-        <section class="bd-box"><h4>Talentos</h4><div class="bd-big" data-l="talents">${fld('talents', 'Ej: Ultimate &gt; Habilidad &gt; Talento &gt; Atk básico', b.talents)}</div></section>
+        <section class="bd-box"><h4>${Z ? 'Habilidades' : 'Talentos'}</h4><div class="bd-big" data-l="talents">${fld('talents', 'Ej: Ultimate &gt; Habilidad &gt; Talento &gt; Atk básico', b.talents)}</div></section>
       </div>`;
       rows(); vis();
     }
@@ -1316,13 +1331,13 @@
         const res = t.nextElementSibling, k = t.dataset.k, q = flat(t.value.trim());
         if (!q) { res.hidden = true; return; }
         res.hidden = false; res.innerHTML = '<div class="bd-msg">Cargando…</div>';
-        loadCatalog().then(cat => {
+        catalog().then(cat => {
           if (flat(t.value.trim()) !== q) return;
-          const src = k === 'cones' ? cat.cones : cat.sets.filter(x => x.planar === (k === 'orn'));
+          const src = k === 'cones' ? cat.cones : Z ? cat.sets : cat.sets.filter(x => x.planar === (k === 'orn'));
           const hit = src.filter(x => flat(x.n).includes(q)).slice(0, 30);
-          res.innerHTML = hit.length ? hit.map(x => `<button type="button" class="bd-opt${b[k].some(y => y.i === x.i) ? ' used' : ''}" data-k="${k}" data-i="${esc(x.i)}"><img src="${SRR}${esc(x.c)}" alt="" loading="lazy">${esc(x.n)}</button>`).join('') : '<div class="bd-msg">Sin resultados.</div>';
+          res.innerHTML = hit.length ? hit.map(x => `<button type="button" class="bd-opt${b[k].some(y => y.i === x.i) ? ' used' : ''}" data-k="${k}" data-i="${esc(x.i)}">${x.c ? `<img src="${iconUrl(x.c)}" alt="" loading="lazy">` : ''}${esc(x.n)}</button>`).join('') : '<div class="bd-msg">Sin resultados. Pulsa Enter para añadir el texto tal cual.</div>';
           res._hit = hit;
-        }).catch(() => { res.innerHTML = '<div class="bd-msg">No se pudo cargar el catálogo.</div>'; });
+        }).catch(() => { res.innerHTML = '<div class="bd-msg">No se pudo cargar el catálogo. Pulsa Enter para añadir el texto tal cual.</div>'; });
       }
     });
     body.addEventListener('click', e => {
@@ -1340,6 +1355,19 @@
       const t = e.target.closest('em[data-t]');
       if (t) { const x = b.arts[+t.dataset.t]; x.p = x.p === 4 ? 2 : 4; rows(); save(); return; }
       if (!e.target.closest('.bd-find')) body.querySelectorAll('.bd-res').forEach(r => { r.hidden = true; });
+    });
+    body.addEventListener('keydown', e => {
+      const t = e.target;
+      if (e.key !== 'Enter' || !t.classList || !t.classList.contains('bd-q')) return;
+      e.preventDefault();
+      const k = t.dataset.k, v = t.value.trim(), res = t.nextElementSibling;
+      if (!v) return;
+      const first = res.querySelector('.bd-opt:not(.used)');
+      if (first) { first.click(); return; }
+      if (b[k].length >= LIM[k]) { toast('Máximo ' + LIM[k]); return; }
+      const id = 'x' + Date.now().toString(36);
+      b[k].push(k === 'cones' ? { i: id, n: v.slice(0, 80), c: '' } : { i: id, n: v.slice(0, 80), c: '', p: k === 'orn' ? 2 : 4 });
+      t.value = ''; res.hidden = true; rows(); save();
     });
   }
 
@@ -1605,7 +1633,7 @@
     const isHsr = !!(f2 && (elOf(f2.game, slug) || (f2.game === 'zzz' && ZZZ_BG[slug]) || f2.game === 'wuwa'));
     if (f2 && $('teams-body')) initTeams(slug, f2.game);
     if (f2 && $('dupes')) initDupes(slug, f2.game);
-    if (f2 && $('build-body')) initBuild(slug, f2.game);
+    if (f2 && $('build-body') && (f2.game === 'hsr' || f2.game === 'zzz')) initBuild(slug, f2.game);
     document.body.classList.toggle('hsr-open', isHsr);
     document.querySelector('main').classList.toggle('wide', isHsr);
     $('detail').hidden = !showDetail;
