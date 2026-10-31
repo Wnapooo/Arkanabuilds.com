@@ -1406,13 +1406,17 @@
     const MAIN = W ? [['torso', 'Eco costo 4'], ['botas', 'Eco costo 3'], ['esfera', 'Eco costo 1']] : Z ? [['torso', 'Disco 4'], ['botas', 'Disco 5'], ['esfera', 'Disco 6']] : [['torso', 'Torso'], ['botas', 'Botas'], ['esfera', 'Esfera'], ['cuerda', 'Cuerda']];
     const iconUrl = c => !c ? '' : W ? c : Z ? NK + '/assets/zzz/' + c + '.webp' : SRR + c;
     const catalog = () => W ? loadWuwa() : Z ? loadZzz() : loadCatalog();
-    /* WuWa: 5 ecos en total. El set nuevo toma las piezas que faltan (si el primero es 3-PC, el siguiente es 2-PC; si es 2-PC, 3-PC) */
-    const defP = k => {
+    /* WuWa: 5 ecos en total; hay sets de 1, 2, 3 o 5 piezas. Si el set tiene piezas fijas (WW_FIXED_P) se usan esas;
+       si no, toma las que faltan para completar 5 (si hay un 3-PC, el siguiente es 2-PC). Se cambia pulsando la etiqueta. */
+    const WW_FIXED_P = { 'dreamofthelost': 3 };
+    const defP = (k, name) => {
       if (!W) return k === 'orn' ? 2 : 4;
+      const fx = WW_FIXED_P[String(name || '').toLowerCase().replace(/[^a-z0-9]/g, '')];
+      if (fx) return fx;
       const left = 5 - b.arts.reduce((n, x) => n + (+x.p || 0), 0);
-      return left >= 5 ? 5 : left >= 3 ? 3 : 2;
+      return left >= 5 ? 5 : left >= 3 ? 3 : left >= 2 ? 2 : left === 1 ? 1 : 2;
     };
-    const nextP = p => W ? (p === 2 ? 3 : p === 3 ? 5 : 2) : (p === 4 ? 2 : 4);
+    const nextP = p => W ? ({ 1: 2, 2: 3, 3: 5, 5: 1 }[p] || 5) : (p === 4 ? 2 : 4);
     const empty = () => ({ cones: [], arts: [], orn: [], main: {}, sub: '', talents: '', note: '' });
     const fix = x => Object.assign(empty(), x || {}, { main: Object.assign({}, x && x.main) });
     const has = x => x.cones.length || x.arts.length || x.orn.length || Object.values(x.main).some(Boolean) || x.sub || x.talents || x.note;
@@ -1594,7 +1598,7 @@
         const res = o.parentElement, k = o.dataset.k, x = (res._hit || []).find(y => y.i === o.dataset.i);
         if (!x || b[k].some(y => y.i === x.i)) return;
         if (b[k].length >= LIM[k]) { toast('Máximo ' + LIM[k]); return; }
-        b[k].push(k === 'cones' ? { i: x.i, n: x.n, c: x.c } : { i: x.i, n: x.n, c: x.c, p: defP(k) });
+        b[k].push(k === 'cones' ? { i: x.i, n: x.n, c: x.c } : { i: x.i, n: x.n, c: x.c, p: defP(k, x.n) });
         const q = res.previousElementSibling; q.value = ''; res.hidden = true;
         rows(); save(); return;
       }
@@ -1614,7 +1618,7 @@
       if (first) { first.click(); return; }
       if (b[k].length >= LIM[k]) { toast('Máximo ' + LIM[k]); return; }
       const id = 'x' + Date.now().toString(36);
-      b[k].push(k === 'cones' ? { i: id, n: v.slice(0, 80), c: '' } : { i: id, n: v.slice(0, 80), c: '', p: defP(k) });
+      b[k].push(k === 'cones' ? { i: id, n: v.slice(0, 80), c: '' } : { i: id, n: v.slice(0, 80), c: '', p: defP(k, v) });
       t.value = ''; res.hidden = true; rows(); save();
     });
   }
