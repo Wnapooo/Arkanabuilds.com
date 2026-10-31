@@ -1279,7 +1279,8 @@
   function loadWuwa() {
     if (wwP) return wwP;
     const CK = 'wwcat:v2';
-    const basic = () => ({
+    const basic = why => ({
+      why: why || '',
       basic: true,
       cones: WW_BASIC.cones.map((n, i) => ({ i: 'w' + i, n, c: wwIcon('weapon', n) })),
       sets: WW_BASIC.sets.map((n, i) => ({ i: 'e' + i, n, c: wwIcon('echo', n) }))
@@ -1293,7 +1294,9 @@
       if (!p || typeof p !== 'string') return '';
       return /^https?:/i.test(p) ? p : NK + '/assets/ww/' + bare(p) + '.webp';
     };
-    const lst = o => (Array.isArray(o) ? o.map((x, k) => [x && x.id != null ? x.id : k, x]) : Object.entries(o || {}))
+    const unw = o => (o && !Array.isArray(o) && (o.data || o.list || o.items)) || o;
+    const lst = o => lst0(unw(o));
+    const lst0 = o => (Array.isArray(o) ? o.map((x, k) => [x && x.id != null ? x.id : k, x]) : Object.entries(o || {}))
       .map(([k, x]) => { const r = rawIcon(x); return { i: String(k), n: nm(x), c: icn(x), b: bare(r), r }; }).filter(x => x.n);
     const get = u => fetch(u).then(r => r.ok ? r.json() : Promise.reject(new Error(u + ' ' + r.status)));
     const known = (list, ref) => { const f = new Set(ref.map(flatName)); return list.filter(x => f.has(flatName(x.n))).length; };
@@ -1303,26 +1306,34 @@
       if (!e) return null;
       return typeof e === 'string' ? e : (e.live || e.latest || e.current || e.version || null);
     };
-    const pick = (rev, files, ref) => files.reduce((p, f) => p.catch(() =>
-      get(NK + '/ww/' + rev + '/' + f + '.json').then(lst).then(l => known(l, ref) >= 3 ? l : Promise.reject(new Error(f + ' no coincide')))
+    const pick = (rev, files, ref, min) => files.reduce((p, f) => p.catch(() =>
+      get(NK + '/ww/' + rev + '/' + f + '.json').then(lst).then(l => known(l, ref) >= min ? l : Promise.reject(new Error(f + ' no coincide')))
     ), Promise.reject());
     const fresh = () => get(NK + '/manifest.json').then(m => {
       const rev = revOf(m);
       if (!rev) throw new Error('manifest sin revisión de ww');
+      /* armas y sets van por separado: si falla uno, el otro igual se usa */
+      const side = p => p.then(v => ({ v }), e => ({ e }));
       return Promise.all([
-        pick(rev, ['weapon'], WW_BASIC.cones),
-        pick(rev, ['sonata', 'echoset', 'fetter', 'echo'], WW_BASIC.sets)
-      ]).then(([cones, sets]) => ({ rev, cones, sets }));
+        side(pick(rev, ['weapon'], WW_BASIC.cones, 2)),
+        side(pick(rev, ['sonata', 'echoset', 'fetter', 'echo'], WW_BASIC.sets, 2))
+      ]).then(([w, s]) => {
+        if (w.e && s.e) throw new Error('armas: ' + (w.e && w.e.message) + ' | sets: ' + (s.e && s.e.message));
+        const b = basic();
+        const why = [w.e && 'armas: ' + w.e.message, s.e && 'sets: ' + s.e.message].filter(Boolean).join(' | ');
+        return { rev, cones: w.v || b.cones, sets: s.v || b.sets, why };
+      });
     });
     const saved = () => { try { return JSON.parse(localStorage.getItem(CK)); } catch (e) { return null; } };
     wwP = fresh().then(c => {
-      try { localStorage.setItem(CK, JSON.stringify(c)); } catch (e) {}
+      if (!c.why) { try { localStorage.setItem(CK, JSON.stringify(c)); } catch (e) {} }
+      if (c.why) console.warn('[WuWa] catálogo parcial:', c.why);
       console.info('[WuWa] catálogo ' + c.rev + ': ' + c.cones.length + ' armas, ' + c.sets.length + ' sets');
       return c;
     }).catch(e => {
       console.warn('[WuWa] catálogo online no disponible:', e && e.message);
       const c = saved();
-      return (c && c.cones && c.cones.length && c.sets && c.sets.length) ? c : basic();
+      return (c && c.cones && c.cones.length && c.sets && c.sets.length) ? c : basic(e && e.message);
     });
     wwP.then(wwIndex);
     return wwP;
@@ -1564,7 +1575,7 @@
           const src = k === 'cones' ? cat.cones : (Z || W) ? cat.sets : cat.sets.filter(x => x.planar === (k === 'orn'));
           const hit = src.filter(x => flat(x.n).includes(q)).slice(0, 30);
           res.innerHTML = hit.length ? hit.map(x => `<button type="button" class="bd-opt${b[k].some(y => y.i === x.i) ? ' used' : ''}" data-k="${k}" data-i="${esc(x.i)}">${W ? wwImgTag(x, k === 'cones' ? 'weapon' : 'echo', true) : x.c ? `<img src="${iconUrl(x.c)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">` : ''}${esc(x.n)}</button>`).join('') : '<div class="bd-msg">Sin resultados. Pulsa Enter para añadir el texto tal cual.</div>';
-          if (cat.basic && hit.length) res.insertAdjacentHTML('beforeend', '<div class="bd-msg">Lista básica sin iconos. Enter añade otro nombre tal cual.</div>');
+          if ((cat.basic || cat.why) && hit.length) res.insertAdjacentHTML('beforeend', '<div class="bd-msg">Catálogo online incompleto' + (cat.why ? ' (' + esc(cat.why) + ')' : '') + '. Enter añade otro nombre tal cual.</div>');
           res._hit = hit;
         }).catch(() => { res.innerHTML = '<div class="bd-msg">No se pudo cargar el catálogo. Pulsa Enter para añadir el texto tal cual.</div>'; });
       }
