@@ -1395,7 +1395,7 @@
           const ic = chip.querySelector('.bd-tal-ic');
           if (!suf || !ic) return;
           const img = new Image();
-          img.alt = ''; img.loading = 'lazy';
+          img.alt = ''; img.referrerPolicy = 'no-referrer';
           img.onload = () => { ic.innerHTML = ''; ic.appendChild(img); ic.classList.add('bd-tal-ic-real'); };
           img.src = NK + '/assets/hsr/skillicons/SkillIcon_' + id + '_' + suf + '.webp';
         });
