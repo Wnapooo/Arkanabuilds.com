@@ -1364,34 +1364,21 @@
     // (variantes Trailblazer, Imbibitor Lunae, skins fan-made, etc.). Si algún personaje no te
     // muestra el icono real, agrégalo aquí: 'slug-de-tu-web': 'Nombre oficial en inglés'.
     const HSR_NAME_ALIAS = {
-      'imbibitor-lunae': 'Dan Heng Imbibitor Lunae',
-      'dan-heng-permansor-terrae': 'Dan Heng',
-      'march-7th-evernight': 'March 7th',
-      'march-7th-swordmaster': 'March 7th',
-      'robin-summeretto': 'Robin',
-      'aventurine-waveflair': 'Aventurine',
-      'silver-wolf-lv-999': 'Silver Wolf',
-      'himeko-nova': 'Himeko',
-      'blade-mortenax': 'Blade',
-      'sparxie': 'Sparkle',
-      'trailblazer-elation': 'Trailblazer',
-      'trailblazer-harmony': 'Trailblazer',
-      'trailblazer-remembrance': 'Trailblazer'
+      'imbibitor-lunae': 'Dan Heng Imbibitor Lunae'
     };
     // IDs manuales (para cuando el nombre no coincide solo): 'slug-de-tu-web': 1308
-    const HSR_ID_OVERRIDE = { 'acheron': 1308 };
+    // Himeko Nova = 1510 (la original Himeko es 1003: antes se usaban sus iconos por error).
+    // IMPORTANTE: ya NO se usa el personaje base como reemplazo de las variantes; si no hay ID
+    // correcto, se muestran los iconos genericos en vez de los de otro personaje.
+    const HSR_ID_OVERRIDE = { 'acheron': 1308, 'himeko-nova': 1510, 'march-7th-swordmaster': 1224, 'imbibitor-lunae': 1213 };
     function findCharId(displayName) {
       if (HSR_ID_OVERRIDE[slug]) return Promise.resolve(String(HSR_ID_OVERRIDE[slug]));
       if (!displayName) return Promise.resolve(null);
       return loadHsrChars().then(chars => {
         const target = flat(HSR_NAME_ALIAS[slug] || displayName);
         const list = chars.filter(x => x && x.name);
-        let c = list.find(x => flat(x.name) === target);
-        if (!c) { // coincidencia tolerante: solo si hay un unico candidato
-          const cand = list.filter(x => { const n = flat(x.name); return n.startsWith(target) || target.startsWith(n); });
-          if (cand.length === 1) c = cand[0];
-        }
-        if (!c) console.warn('[Talentos] Sin ID para "' + slug + '" (' + displayName + '). Agregalo en HSR_ID_OVERRIDE o HSR_NAME_ALIAS.');
+        const c = list.find(x => flat(x.name) === target);
+        if (!c) console.warn('[Talentos] Sin ID para "' + slug + '" (' + displayName + '). Agregalo en HSR_ID_OVERRIDE.');
         return c ? String(c.id) : null;
       }).catch(() => null);
     }
