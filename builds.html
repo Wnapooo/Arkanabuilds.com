@@ -551,6 +551,11 @@
   .bd-opt img { width: 36px; height: 36px; object-fit: contain; }
   .bd-opt.used { opacity: .45; }
   .bd-ph { width: 72px; height: 72px; border-radius: 10px; background: rgba(255,255,255,.06); }
+  .bd-tal-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+  .bd-tal-chip { display: inline-flex; align-items: center; gap: 7px; padding: 5px 10px 5px 5px; border-radius: 999px; background: rgba(255,255,255,.06); border: 1px solid var(--card-border); font-size: 14px; font-weight: 700; color: var(--text); }
+  .bd-tal-ic { width: 22px; height: 22px; border-radius: 50%; background: #ff6b4a; color: #1a0a06; display: flex; align-items: center; justify-content: center; flex: none; }
+  .bd-tal-ic svg { width: 13px; height: 13px; }
+  .bd-tal-sep { color: var(--muted); font-size: 13px; }
   .bd-msg { padding: 10px; font-size: 13px; color: var(--muted); }
   #toast {
     position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 20px); z-index: 50;
@@ -1299,6 +1304,31 @@
 
     const card = (x, k, j) => `<div class="bd-it">${x.c ? `<img src="${iconUrl(x.c)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">` : '<div class="bd-ph"></div>'}<b>${esc(x.n)}</b>${x.p ? `<em${EDIT && k === 'arts' ? ` data-t="${j}" title="Cambiar 2-PC / 4-PC"` : ''}>${x.p}-PC</em>` : ''}${EDIT ? `<button type="button" class="bd-x" data-d="${k}:${j}" aria-label="Quitar">×</button>` : ''}</div>`;
     const fld = (f, ph, v) => EDIT ? `<input class="bd-in" data-f="${f}" maxlength="160" placeholder="${ph}" value="${esc(v || '')}">` : esc(v || '');
+
+    // ---- Iconos de talentos (Ultimate / Habilidad / Talento / Atk básico / Técnica) ----
+    const TAL_SVG = {
+      ultimate: '<svg viewBox="0 0 24 24"><polygon points="12,1 14.5,9.5 23,12 14.5,14.5 12,23 9.5,14.5 1,12 9.5,9.5" fill="currentColor"/></svg>',
+      skill: '<svg viewBox="0 0 24 24"><polygon points="13,1 4,14 11,14 9,23 20,9 13,9" fill="currentColor"/></svg>',
+      talent: '<svg viewBox="0 0 24 24"><polygon points="12,2 14.9,8.5 22,9.3 16.8,14 18.2,21 12,17.3 5.8,21 7.2,14 2,9.3 9.1,8.5" fill="currentColor"/></svg>',
+      basic: '<svg viewBox="0 0 24 24"><g transform="rotate(45 12 12)"><rect x="11" y="2" width="2" height="14" rx="0.6" fill="currentColor"/><rect x="7.5" y="14" width="9" height="2.2" rx="0.6" fill="currentColor"/><rect x="11" y="16.2" width="2" height="5.8" rx="0.6" fill="currentColor"/></g></svg>',
+      tech: '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="6" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>'
+    };
+    const talentIcon = label => {
+      const f = flat(label);
+      let key = '';
+      if (f.includes('ultimate') || f.includes('definitiva')) key = 'ultimate';
+      else if (f.includes('tecnica') || f.includes('technique')) key = 'tech';
+      else if (f.includes('talento') || f.includes('talent') || f.includes('cadena') || f.includes('nucleo')) key = 'talent';
+      else if (f.includes('habilidad') || f.includes('skill') || f.includes('especial')) key = 'skill';
+      else if (f.includes('basic') || f.includes('atk') || f.includes('bas')) key = 'basic';
+      return key ? `<span class="bd-tal-ic">${TAL_SVG[key]}</span>` : '';
+    };
+    const talentsDisplay = v => {
+      const parts = String(v || '').split('>').map(s => s.trim()).filter(Boolean);
+      if (!parts.length) return '';
+      return `<div class="bd-tal-row">${parts.map((p, i) => `${i ? '<span class="bd-tal-sep">›</span>' : ''}<span class="bd-tal-chip">${talentIcon(p)}${esc(p)}</span>`).join('')}</div>`;
+    };
+    const fldTalents = v => EDIT ? `<input class="bd-in" data-f="talents" maxlength="160" placeholder="Ej: Ultimate &gt; Habilidad &gt; Talento &gt; Atk básico" value="${esc(v || '')}">` : talentsDisplay(v);
     function rows() {
       SEC.forEach(([k]) => {
         body.querySelector(`.bd-row[data-k="${k}"]`).innerHTML = b[k].map((x, j) => card(x, k, j)).join('');
@@ -1323,7 +1353,7 @@
       </div><div class="bd-r">
         <section class="bd-box"><h4>Stats principales</h4>${MAIN.map(([k, l]) => `<div class="bd-line" data-l="${k}"><span>${l}</span><div>${fld('main.' + k, 'Ej: CRIT Rate &gt; CRIT DMG', b.main[k])}</div></div>`).join('')}</section>
         <section class="bd-box"><h4>Stats secundarias <small>(prioridad)</small></h4><div class="bd-big" data-l="sub">${fld('sub', 'Ej: CRIT Rate &gt; CRIT DMG &gt; ATK% &gt; SPD', b.sub)}</div><div class="bd-note" data-l="note">${fld('note', 'Objetivo: ~100% CRIT Rate, 130-150% CRIT DMG...', b.note)}</div></section>
-        <section class="bd-box"><h4>${Z ? 'Habilidades' : 'Talentos'}</h4><div class="bd-big" data-l="talents">${fld('talents', 'Ej: Ultimate &gt; Habilidad &gt; Talento &gt; Atk básico', b.talents)}</div></section>
+        <section class="bd-box"><h4>${Z ? 'Habilidades' : 'Talentos'}</h4><div class="bd-big" data-l="talents">${fldTalents(b.talents)}</div></section>
       </div></div>`;
       rows(); vis();
     }
