@@ -1208,7 +1208,7 @@
     const api = '/api/dupes?g=' + encodeURIComponent(game) + '&c=' + encodeURIComponent(slug);
     const view = document.getElementById('dupes-view');
     const ed = document.getElementById('dupes-edit');
-    let timer = null;
+    let timer = null, dirty = false;
     const local = () => { try { return localStorage.getItem(lk) || ''; } catch (e) { return ''; } };
     function show(text) {
       if (token !== dupesToken) return;
@@ -1217,8 +1217,8 @@
       box.hidden = !(EDIT || text.trim());
     }
     show(local());
-    fetch(api).then(r => r.ok ? r.json() : Promise.reject()).then(d => {
-      if (d && typeof d.text === 'string') show(d.text);
+    fetch(api, { cache: 'no-store' }).then(r => r.ok ? r.json() : Promise.reject()).then(d => {
+      if (!dirty && d && typeof d.text === 'string') show(d.text);
     }).catch(() => {});
     if (!ed) return;
     function doSave(retry) {
@@ -1238,6 +1238,7 @@
       }).catch(() => toast('Guardado solo en este navegador'));
     }
     ed.addEventListener('input', () => {
+      dirty = true;
       try { localStorage.setItem(lk, ed.value); } catch (e) {}
       clearTimeout(timer); timer = setTimeout(() => doSave(false), 800);
     });
@@ -1426,7 +1427,7 @@
     const has = x => x.cones.length || x.arts.length || x.orn.length || Object.values(x.main).some(Boolean) || x.sub || x.talents || x.note;
     const flat = t => String(t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim();
     const original = body.innerHTML;
-    let b = empty(), timer = null, openPc = -1;
+    let b = empty(), timer = null, openPc = -1, dirty = false;
     try { b = fix(JSON.parse(localStorage.getItem(lk))); } catch (e) {}
 
     const card = (x, k, j) => `<div class="bd-it">${W ? wwImgTag(x, k === 'cones' ? 'weapon' : 'echo') : x.c ? `<img src="${iconUrl(x.c)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">` : '<div class="bd-ph"></div>'}<b>${esc(x.n)}</b>${x.p ? `<em${EDIT && k === 'arts' ? ` data-t="${j}" title="${W ? 'Elegir piezas del set' : 'Cambiar piezas del set'}"` : ''}>${x.p}-PC</em>` : ''}${EDIT && W && k === 'arts' && openPc === j ? `<div class="bd-pcs">${[1, 2, 3, 5].map(n => `<button type="button" data-pc="${j}:${n}" class="${x.p === n ? 'on' : ''}">${n}-PC</button>`).join('')}</div>` : ''}${EDIT ? `<button type="button" class="bd-x" data-d="${k}:${j}" aria-label="Quitar">×</button>` : ''}</div>`;
@@ -1639,12 +1640,14 @@
       }).catch(() => toast('Guardado solo en este navegador'));
     }
     function save() {
+      dirty = true;
       try { localStorage.setItem(lk, JSON.stringify(b)); } catch (e) {}
       clearTimeout(timer); timer = setTimeout(() => doSave(false), 800);
     }
     build();
     if (W) loadWuwa().then(() => rows());
-    fetch(api).then(r => r.ok ? r.json() : Promise.reject()).then(d => {
+    fetch(api, { cache: 'no-store' }).then(r => r.ok ? r.json() : Promise.reject()).then(d => {
+      if (dirty) return; /* ya editaste algo: la respuesta del servidor llega tarde y no debe pisarlo */
       const sv = fix(d);
       if (has(sv)) { b = sv; build(); } /* si el servidor responde vacío, se conserva la copia local en vez de borrarla */
     }).catch(() => {});
