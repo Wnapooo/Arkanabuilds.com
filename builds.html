@@ -1573,7 +1573,7 @@
     if (W) loadWuwa().then(() => rows());
     fetch(api).then(r => r.ok ? r.json() : Promise.reject()).then(d => {
       const sv = fix(d);
-      if (has(sv) || !EDIT) { b = sv; build(); }
+      if (has(sv)) { b = sv; build(); } /* si el servidor responde vacío, se conserva la copia local en vez de borrarla */
     }).catch(() => {});
     if (!EDIT) return;
 
