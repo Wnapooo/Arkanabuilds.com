@@ -555,8 +555,8 @@
   .bd-tal-chip { display: inline-flex; align-items: center; gap: 7px; padding: 5px 10px 5px 5px; border-radius: 999px; background: rgba(255,255,255,.06); border: 1px solid var(--card-border); font-size: 14px; font-weight: 700; color: var(--text); }
   .bd-tal-ic { width: 24px; height: 24px; border-radius: 50%; background: #ff6b4a; color: #1a0a06; display: flex; align-items: center; justify-content: center; flex: none; overflow: hidden; }
   .bd-tal-ic svg { width: 13px; height: 13px; }
-  .bd-tal-ic.bd-tal-ic-real { width: 28px; height: 28px; border-radius: 8px; background: rgba(255,255,255,.08); }
-  .bd-tal-ic-real img { width: 26px; height: 26px; object-fit: contain; }
+  .bd-tal-ic.bd-tal-ic-real { width: 30px; height: 30px; border-radius: 50%; background: #ff6b4a; }
+  .bd-tal-ic-real img { width: 28px; height: 28px; object-fit: contain; }
   .bd-tal-sep { color: var(--muted); font-size: 13px; }
   .bd-msg { padding: 10px; font-size: 13px; color: var(--muted); }
   #toast {
@@ -1344,7 +1344,7 @@
         .catch(e => { hsrCharsP = null; throw e; });
       return hsrCharsP;
     }
-    const SKILL_TYPE_SUFFIX = { basic: 'Normal', skill: 'BPSkill', ultimate: 'Ultra', talent: 'Talent', tech: 'Maze' };
+    const SKILL_TYPE_SUFFIX = { basic: 'Normal', skill: 'BP', ultimate: 'Ultra', talent: 'Passive', tech: 'Maze' };
     // Alias para slugs cuyo nombre en esta web no coincide literal con el nombre oficial del juego
     // (variantes Trailblazer, Imbibitor Lunae, skins fan-made, etc.). Si algún personaje no te
     // muestra el icono real, agrégalo aquí: 'slug-de-tu-web': 'Nombre oficial en inglés'.
@@ -1363,11 +1363,19 @@
       'trailblazer-harmony': 'Trailblazer',
       'trailblazer-remembrance': 'Trailblazer'
     };
+    // IDs manuales (para cuando el nombre no coincide solo): 'slug-de-tu-web': 1308
+    const HSR_ID_OVERRIDE = { 'acheron': 1308 };
     function findCharId(displayName) {
+      if (HSR_ID_OVERRIDE[slug]) return Promise.resolve(String(HSR_ID_OVERRIDE[slug]));
       if (!displayName) return Promise.resolve(null);
       return loadHsrChars().then(chars => {
         const target = flat(HSR_NAME_ALIAS[slug] || displayName);
-        const c = chars.find(x => x && x.name && flat(x.name) === target);
+        const list = chars.filter(x => x && x.name);
+        let c = list.find(x => flat(x.name) === target);
+        if (!c) { // coincidencia tolerante: solo si hay un unico candidato
+          const cand = list.filter(x => { const n = flat(x.name); return n.startsWith(target) || target.startsWith(n); });
+          if (cand.length === 1) c = cand[0];
+        }
         return c ? String(c.id) : null;
       }).catch(() => null);
     }
