@@ -1406,7 +1406,12 @@
     const MAIN = W ? [['torso', 'Eco costo 4'], ['botas', 'Eco costo 3'], ['esfera', 'Eco costo 1']] : Z ? [['torso', 'Disco 4'], ['botas', 'Disco 5'], ['esfera', 'Disco 6']] : [['torso', 'Torso'], ['botas', 'Botas'], ['esfera', 'Esfera'], ['cuerda', 'Cuerda']];
     const iconUrl = c => !c ? '' : W ? c : Z ? NK + '/assets/zzz/' + c + '.webp' : SRR + c;
     const catalog = () => W ? loadWuwa() : Z ? loadZzz() : loadCatalog();
-    const defP = k => W ? 5 : (k === 'orn' ? 2 : 4);
+    /* WuWa: 5 ecos en total. El set nuevo toma las piezas que faltan (si el primero es 3-PC, el siguiente es 2-PC; si es 2-PC, 3-PC) */
+    const defP = k => {
+      if (!W) return k === 'orn' ? 2 : 4;
+      const left = 5 - b.arts.reduce((n, x) => n + (+x.p || 0), 0);
+      return left >= 5 ? 5 : left >= 3 ? 3 : 2;
+    };
     const nextP = p => W ? (p === 2 ? 3 : p === 3 ? 5 : 2) : (p === 4 ? 2 : 4);
     const empty = () => ({ cones: [], arts: [], orn: [], main: {}, sub: '', talents: '', note: '' });
     const fix = x => Object.assign(empty(), x || {}, { main: Object.assign({}, x && x.main) });
