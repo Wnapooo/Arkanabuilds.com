@@ -2183,6 +2183,60 @@
   const DETAIL_FILES = { wuwa: { 'aug': 'aug_card3.webp', 'buling': 'buling_card3.webp', 'brant': 'card_brant3.webp', 'camellya': 'card_cam3.webp', 'canta': 'card_canta3.webp', 'carlotta': 'card_carlotta3.webp', 'changli': 'card_changli3.webp', 'keeper': 'card_keeper3.webp', 'phoebe': 'card_phoebe3.webp', 'roccia': 'card_roccia3.webp', 'xiangli-yao': 'card_xiang3.webp', 'zani': 'card_zani3.webp', 'zhezhi': 'card_zhe3.webp', 'cart': 'cart_card3.webp', 'chisa': 'chisa_card3.webp', 'cia': 'cia_card3.webp', 'denia': 'denia_card3.webp', 'encore': 'encore_card3.webp', 'gal': 'gal_card3.webp', 'hiyuki': 'hiyuki_card3.webp', 'hsin': 'hsin_card3.webp', 'iuno': 'iuno_card3.webp', 'jianxin': 'jiaxin_card3.webp', 'jihni': 'jihni_card3.webp', 'jingran': 'jingran_card3.webp', 'jiyan': 'jiyan_card3.webp', 'calcharo': 'kakarot_card3.webp', 'lingyang': 'ling_card3.webp', 'lucilla': 'Lucilla_card3.webp', 'lucy': 'lucy_card3.webp', 'lupa': 'lupa_card3.webp', 'luuk-herssen': 'Luuk Herssen_card3.webp', 'lynae': 'Lynae_card3.webp', 'math': 'math_card3.webp', 'mornye': 'Mornye_card3.webp', 'mortefi': 'mortefi_card3.webp', 'phr': 'phr_card3.webp', 'qingxiao': 'qingxiao_card3.webp', 'qiu': 'qiu_card3.webp', 'rebecca': 'rebecca_card3.webp', 'senhua': 'senhua_card3.webp', 'sigrika': 'Sigrika_card3.webp', 'suisui': 'suisui_card3.webp', 'suoming': 'suoming_card3.webp', 'verina': 'verina_card3.webp', 'yangyang-xuanling': 'yangyang-xuanling_card3.webp', 'yinlin': 'yinglin_card3.webp', 'rover-aero': 'Rover_3.webp', 'rover-electro': 'Rover_3.webp', 'rover-spectro': 'Rover_3.webp', 'rover-havoc': 'Rover_3.webp' } };
   /* ZZZ: la build usa la misma imagen <slug>_card.webp, con el mismo diseño libre y recorte automático que WuWa */
   DETAIL_FILES.zzz = Object.fromEntries(GAMES.zzz.chars.map(c => [c[0], c[0] + '_card.webp']));
+  /* ZZZ: arte de cuerpo completo (transparente) para la build; si el archivo no existe se usa <slug>_card.webp */
+  Object.assign(DETAIL_FILES.zzz, {
+    'rina': "Agent_Alexandrina_Sebastiane_Portrait.webp",
+    'alice': "Agent_Alice_Thymefield_Portrait.webp",
+    'aria': "Agent_Aria_Human_Portrait.webp",
+    'harumasa': "Agent_Asaba_Harumasa_Portrait.webp",
+    'astra-yao': "Agent_Astra_Yao_Portrait.webp",
+    'banyue': "Agent_Banyue_Portrait.webp",
+    'burnice': "Agent_Burnice_White_Portrait.webp",
+    'cissia': "Agent_Cissia_Portrait.webp",
+    'claret': "Agent_Claret_Flint_Portrait.webp",
+    'dialyn': "Agent_Dialyn_Portrait.webp",
+    'ellen': "Agent_Ellen_Joe_Portrait.webp",
+    'evelyn': "Agent_Evelyn_Chevalier_Portrait.webp",
+    'grace-howard': "Agent_Grace_Howard_Portrait.webp",
+    'miyabi': "Agent_Hoshimi_Miyabi_Portrait.webp",
+    'hugo': "Agent_Hugo_Vlad_Portrait.webp",
+    'jane-doe': "Agent_Jane_Doe_Portrait.webp",
+    'ju-fufu': "Agent_Ju_Fufu_Portrait.webp",
+    'koleda': "Agent_Koleda_Belobog_Portrait.webp",
+    'manato': "Agent_Komano_Manato_Portrait.webp",
+    'lighter': "Agent_Lighter_Portrait.webp",
+    'lucia': "Agent_Lucia_Elowen_Portrait.webp",
+    'nangong-yu': "Agent_Nangong_Yu_Portrait.webp",
+    'nekomata': "Agent_Nekomiya_Mana_Portrait.webp",
+    'nicole-demara': "Agent_Nicole_Demara_Portrait.webp",
+    'norma': "Agent_Norma_Hollowell_Portrait.webp",
+    'orphie-and-magus': "Agent_Orphie_Magnusson_%26_Magus_Portrait.webp",
+    'pan-yinhu': "Agent_Pan_Yinhu_Portrait.webp",
+    'phoenix': "Agent_Phoenix_Reffaella_Portrait.webp",
+    'piper': "Agent_Piper_Wheel_Portrait.webp",
+    'promeia': "Agent_Promeia_Portrait.webp",
+    'pyrois': "Agent_Pyrois_Portrait.webp",
+    'qingyi': "Agent_Qingyi_Portrait.webp",
+    'remielle': "Agent_Remielle_Dan_Portrait.webp",
+    'roxy': "Agent_Roxy_Ifrita_Pryce_Portrait.webp",
+    'seed': "Agent_Seed_Portrait.webp",
+    'sigrid': "Agent_Sigrid_de_L'Azur_Portrait.webp",
+    'anby-demara-soldier-0': "Agent_Soldier_0_-_Anby_Portrait.webp",
+    'soldier-11': "Agent_Soldier_11_Portrait.webp",
+    'billy-starlight': "Agent_Starlight_-_Billy_Kid_Portrait.webp",
+    'sunna': "Agent_Sunna_Portrait.webp",
+    'trigger': "Agent_Trigger_Portrait.webp",
+    'yanagi': "Agent_Tsukishiro_Yanagi_Portrait.webp",
+    'ukinami-yuzuha': "Agent_Ukinami_Yuzuha_Portrait.webp",
+    'velina': "Agent_Velina_Airgid_Portrait.webp",
+    'vivian': "Agent_Vivian_Banshee_Portrait.webp",
+    'lycaon': "Agent_Von_Lycaon_Portrait.webp",
+    'ye-shunguang': "Agent_Ye_Shunguang_Portrait.webp",
+    'yidhari': "Agent_Yidhari_Murphy_Portrait.webp",
+    'yixuan': "Agent_Yixuan_Portrait.webp",
+    'zhao': "Agent_Zhao_Portrait.webp",
+    'zhu-yuan': "Agent_Zhu_Yuan_Portrait.webp"
+  });
 
   function imgBig(gameKey, slug) {
     const f = DETAIL_FILES[gameKey] && DETAIL_FILES[gameKey][slug];
@@ -2267,7 +2321,7 @@
           <div class="hsr-grid">
             <aside class="hsr-id${DETAIL_FILES[game] && DETAIL_FILES[game][slug] ? ' free' : ''}${/^rover/.test(slug) ? ' rover-art' : ''}" data-slug="${slug}">
               <div class="portrait-stage">
-                <img class="portrait" src="${imgBig(game, slug)}" alt="${c[1]}" onload="trimArt(this)">
+                <img class="portrait" src="${imgBig(game, slug)}" alt="${c[1]}" onload="trimArt(this)"${game === 'zzz' ? ` onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src='./${slug}_card.webp'}"` : ''}>
                 ${el ? `<img class="el-badge" src="${elIcon(el)}" alt="${EL_LABEL[el]}" onerror="this.remove()">` : isWw ? `<img class="el-badge" src="./element_${wb.el}.webp" alt="${WUWA_LABEL[wb.el]}" title="${WUWA_LABEL[wb.el]}" onerror="this.remove()">` : zi ? `<img class="el-badge" src="${zzzElIcon(zi[0])}" alt="${zzzElName(slug)}" title="${zzzElName(slug)}" onerror="this.remove()">` : ''}${pa ? `<img class="path-badge" src="${pathIcon(pa)}" alt="${PATH_LABEL[pa]}" title="${PATH_LABEL[pa]}" onerror="this.remove()">` : zi ? `<img class="path-badge" src="${zzzSpecIcon(zi[1])}" alt="${ZZZ_SPEC_LABEL[zi[1]]}" title="${ZZZ_SPEC_LABEL[zi[1]]}" onerror="this.remove()">` : ''}
               </div>
               <h1>${c[1]}</h1>
