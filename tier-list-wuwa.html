@@ -166,6 +166,11 @@ td.drop-active, .pool.drop-active { background: rgba(129,140,248,.06); }
 .toolbar button:hover { border-color: #818cf8; color: #fff; }
 .toolbar input { background: #1c1e27; color: #e5e7eb; border: 1px solid #2a2d38; border-radius: 8px; padding: 7px 10px; font-size: 13px; font-family: inherit; min-width: 180px; }
 .toolbar input:focus { outline: none; border-color: #818cf8; }
+#trash { position: fixed; left: 50%; bottom: 20px; transform: translate(-50%, 24px); width: min(420px, 82vw); padding: 18px 16px; text-align: center;
+  border: 2px dashed #ef4444; border-radius: 12px; background: rgba(42,17,17,.94); color: #fca5a5; font: 600 14px system-ui, -apple-system, sans-serif;
+  opacity: 0; pointer-events: none; transition: opacity .15s ease, transform .15s ease, background .15s ease; z-index: 60; }
+body.drag-active #trash { opacity: 1; pointer-events: auto; transform: translate(-50%, 0); }
+#trash.over { background: #7f1d1d; color: #fff; border-color: #fca5a5; }
 #toast {
   position: fixed; bottom: 20px; right: 20px; background: #1e1b3a; color: #a5b4fc;
   border: 1px solid #3730a3; padding: 8px 14px; border-radius: 8px; font-size: 13px;
@@ -501,6 +506,18 @@ body.editing a.char-icon { -webkit-touch-callout: none; -webkit-user-select: non
     }
     makeDraggable();
 
+    /* ---------- Cuadro para quitar un icono: arrástralo hasta aquí ---------- */
+    var trashEl = document.createElement('div');
+    trashEl.id = 'trash'; trashEl.textContent = '🗑️ Suelta aquí para quitar';
+    document.body.appendChild(trashEl);
+    function endDragUi() { document.body.classList.remove('drag-active'); trashEl.classList.remove('over'); }
+    function removeDragged() {
+      var nm = dragged.title;
+      dragged.remove(); dragged = null; endDragUi();
+      document.querySelectorAll('.drop-active').forEach(function (z) { z.classList.remove('drop-active'); });
+      save(); toast('Quitado: ' + nm);
+    }
+
     /* ---------- Buscador: escribe un nombre y se agrega a "Sin clasificar" ---------- */
     document.getElementById('btn-add').addEventListener('click', addByName);
     document.getElementById('add-name').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); addByName(); } });
@@ -526,13 +543,20 @@ body.editing a.char-icon { -webkit-touch-callout: none; -webkit-user-select: non
     document.addEventListener('dragstart', function (e) {
       var a = e.target.closest && e.target.closest('a.char-icon');
       if (!a) return;
-      dragged = a;
+      dragged = a; document.body.classList.add('drag-active');
       e.dataTransfer.effectAllowed = 'move';
       e.dataTransfer.setData('text/plain', a.title);
       setTimeout(function () { a.classList.add('dragging'); }, 0);
     });
     document.addEventListener('dragover', function (e) {
       if (!dragged) return;
+      var overTrash = !!(e.target.closest && e.target.closest('#trash'));
+      trashEl.classList.toggle('over', overTrash);
+      if (overTrash) {
+        e.preventDefault(); e.dataTransfer.dropEffect = 'move';
+        document.querySelectorAll('.drop-active').forEach(function (z) { z.classList.remove('drop-active'); });
+        return;
+      }
       var zone = e.target.closest && e.target.closest('td, .pool');
       var row = zone && zone.querySelector('.icon-row');
       document.querySelectorAll('.drop-active').forEach(function (z) { if (z !== zone) z.classList.remove('drop-active'); });
@@ -542,8 +566,13 @@ body.editing a.char-icon { -webkit-touch-callout: none; -webkit-user-select: non
       zone.classList.add('drop-active');
       place(row, e.clientX, e.clientY);
     });
-    document.addEventListener('drop', function (e) { if (dragged) e.preventDefault(); });
+    document.addEventListener('drop', function (e) {
+      if (!dragged) return;
+      e.preventDefault();
+      if (e.target.closest && e.target.closest('#trash')) removeDragged();
+    });
     document.addEventListener('dragend', function () {
+      endDragUi();
       if (!dragged) return;
       dragged.classList.remove('dragging'); dragged = null;
       document.querySelectorAll('.drop-active').forEach(function (z) { z.classList.remove('drop-active'); });
@@ -551,7 +580,7 @@ body.editing a.char-icon { -webkit-touch-callout: none; -webkit-user-select: non
     });
 
     /* ---------- Soporte táctil: mantén pulsado un ícono ~0.35 s y arrástralo ---------- */
-    var tTimer = null, tActive = false, tStart = null, tBefore = '', tBlockClick = false;
+    var tTimer = null, tActive = false, tStart = null, tBefore = '', tBlockClick = false, touchTrash = false;
     function clearZones() {
       document.querySelectorAll('.drop-active').forEach(function (z) { z.classList.remove('drop-active'); });
     }
@@ -563,7 +592,7 @@ body.editing a.char-icon { -webkit-touch-callout: none; -webkit-user-select: non
       clearTimeout(tTimer);
       tTimer = setTimeout(function () {
         tActive = true; dragged = a; tBefore = JSON.stringify(serialize());
-        a.classList.add('dragging');
+        a.classList.add('dragging'); document.body.classList.add('drag-active');
         if (navigator.vibrate) navigator.vibrate(15);
       }, 350);
     }, { passive: true });
@@ -578,8 +607,11 @@ body.editing a.char-icon { -webkit-touch-callout: none; -webkit-user-select: non
       var el = document.elementFromPoint(t.clientX, t.clientY);
       var zone = el && el.closest && el.closest('td, .pool');
       var row = zone && zone.querySelector('.icon-row');
+      var onTrash = !!(el && el.closest && el.closest('#trash'));
+      touchTrash = onTrash; trashEl.classList.toggle('over', onTrash);
       clearZones();
-      if (row) { zone.classList.add('drop-active'); place(row, t.clientX, t.clientY); }
+      if (row && !onTrash) { zone.classList.add('drop-active'); place(row, t.clientX, t.clientY); }
+      if (onTrash) return;
       if (t.clientY < 80) window.scrollBy(0, -14); else if (t.clientY > window.innerHeight - 80) window.scrollBy(0, 14);
     }, { passive: false });
     function tEnd() {
@@ -587,6 +619,9 @@ body.editing a.char-icon { -webkit-touch-callout: none; -webkit-user-select: non
       if (!tActive) return;
       tActive = false; tBlockClick = true;
       setTimeout(function () { tBlockClick = false; }, 400);
+      endDragUi();
+      if (touchTrash && dragged) { var nm = dragged.title; dragged.remove(); toast('Quitado: ' + nm); }
+      touchTrash = false;
       if (dragged) { dragged.classList.remove('dragging'); dragged = null; }
       clearZones();
       if (JSON.stringify(serialize()) !== tBefore) save();
