@@ -1297,10 +1297,29 @@
   let wwP = null;
   /* Monstruos eco: lista de referencia (para reconocer el archivo correcto de nanoka) y respaldo si el catálogo online falla */
   const WW_MONS = 'Lady of the Sea|Crownless|Tempest Mephis|Thundering Mephis|Inferno Rider|Dreamless|Bell-Borne Geochelone|Impermanence Heron|Mourning Aix|Feilian Beringal|Hecate|Fallacy of No Return|Lampylumen Myriad|Fleurdelys|Mech Abomination|Sentry Construct|Hoartoise|Capitaine|Chop Chop|Tick Tack|Diggy Duggy|Vanguard Junrock|Glacio Prism|Spearback|Roseshroom|Fusion Warrior|Zip Zap|Carapace|Dwarf Cassowary'.split('|');
-  /* Coste real (en el juego) de cada eco/monstruo de la lista de arriba, en el mismo orden */
-  const WW_MONS_COST = [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 3, 3, 1, 1, 1, 1, 3, 3, 1, 1, 3, 1];
-  const WW_ECO_COST = {}; WW_MONS.forEach((n, i) => { WW_ECO_COST[wwFlatRef(n)] = WW_MONS_COST[i]; });
+  /* Coste real (en el juego, por nombre de eco) de todos los ecos conocidos de WuWa, agrupados por coste.
+     Cubre el catálogo completo (Overlord/Calamity=4, Elite=3, Common=1), no solo los 29 de la lista básica. */
   function wwFlatRef(t) { return String(t).toLowerCase().replace(/[^a-z0-9]/g, ''); }
+  const WW_ECO_COST = {};
+  (function () {
+    const C4 = 'Lady of the Sea|Crownless|Tempest Mephis|Thundering Mephis|Inferno Rider|Dreamless|Bell-Borne Geochelone|Impermanence Heron|Mourning Aix|Feilian Beringal|Hecate|Fallacy of No Return|Lampylumen Myriad|Fleurdelys|Mech Abomination|Sentry Construct|Dragon of Dirge|Lorelei|Lioness of Glory|The False Sovereign|Jue|Jué|Sigillum|Denia|Fenrico|Hyvatia|Reactor Husk|Kelpie|Threnodian: Leviathan|Threnodian - Leviathan'.split('|');
+    const C3 = 'Stonewall Bracer|Violet-Feathered Heron|Cyan-Feathered Heron|Flautist|Tambourinist|Rocksteady Guardian|Chasm Guardian|Viridblaze Saurian|Roseshroom|Havoc Dreadmane|Hoochief|Spearback|Carapace|Autopuppet Scout|Lightcrusher|Glacio Dreadmane|Lumiscale Construct|Questless Knight|Diurnus Knight|Nocturnus Knight|Abyssal Patricius|Abyssal Gladius|Abyssal Mercator|Chop Chop|Vitreum Dancer|Cuddle Wuddle|Rage Against the Statue|Hurriclaw|Capitaneus|Capitaine|Kerasaur|Pilgrim\'s Shell|Corrosaurus'.split('|');
+    const C1 = 'Vanguard Junrock|Fission Junrock|Electro Predator|Glacio Predator|Aero Predator|Fusion Warrior|Havoc Warrior|Snip Snap|Zig Zag|Whiff Whaff|Tick Tack|Gulpuff|Chirpuff|Glacio Prism|Fusion Prism|Spectro Prism|Havoc Prism|Cruisewing|Sabyr Boar|Excarat|Baby Viridblaze Saurian|Young Roseshroom|Baby Roseshroom|Hooscamp|Diamondclaw|Hoartoise|Fusion Dreamane|Traffic Illuminator|Dwarf Cassowary|Clang Bang|Lava Larva|Galescourge Stalker|Voltscourge Stalker|Frostscourge Stalker|Chop Chop: Headless|Chop Chop: Leftless|Chop Chop: Rightless|Fae Ignis|Nimbus Wraith|Hocus Pocus|Lottie Lost|Diggy Duggy|Chest Mimic|Golden Junrock|Calcified Junrock|Aero Prism|La Guardia|Sagittario|Sacerdos|Aero Drake|Electro Drake|Glacio Drake|Devotee\'s Flesh|Havoc Drake|Spectro Drake|Fusion Drake|Zip Zap|Smiter|Smolder|Aureate Picket'.split('|');
+    [[C4, 4], [C3, 3], [C1, 1]].forEach(([list, cost]) => list.forEach(n => { WW_ECO_COST[wwFlatRef(n)] = cost; }));
+  })();
+  /* Variantes con prefijo (Nightmare:, Reminiscence:, Phantom:, Tactical Hologram:) conservan el coste del eco base */
+  const WW_ECO_PREFIXES = ['nightmare', 'reminiscence', 'phantom', 'tacticalhologram'];
+  function wwEcoCostLookup(name) {
+    const f = wwFlatRef(name);
+    if (WW_ECO_COST[f] != null) return WW_ECO_COST[f];
+    for (const p of WW_ECO_PREFIXES) {
+      if (f.indexOf(p) === 0) {
+        const rest = f.slice(p.length);
+        if (WW_ECO_COST[rest] != null) return WW_ECO_COST[rest];
+      }
+    }
+    return null;
+  }
   /* WuWa: catálogo automático (igual que HSR/ZZZ). Lee static.nanoka.cc: manifest -> revisión actual ->
      weapon.json / echo.json. Cuando salga un parche, las armas y sets nuevos aparecen solos.
      Si la fuente falla, usa la última copia guardada en el navegador y, si no hay, la lista básica de arriba. */
@@ -1457,7 +1476,7 @@
     let b = empty(), timer = null, openPc = -1, dirty = false;
     try { b = fix(JSON.parse(localStorage.getItem(lk))); } catch (e) {}
 
-    const ecoCost = name => WW_ECO_COST[wwFlatRef(name)];  /* coste real del eco según el juego, buscado por nombre */
+    const ecoCost = name => wwEcoCostLookup(name);  /* coste real del eco según el juego, buscado por nombre (incl. variantes Nightmare/Reminiscence/Phantom) */
     const card = (x, k, j) => { const cc = k === 'echoes' ? ecoCost(x.n) : null; return `<div class="bd-it"${EDIT ? ` draggable="true" data-dk="${k}" data-dj="${j}"` : ''}>${cc ? `<span class="bd-cost">Coste ${cc}</span>` : ''}${W ? wwImgTag(x, wk(k)) : x.c ? `<img src="${iconUrl(x.c)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">` : '<div class="bd-ph"></div>'}<b>${esc(x.n)}</b>${x.p ? `<em${EDIT && k === 'arts' ? ` data-t="${j}" title="${W ? 'Elegir piezas del set' : 'Cambiar piezas del set'}"` : ''}>${x.p}-PC</em>` : ''}${EDIT && W && k === 'arts' && openPc === j ? `<div class="bd-pcs">${[1, 2, 3, 5].map(n => `<button type="button" data-pc="${j}:${n}" class="${x.p === n ? 'on' : ''}">${n}-PC</button>`).join('')}</div>` : ''}${EDIT ? `<button type="button" class="bd-x" data-d="${k}:${j}" aria-label="Quitar">×</button>` : ''}</div>`; };
     const fld = (f, ph, v) => EDIT ? `<input class="bd-in" data-f="${f}" maxlength="160" placeholder="${ph}" value="${esc(v || '')}">` : esc(v || '');
 
