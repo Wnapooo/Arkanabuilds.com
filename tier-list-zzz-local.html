@@ -533,7 +533,7 @@ body.editing a.char-icon { -webkit-touch-callout: none; -webkit-user-select: non
   var EDIT = /[?&]edit(=|&|$)/.test(location.search);
   var KEYSTORE = 'tierlist-admin-key';
   var SAFE = /^\.\/[\w\-.\/#]+$/;
-  var rows = Array.prototype.slice.call(document.querySelectorAll('.icon-row'));
+  var rows = Array.prototype.slice.call(document.querySelectorAll('table.tier-table .icon-row'));
   var dragged = null, saveTimer = null;
 
   function serialize() {
@@ -565,7 +565,6 @@ body.editing a.char-icon { -webkit-touch-callout: none; -webkit-user-select: non
     return a;
   }
   function applyLayout(d) {
-    if (d && Array.isArray(d.layout) && d.layout.length === rows.length - 1) d.layout = d.layout.concat([[]]);
     if (!d || d.base !== BASE || !Array.isArray(d.layout) || d.layout.length !== rows.length) return false;
     var ok = d.layout.every(function (row) {
       return Array.isArray(row) && row.every(function (it) {
@@ -628,7 +627,36 @@ body.editing a.char-icon { -webkit-touch-callout: none; -webkit-user-select: non
       toast(r.ok ? 'Guardado para todos ✓' : 'Error al guardar (' + r.status + ')');
     }).catch(function () { toast('Error de red'); });
   }
-  function save() { clearTimeout(saveTimer); saveTimer = setTimeout(function () { doSave(false); }, 300); }
+  var lastSent = null;
+  function save() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function () {
+      var cur = JSON.stringify(serialize());
+      if (cur === lastSent) return;
+      lastSent = cur; doSave(false);
+    }, 300);
+  }
+  /* "Sin clasificar" es una zona de trabajo: se guarda solo en este navegador, no en el servidor */
+  var POOLKEY = 'tierlist-pool:' + PAGE;
+  function savePool() {
+    var r = document.getElementById('pool-row'); if (!r) return;
+    var items = Array.prototype.map.call(r.querySelectorAll('a.char-icon'), function (a) {
+      var img = a.querySelector('img');
+      return { h: a.getAttribute('href'), t: a.getAttribute('title') || '', s: img ? img.getAttribute('src') : (a.getAttribute('data-src') || '') };
+    });
+    try { localStorage.setItem(POOLKEY, JSON.stringify(items)); } catch (e) {}
+  }
+  function loadPool() {
+    var r = document.getElementById('pool-row'), items = [];
+    try { items = JSON.parse(localStorage.getItem(POOLKEY) || '[]'); } catch (e) {}
+    if (!r || !Array.isArray(items)) return;
+    items.forEach(function (it) {
+      if (!it || !SAFE.test(it.h || '') || !SAFE.test(it.s || '')) return;
+      if (document.querySelector('a.char-icon[href="' + it.h + '"]')) return;
+      var a = build({ h: it.h, t: String(it.t || ''), s: it.s });
+      a.setAttribute('draggable', 'true'); r.appendChild(a);
+    });
+  }
 
   function place(row, x, y) {
     Array.prototype.forEach.call(row.querySelectorAll('.empty-icon'), function (n) { n.remove(); });
@@ -649,6 +677,8 @@ body.editing a.char-icon { -webkit-touch-callout: none; -webkit-user-select: non
 
   function initEditor() {
     document.body.classList.add('editing');
+    lastSent = JSON.stringify(serialize());
+    loadPool();
     var bar = document.createElement('div');
     bar.className = 'toolbar';
     bar.innerHTML = '<span class="hint">Modo editor: lo que muevas se publica para todos.' +
@@ -689,7 +719,7 @@ body.editing a.char-icon { -webkit-touch-callout: none; -webkit-user-select: non
       if (!dragged) return;
       dragged.classList.remove('dragging'); dragged = null;
       document.querySelectorAll('.drop-active').forEach(function (z) { z.classList.remove('drop-active'); });
-      syncPool(); save();
+      syncPool(); savePool(); save();
     });
 
     /* ---------- Soporte táctil: mantén pulsado un ícono ~0.35 s y arrástralo ---------- */
@@ -731,6 +761,7 @@ body.editing a.char-icon { -webkit-touch-callout: none; -webkit-user-select: non
       setTimeout(function () { tBlockClick = false; }, 400);
       if (dragged) { dragged.classList.remove('dragging'); dragged = null; }
       clearZones();
+      savePool();
       if (JSON.stringify(serialize()) !== tBefore) save();
     }
     document.addEventListener('touchend', tEnd);
@@ -841,7 +872,7 @@ body.editing a.char-icon { -webkit-touch-callout: none; -webkit-user-select: non
       if (!a) {
         a = build({ h: './builds.html#' + slug, t: c[1], s: './' + slug + '.webp' });
         a.setAttribute('draggable', 'true');
-        poolRow.appendChild(a); syncPool(); save();
+        poolRow.appendChild(a); syncPool(); savePool();
         toast(c[1] + ' → Sin clasificar');
       }
       a.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -861,7 +892,7 @@ body.editing a.char-icon { -webkit-touch-callout: none; -webkit-user-select: non
     document.getElementById('btn-clear-pool').addEventListener('click', function () {
       if (!poolRow.querySelector('a.char-icon')) return;
       if (!confirm('¿Quitar todos los personajes de "Sin clasificar"?')) return;
-      poolRow.innerHTML = ''; save(); toast('Sin clasificar vaciado');
+      poolRow.innerHTML = ''; savePool(); toast('Sin clasificar vaciado');
     });
   }
 })();
