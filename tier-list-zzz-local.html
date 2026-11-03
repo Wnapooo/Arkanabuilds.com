@@ -582,9 +582,9 @@ body.editing a.char-icon { -webkit-touch-callout: none; -webkit-user-select: non
     var p = document.getElementById('pool'), r = document.getElementById('pool-row');
     if (p && r) p.hidden = !(document.body.classList.contains('editing') || r.querySelector('a.char-icon'));
   }
-  function toast(msg) {
+  function toast(msg, ms) {
     var t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
-    clearTimeout(toast._t); toast._t = setTimeout(function () { t.classList.remove('show'); }, 1800);
+    clearTimeout(toast._t); toast._t = setTimeout(function () { t.classList.remove('show'); }, ms || 1800);
   }
 
   var finished = false;
@@ -624,8 +624,13 @@ body.editing a.char-icon { -webkit-touch-callout: none; -webkit-user-select: non
         if (!retry) return doSave(true);
         toast('Clave incorrecta'); return;
       }
-      toast(r.ok ? 'Guardado para todos ✓' : 'Error al guardar (' + r.status + ')');
-    }).catch(function () { toast('Error de red'); });
+      if (r.ok) { toast('Guardado para todos ✓'); return; }
+      lastSent = null;
+      return r.text().then(function (t) {
+        var m = ''; try { m = JSON.parse(t).error || ''; } catch (e) { m = String(t).slice(0, 120); }
+        toast('Error al guardar (' + r.status + ')' + (m ? ': ' + m : ''), 8000);
+      });
+    }).catch(function () { lastSent = null; toast('Error de red'); });
   }
   var lastSent = null;
   function save() {
@@ -633,8 +638,8 @@ body.editing a.char-icon { -webkit-touch-callout: none; -webkit-user-select: non
     saveTimer = setTimeout(function () {
       var cur = JSON.stringify(serialize());
       if (cur === lastSent) return;
-      lastSent = cur; doSave(false);
-    }, 300);
+      lastSent = cur;       lastSent = cur; doSave(false);
+    }, 1200);
   }
   /* "Sin clasificar" es una zona de trabajo: se guarda solo en este navegador, no en el servidor */
   var POOLKEY = 'tierlist-pool:' + PAGE;
