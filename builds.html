@@ -329,11 +329,17 @@
     div[data-el="wuwa"] .hsr-grid:has(> aside.free) { grid-template-columns: clamp(300px, 20vw, 400px) minmax(0, 1fr) 340px; }
     div[data-el="wuwa"] aside.hsr-id.free .portrait-stage .portrait { object-fit: cover; object-position: center top; }
   }
-  /* imágenes anchas (p. ej. Rover con dos figuras): se ven enteras y el nombre va arriba */
+  /* Rover (dos figuras): se ve entero y el nombre va arriba */
   @media (min-width: 1101px) {
-    div[data-el="wuwa"] aside.hsr-id.free.wide-art .portrait-stage .portrait { object-fit: contain; object-position: center bottom; }
-    div[data-el="wuwa"] aside.hsr-id.free.wide-art h1 { top: 24px; bottom: auto; }
-    div[data-el="wuwa"] aside.hsr-id.free.wide-art .el-tag { top: 74px; bottom: auto; }
+    div[data-el="wuwa"] aside.hsr-id.free.wide-art.rover-art .portrait-stage .portrait { object-fit: contain; object-position: center bottom; }
+    div[data-el="wuwa"] aside.hsr-id.free.wide-art.rover-art h1 { top: 24px; bottom: auto; }
+    div[data-el="wuwa"] aside.hsr-id.free.wide-art.rover-art .el-tag { top: 74px; bottom: auto; }
+  }
+  /* Resto de cards3 anchas (p. ej. Jiyan): figura entera, centrada en la columna y nombre abajo como en las altas */
+  @media (min-width: 1101px) {
+    div[data-el="wuwa"] aside.hsr-id.free.wide-art:not(.rover-art) .portrait-stage .portrait { object-fit: contain; object-position: center center; }
+    div[data-el="wuwa"] aside.hsr-id.free.wide-art:not(.rover-art) h1 { top: auto; bottom: 96px; }
+    div[data-el="wuwa"] aside.hsr-id.free.wide-art:not(.rover-art) .el-tag { top: auto; bottom: 64px; }
   }
 
 
@@ -2036,7 +2042,7 @@
           <div class="hsr-bg${isZzz ? ' zzz' : ''}${isWw ? ' wuwa' : ''}${bg ? ' fx lay-' + bg[3] : ''}" style="${bg ? `--b1:${bg[0]};--b2:${bg[1]};--b3:${bg[2]};` : ''}--art:url('${img(game, slug)}')">${isZzz ? `${zzzFx(slug, bg)}<span class="zzz-word">${c[1]}</span>` : isWw ? wuwaFx(slug, bg, wb.el) : ''}</div>
           <a class="back" href="#">← Todos los personajes</a>
           <div class="hsr-grid">
-            <aside class="hsr-id${DETAIL_FILES[game] && DETAIL_FILES[game][slug] ? ' free' : ''}">
+            <aside class="hsr-id${DETAIL_FILES[game] && DETAIL_FILES[game][slug] ? ' free' : ''}${/^rover/.test(slug) ? ' rover-art' : ''}">
               <div class="portrait-stage">
                 <img class="portrait" src="${imgBig(game, slug)}" alt="${c[1]}" onload="if (this.naturalWidth / this.naturalHeight > .85) this.closest('aside').classList.add('wide-art')">
                 ${el ? `<img class="el-badge" src="${elIcon(el)}" alt="${EL_LABEL[el]}" onerror="this.remove()">` : isWw ? `<img class="el-badge" src="./element_${wb.el}.webp" alt="${WUWA_LABEL[wb.el]}" title="${WUWA_LABEL[wb.el]}" onerror="this.remove()">` : zi ? `<img class="el-badge" src="${zzzElIcon(zi[0])}" alt="${zzzElName(slug)}" title="${zzzElName(slug)}" onerror="this.remove()">` : ''}${pa ? `<img class="path-badge" src="${pathIcon(pa)}" alt="${PATH_LABEL[pa]}" title="${PATH_LABEL[pa]}" onerror="this.remove()">` : zi ? `<img class="path-badge" src="${zzzSpecIcon(zi[1])}" alt="${ZZZ_SPEC_LABEL[zi[1]]}" title="${ZZZ_SPEC_LABEL[zi[1]]}" onerror="this.remove()">` : ''}
