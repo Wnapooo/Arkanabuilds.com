@@ -161,6 +161,8 @@
     transition: transform .15s, border-color .15s;
   }
   .card:hover { transform: translateY(-3px); border-color: var(--accent); }
+  .card > img[data-pend] { opacity: 0; }
+  .card > img { transition: opacity .25s ease; }
   .card img {
     display: block;
     width: 100%;
@@ -348,7 +350,7 @@
   #build-body.bd-hold { opacity: 0; }
   /* ZZZ: mantener siempre visible el retrato Portrait.webp completo, de cabeza a pies */
   @media (min-width: 1101px) {
-    :is(div[data-el="zzz"]) aside.hsr-id.zzz-fullbody .portrait-stage .portrait {
+    :is(div[data-el="zzz"]) aside.hsr-id.zzz-fullbody:not(.trimmed) .portrait-stage .portrait {
       object-fit: contain !important;
       object-position: center bottom !important;
     }
@@ -2166,7 +2168,8 @@
   window.trimArt = function (img) {
     const aside = img.closest('aside');
     const slug = aside && aside.dataset.slug;
-    const posP = img._posP || (img._posP = slug ? window.getArtPos(slug) : Promise.resolve(null));
+    const gm = aside && aside.closest('[data-el="zzz"]') ? 'zzz' : 'wuwa';
+    const posP = img._posP || (img._posP = slug ? window.getArtPos(slug, gm) : Promise.resolve(null));
     const done = () => posP.then(p => {
       img.classList.add('ready');
       if (!aside) return;
@@ -2219,7 +2222,7 @@
     'astra-yao': 'Agent_Astra_Yao_Portrait.webp',
     'burnice': 'Agent_Burnice_White_Portrait.webp',
     'claret': 'Agent_Clara_Flint_Portrait.webp',
-    'dialyn': 'Agent_Dailyn_Portrait.webp',
+    'dialyn': 'Agent_Dialyn_Portrait.webp',
     'ellen': 'Agent_Ellen_Joe_Portrait.webp',
     'evelyn': 'Agent_Evelyn_Chevalier_Portrait.webp',
     'grace-howard': 'Agent_Grace_Howard_Portrait.webp',
@@ -2228,37 +2231,42 @@
     'jane-doe': 'Agent_Jane_Doe_Portrait.webp',
     'ju-fufu': 'Agent_Ju_Fufu_Portrait.webp',
     'koleda': 'Agent_Koleda_Belobog_Portrait.webp',
-    'manato': 'Agent_Kompany_Manato_Portrait.webp',
+    'manato': 'Agent_Komano_Manato_Portrait.webp',
     'lighter': 'Agent_Lighter_Portrait.webp',
     'lucia': 'Agent_Lucia_Elowen_Portrait.webp',
     'nangong-yu': 'Agent_Nangong_Yu_Portrait.webp',
-    'nekomata': 'Agent_Nekomatiya_Mana_Portrait.webp',
+    'nekomata': 'Agent_Nekomiya_Mana_Portrait.webp',
     'nicole-demara': 'Agent_Nicole_Demara_Portrait.webp',
     'norma': 'Agent_Norma_Hollowell_Portrait.webp',
-    'orphie-and-magus': 'Agent_Orphne_Magnusson_%26_Megus_Portrait.webp',
+    'orphie-and-magus': 'Agent_Orphie_Magnusson_%26_Magus_Portrait.webp',
     'pan-yinhu': 'Agent_Pan_Yinhu_Portrait.webp',
-    'phoenix': 'Agent_Phoenix_Raffaella_Portrait.webp',
+    'phoenix': 'Agent_Phoenix_Reffaella_Portrait.webp',
     'piper': 'Agent_Piper_Wheel_Portrait.webp',
-    'promeia': 'Agent_Prometia_Portrait.webp',
-    'pyrois': 'Agent_Pyrosis_Portrait.webp',
+    'promeia': 'Agent_Promeia_Portrait.webp',
+    'pyrois': 'Agent_Pyrois_Portrait.webp',
     'qingyi': 'Agent_Qingyi_Portrait.webp',
-    'remielle': 'Agent_Rainvelle_Dan_Portrait.webp',
-    'roxy': 'Agent_Roxy_Ifrit_Pryce_Portrait.webp',
+    'remielle': 'Agent_Remielle_Dan_Portrait.webp',
+    'roxy': 'Agent_Roxy_Ifrita_Pryce_Portrait.webp',
     'seed': 'Agent_Seed_Portrait.webp',
     'sigrid': 'Agent_Sigrid_de_L_Azur_Portrait.webp',
-    'anby-demara-soldier-0': 'Agent_Soldier_0_Anby_Portrait.webp',
+    'anby-demara-soldier-0': 'Agent_Soldier_0_-_Anby_Portrait.webp',
     'soldier-11': 'Agent_Soldier_11_Portrait.webp',
-    'billy-starlight': 'Agent_Starlight_Billy_Kid_Portrait.webp',
+    'billy-starlight': 'Agent_Starlight_-_Billy_Kid_Portrait.webp',
     'sunna': 'Agent_Sunna_Portrait.webp',
     'trigger': 'Agent_Trigger_Portrait.webp',
     'yanagi': 'Agent_Tsukishiro_Yanagi_Portrait.webp',
-    'ukinami-yuzuha': 'Agent_Ukinami_Yuruha_Portrait.webp',
-    'velina': 'Agent_Veline_Airgid_Portrait.webp',
+    'ukinami-yuzuha': 'Agent_Ukinami_Yuzuha_Portrait.webp',
+    'velina': 'Agent_Velina_Airgid_Portrait.webp',
     'vivian': 'Agent_Vivian_Banshee_Portrait.webp',
     'lycaon': 'Agent_Von_Lycaon_Portrait.webp',
-    'ye-shunguang': 'Agent_Ye_Shuangshuang_Portrait.webp',
-    'yidhari': 'Agent_Yidhra_Murphy_Portrait.webp',
-    'zhu-yuan': 'Agent_Zhu_Yuan_Portrait.webp'
+    'ye-shunguang': 'Agent_Ye_Shunguang_Portrait.webp',
+    'yidhari': 'Agent_Yidhari_Murphy_Portrait.webp',
+    'zhu-yuan': 'Agent_Zhu_Yuan_Portrait.webp',
+    'aria': 'Agent_Aria_Human_Portrait.webp',
+    'banyue': 'Agent_Banyue_Portrait.webp',
+    'cissia': 'Agent_Cissia_Portrait.webp',
+    'yixuan': 'Agent_Yixuan_Portrait.webp',
+    'zhao': 'Agent_Zhao_Portrait.webp'
   };
 
   function imgBig(gameKey, slug) {
@@ -2286,10 +2294,10 @@
 
   /* ZZZ (galería): todas las cards se recortan igual -> mismo tamaño de cabeza/torso sin importar el tamaño original de la imagen */
   window.normCard = function (img) {
-    if (img.dataset.norm) return;
+    if (img.dataset.norm) { img.removeAttribute('data-pend'); return; }
     img.dataset.norm = '1';
     try {
-      const w = img.naturalWidth, h = img.naturalHeight; if (!w || !h) return;
+      const w = img.naturalWidth, h = img.naturalHeight; if (!w || !h) { img.removeAttribute('data-pend'); return; }
       const k = Math.min(1, 500 / Math.max(w, h));
       const cw = Math.max(1, Math.round(w * k)), ch = Math.max(1, Math.round(h * k));
       const c = document.createElement('canvas'); c.width = cw; c.height = ch;
@@ -2297,15 +2305,15 @@
       const d = cx.getImageData(0, 0, cw, ch).data;
       let y0 = ch, y1 = -1;
       for (let y = 0; y < ch; y++) for (let x = 0; x < cw; x++) if (d[(y * cw + x) * 4 + 3] > 24) { if (y < y0) y0 = y; if (y > y1) y1 = y; }
-      if (y1 < 0) return;
+      if (y1 < 0) { img.removeAttribute('data-pend'); return; }
       const H = y1 - y0 + 1, S = Math.round(H * 0.5);              // cuadro = mitad superior del personaje
       let sA = 0, sX = 0;
       for (let y = y0; y < Math.min(ch, y0 + S); y++) for (let x = 0; x < cw; x++) { const a = d[(y * cw + x) * 4 + 3]; if (a > 24) { sA += a; sX += a * x; } }
       const mx = sA ? sX / sA : cw / 2;
       const o = document.createElement('canvas'); o.width = o.height = 320;
       o.getContext('2d').drawImage(c, mx - S / 2, y0 - S * 0.04, S, S, 0, 0, 320, 320);
-      o.toBlob(b => { if (b) img.src = URL.createObjectURL(b); }, 'image/webp', .9);
-    } catch (e) { /* imagen no accesible (p. ej. abierta como archivo local): se deja como está */ }
+      o.toBlob(b => { if (b) img.src = URL.createObjectURL(b); else img.removeAttribute('data-pend'); }, 'image/webp', .9);
+    } catch (e) { img.removeAttribute('data-pend'); /* imagen no accesible (p. ej. abierta como archivo local): se deja como está */ }
   };
 
   function renderGrid() {
@@ -2314,10 +2322,11 @@
       .filter(c => norm(c[1]).includes(q) || norm(c[0]).includes(q))
       .map(([slug, name, role]) => `
         <a class="card" href="#${slug}">
-          <img src="${img(currentGame, slug)}" alt="${name}" loading="lazy"${currentGame === 'zzz' ? ' onload="normCard(this)"' : ''}>
+          <img src="${img(currentGame, slug)}" alt="${name}" loading="lazy"${currentGame === 'zzz' ? ' data-pend="1" onload="normCard(this)" onerror="this.removeAttribute(\'data-pend\')"' : ''}>
           <span>${name}${role ? `<small>${role}</small>` : ''}${zzzMini(currentGame, slug)}${hsrMini(currentGame, slug)}${wuwaMini(currentGame, slug)}</span>
         </a>`).join('');
     $('grid').innerHTML = list;
+    setTimeout(() => document.querySelectorAll('.card > img[data-pend]').forEach(i => i.removeAttribute('data-pend')), 6000);  /* seguro: nunca dejar fotos ocultas */
     $('empty').hidden = list !== '';
   }
 
@@ -2344,7 +2353,7 @@
           <div class="hsr-grid">
             <aside class="hsr-id${DETAIL_FILES[game] && DETAIL_FILES[game][slug] ? ' free' : ''}${isZzz ? ' zzz-fullbody' : ''}${/^rover/.test(slug) ? ' rover-art' : ''}" data-slug="${slug}">
               <div class="portrait-stage">
-                <img class="portrait" src="${imgBig(game, slug)}" alt="${c[1]}" onload="${game === 'zzz' ? "this.classList.add('ready');initZzzArt(this)" : 'trimArt(this)'}"${game === 'zzz' ? ` onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src='./${slug}_card.webp'}"` : ''}>
+                <img class="portrait" src="${imgBig(game, slug)}" alt="${c[1]}" onload="trimArt(this)"${game === 'zzz' ? ` onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src='./${slug}_card.webp'}"` : ''}>
                 ${el ? `<img class="el-badge" src="${elIcon(el)}" alt="${EL_LABEL[el]}" onerror="this.remove()">` : isWw ? `<img class="el-badge" src="./element_${wb.el}.webp" alt="${WUWA_LABEL[wb.el]}" title="${WUWA_LABEL[wb.el]}" onerror="this.remove()">` : zi ? `<img class="el-badge" src="${zzzElIcon(zi[0])}" alt="${zzzElName(slug)}" title="${zzzElName(slug)}" onerror="this.remove()">` : ''}${pa ? `<img class="path-badge" src="${pathIcon(pa)}" alt="${PATH_LABEL[pa]}" title="${PATH_LABEL[pa]}" onerror="this.remove()">` : zi ? `<img class="path-badge" src="${zzzSpecIcon(zi[1])}" alt="${ZZZ_SPEC_LABEL[zi[1]]}" title="${ZZZ_SPEC_LABEL[zi[1]]}" onerror="this.remove()">` : ''}
               </div>
               <h1>${c[1]}</h1>
