@@ -2042,16 +2042,16 @@
      Se guarda como texto "x,y,zoom" en /api/dupes?g=wuwa&c=<slug>-pos (mismo sistema y clave que los dupes);
      si el servidor no lo acepta, queda solo en este navegador.
      ============================================================ */
-  const ART_API = slug => '/api/dupes?g=wuwa&c=' + encodeURIComponent(slug + '-pos');
-  const artLocal = slug => 'artpos:' + slug;
+  const ART_API = (slug, game = 'wuwa') => '/api/dupes?g=' + encodeURIComponent(game) + '&c=' + encodeURIComponent(slug + '-pos');
+  const artLocal = (slug, game = 'wuwa') => 'artpos:' + game + ':' + slug;
   const artParse = t => { const a = String(t || '').split(',').map(Number); return a.length === 3 && a.every(Number.isFinite) && a[2] > 0 ? { x: a[0], y: a[1], s: a[2] } : null; };
   const artFmt = p => [p.x, p.y, p.s].map(v => Math.round(v * 100) / 100).join(',');
-  window.getArtPos = function (slug) {
+  window.getArtPos = function (slug, game = 'wuwa') {
     let local = null;
-    try { local = artParse(localStorage.getItem(artLocal(slug))); } catch (e) {}
+    try { local = artParse(localStorage.getItem(artLocal(slug, game))); } catch (e) {}
     const srv = new Promise(res => {
       const ac = new AbortController(), t = setTimeout(() => { ac.abort(); res(null); }, 1500);
-      fetch(ART_API(slug), { cache: 'no-store', signal: ac.signal })
+      fetch(ART_API(slug, game), { cache: 'no-store', signal: ac.signal })
         .then(r => r.ok ? r.json() : null)
         .then(d => { clearTimeout(t); res(d && typeof d.text === 'string' ? artParse(d.text) : null); })
         .catch(() => { clearTimeout(t); res(null); });
@@ -2072,6 +2072,7 @@
     const stage = img.closest('.portrait-stage');
     if (!stage) return;
     const slug = aside.dataset.slug;
+    const game = aside.closest('[data-el="zzz"]') ? 'zzz' : 'wuwa';
     stage.classList.add('art-edit');
     img.draggable = false;
     const bar = document.createElement('div');
@@ -2094,7 +2095,7 @@
     function save(retry) {
       const key = getKey(retry);
       if (!key) { toast('Sin clave: solo guardado en este navegador'); return; }
-      fetch(ART_API(slug), {
+      fetch(ART_API(slug, game), {
         method: 'PUT',
         headers: { 'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: cur ? artFmt(cur) : '' })
@@ -2104,7 +2105,7 @@
       }).catch(() => toast('Guardado solo en este navegador'));
     }
     function persist() {
-      try { cur ? localStorage.setItem(artLocal(slug), artFmt(cur)) : localStorage.removeItem(artLocal(slug)); } catch (e) {}
+      try { cur ? localStorage.setItem(artLocal(slug, game), artFmt(cur)) : localStorage.removeItem(artLocal(slug, game)); } catch (e) {}
       clearTimeout(timer); timer = setTimeout(() => save(false), 700);
     }
     const set = () => { aside._pos = { ...cur }; window.applyArtPos(aside, img); persist(); };
@@ -2147,6 +2148,19 @@
     img.style.setProperty('--fx', (p * 100).toFixed(1) + '%');
   };
   window.addEventListener('resize', () => document.querySelectorAll('aside.trimmed .portrait').forEach(window.focusArt));
+
+  /* ZZZ: conservar Portrait.webp completo y habilitar el mismo ajuste de WuWa */
+  window.initZzzArt = function (img) {
+    const aside = img.closest('aside.hsr-id');
+    if (!aside) return;
+    const slug = aside.dataset.slug;
+    window.getArtPos(slug, 'zzz').then(p => {
+      if (!document.body.contains(aside)) return;
+      if (!aside._artSet) { aside._artSet = true; aside._pos = p; }
+      window.applyArtPos(aside, img);
+      if (EDIT && !aside._artEdit) { aside._artEdit = true; window.initArtEdit(aside, img); }
+    });
+  };
 
   /* Recorta el espacio transparente de la card3 para que el personaje quede grande y centrado en la columna */
   window.trimArt = function (img) {
@@ -2330,7 +2344,7 @@
           <div class="hsr-grid">
             <aside class="hsr-id${DETAIL_FILES[game] && DETAIL_FILES[game][slug] ? ' free' : ''}${isZzz ? ' zzz-fullbody' : ''}${/^rover/.test(slug) ? ' rover-art' : ''}" data-slug="${slug}">
               <div class="portrait-stage">
-                <img class="portrait" src="${imgBig(game, slug)}" alt="${c[1]}" onload="${game === 'zzz' ? "this.classList.add('ready')" : 'trimArt(this)'}"${game === 'zzz' ? ` onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src='./${slug}_card.webp'}"` : ''}>
+                <img class="portrait" src="${imgBig(game, slug)}" alt="${c[1]}" onload="${game === 'zzz' ? "this.classList.add('ready');initZzzArt(this)" : 'trimArt(this)'}"${game === 'zzz' ? ` onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src='./${slug}_card.webp'}"` : ''}>
                 ${el ? `<img class="el-badge" src="${elIcon(el)}" alt="${EL_LABEL[el]}" onerror="this.remove()">` : isWw ? `<img class="el-badge" src="./element_${wb.el}.webp" alt="${WUWA_LABEL[wb.el]}" title="${WUWA_LABEL[wb.el]}" onerror="this.remove()">` : zi ? `<img class="el-badge" src="${zzzElIcon(zi[0])}" alt="${zzzElName(slug)}" title="${zzzElName(slug)}" onerror="this.remove()">` : ''}${pa ? `<img class="path-badge" src="${pathIcon(pa)}" alt="${PATH_LABEL[pa]}" title="${PATH_LABEL[pa]}" onerror="this.remove()">` : zi ? `<img class="path-badge" src="${zzzSpecIcon(zi[1])}" alt="${ZZZ_SPEC_LABEL[zi[1]]}" title="${ZZZ_SPEC_LABEL[zi[1]]}" onerror="this.remove()">` : ''}
               </div>
               <h1>${c[1]}</h1>
