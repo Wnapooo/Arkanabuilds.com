@@ -310,59 +310,59 @@
   .portrait-stage { aspect-ratio: auto; }
   .portrait-stage .portrait { display: block; height: auto; aspect-ratio: auto; object-fit: contain; }
   /* WuWa: imagen libre (sin cuadro), alta, de arriba a abajo del bloque de paneles */
-  div[data-el="wuwa"] aside.hsr-id.free { position: relative; }
-  div[data-el="wuwa"] aside.hsr-id.free .portrait-stage { background: none; border: 0; box-shadow: none; border-radius: 0; overflow: visible; isolation: auto; margin: 0 0 14px; }
-  div[data-el="wuwa"] aside.hsr-id.free .portrait-stage::before { display: none; }
-  div[data-el="wuwa"] aside.hsr-id.free .portrait-stage .portrait { width: 100%; height: auto; filter: drop-shadow(0 10px 26px rgba(0,0,0,.55)); }
-  div[data-el="wuwa"] .hsr-grid .panel { position: relative; z-index: 1; }
+  :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free { position: relative; }
+  :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free .portrait-stage { background: none; border: 0; box-shadow: none; border-radius: 0; overflow: visible; isolation: auto; margin: 0 0 14px; }
+  :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free .portrait-stage::before { display: none; }
+  :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free .portrait-stage .portrait { width: 100%; height: auto; filter: drop-shadow(0 10px 26px rgba(0,0,0,.55)); }
+  :is(div[data-el="wuwa"], div[data-el="zzz"]) .hsr-grid .panel { position: relative; z-index: 1; }
   @media (min-width: 1101px) {
-    div[data-el="wuwa"] .hsr-grid:has(> aside.free) { grid-template-columns: 280px minmax(0, 1fr) 340px; }
+    :is(div[data-el="wuwa"], div[data-el="zzz"]) .hsr-grid:has(> aside.free) { grid-template-columns: 280px minmax(0, 1fr) 340px; }
     /* la columna ocupa todo el alto y llega hasta el borde izquierdo de la pantalla */
-    div[data-el="wuwa"] aside.hsr-id.free { align-self: stretch; display: flex; flex-direction: column; margin-left: calc(-1 * (max(0px, (100vw - 1840px) / 2) + 28px)); }
-    div[data-el="wuwa"] aside.hsr-id.free .portrait-stage { flex: 1; min-height: 560px; margin: 0; position: relative; }
-    div[data-el="wuwa"] aside.hsr-id.free .portrait-stage .portrait { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; object-fit: contain; object-position: center bottom; }
+    :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free { align-self: stretch; display: flex; flex-direction: column; margin-left: calc(-1 * (max(0px, (100vw - 1840px) / 2) + 28px)); }
+    :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free .portrait-stage { flex: 1; min-height: 560px; margin: 0; position: relative; }
+    :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free .portrait-stage .portrait { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; object-fit: contain; object-position: center bottom; }
     /* el nombre va abajo a la izquierda, sobre la imagen */
-    div[data-el="wuwa"] aside.hsr-id.free h1 { position: absolute; left: 28px; bottom: 96px; margin: 0; z-index: 3; font-size: 34px; }
-    div[data-el="wuwa"] aside.hsr-id.free .el-tag { position: absolute; left: 28px; bottom: 64px; z-index: 3; }
+    :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free h1 { position: absolute; left: 28px; bottom: 96px; margin: 0; z-index: 3; font-size: 34px; }
+    :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free .el-tag { position: absolute; left: 28px; bottom: 64px; z-index: 3; }
   }
   @media (min-width: 1500px) {
-    div[data-el="wuwa"] .hsr-grid:has(> aside.free) { grid-template-columns: clamp(300px, 20vw, 400px) minmax(0, 1fr) 340px; }
-    div[data-el="wuwa"] aside.hsr-id.free .portrait-stage .portrait { object-fit: cover; object-position: center top; }
+    :is(div[data-el="wuwa"], div[data-el="zzz"]) .hsr-grid:has(> aside.free) { grid-template-columns: clamp(300px, 20vw, 400px) minmax(0, 1fr) 340px; }
+    :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free .portrait-stage .portrait { object-fit: cover; object-position: center top; }
   }
   /* la imagen espera a estar recortada y centrada antes de mostrarse (evita el salto al recargar) */
-  div[data-el="wuwa"] aside.hsr-id.free .portrait-stage .portrait { opacity: 0; transition: opacity .25s ease; }
-  div[data-el="wuwa"] aside.hsr-id.free .portrait-stage .portrait.ready { opacity: 1; }
+  :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free .portrait-stage .portrait { opacity: 0; transition: opacity .25s ease; }
+  :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free .portrait-stage .portrait.ready { opacity: 1; }
   /* posición personalizada (guardada con ?edit): la imagen se ve entera y se mueve/escala con transform */
   @media (min-width: 1101px) {
-    div[data-el="wuwa"] aside.hsr-id.free.custom .portrait-stage img.portrait { object-fit: contain !important; object-position: center center !important; transform: translate(var(--tx, 0%), var(--ty, 0%)) scale(var(--ts, 1)); transform-origin: center center; }
-    div[data-el="wuwa"] aside.hsr-id.free .portrait-stage.art-edit { cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
-    div[data-el="wuwa"] aside.hsr-id.free .portrait-stage.art-edit.dragging { cursor: grabbing; }
+    :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free.custom .portrait-stage img.portrait { object-fit: contain !important; object-position: center center !important; transform: translate(var(--tx, 0%), var(--ty, 0%)) scale(var(--ts, 1)); transform-origin: center center; }
+    :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free .portrait-stage.art-edit { cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
+    :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free .portrait-stage.art-edit.dragging { cursor: grabbing; }
     .art-bar { position: absolute; top: 10px; right: 10px; z-index: 6; max-width: calc(100% - 64px); display: flex; align-items: center; gap: 8px; padding: 4px 4px 4px 12px; border-radius: 999px; font-size: 11px; line-height: 1.3; color: #fff; background: rgba(8,9,14,.78); border: 1px solid var(--e2); cursor: default; }
     .art-bar button { flex: none; border: 0; border-radius: 999px; padding: 5px 10px; font: inherit; font-weight: 600; color: #fff; background: var(--e2); cursor: pointer; }
   }
   @media (max-width: 1100px) { .art-bar { display: none; } }
   /* WuWa (escritorio): el botón "← Todos los personajes" sube junto a la barra superior, sin mover el resto del diseño */
-  @media (min-width: 1101px) { div[data-el="wuwa"] > a.back { position: relative; top: -70px; z-index: 5; } }
+  @media (min-width: 1101px) { :is(div[data-el="wuwa"], div[data-el="zzz"]) > a.back { position: relative; top: -70px; z-index: 5; } }
   /* panel de build: oculto hasta que todo esté cargado, luego aparece con un fundido */
   #build-body { transition: opacity .35s ease; }
   #build-body.bd-hold { opacity: 0; }
   /* Rover (dos figuras): se ve entero y el nombre va arriba */
   @media (min-width: 1101px) {
-    div[data-el="wuwa"] aside.hsr-id.free.wide-art.rover-art .portrait-stage .portrait { object-fit: contain; object-position: center bottom; }
-    div[data-el="wuwa"] aside.hsr-id.free.wide-art.rover-art h1 { top: 24px; bottom: auto; }
-    div[data-el="wuwa"] aside.hsr-id.free.wide-art.rover-art .el-tag { top: 74px; bottom: auto; }
+    :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free.wide-art.rover-art .portrait-stage .portrait { object-fit: contain; object-position: center bottom; }
+    :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free.wide-art.rover-art h1 { top: 24px; bottom: auto; }
+    :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free.wide-art.rover-art .el-tag { top: 74px; bottom: auto; }
   }
   /* card3 recortada: el personaje llena la columna de arriba a abajo, centrado, como Augusta */
   @media (min-width: 1101px) {
-    div[data-el="wuwa"] aside.hsr-id.free.trimmed .portrait-stage .portrait { object-fit: cover; object-position: var(--fx, 50%) top; }
-    div[data-el="wuwa"] aside.hsr-id.free.trimmed h1 { top: auto; bottom: 96px; }
-    div[data-el="wuwa"] aside.hsr-id.free.trimmed .el-tag { top: auto; bottom: 64px; }
+    :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free.trimmed .portrait-stage .portrait { object-fit: cover; object-position: var(--fx, 50%) top; }
+    :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free.trimmed h1 { top: auto; bottom: 96px; }
+    :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free.trimmed .el-tag { top: auto; bottom: 64px; }
   }
   /* Resto de cards3 anchas (p. ej. Jiyan): figura entera, centrada en la columna y nombre abajo como en las altas */
   @media (min-width: 1101px) {
-    div[data-el="wuwa"] aside.hsr-id.free.wide-art:not(.rover-art) .portrait-stage .portrait { object-fit: contain; object-position: center center; }
-    div[data-el="wuwa"] aside.hsr-id.free.wide-art:not(.rover-art) h1 { top: auto; bottom: 96px; }
-    div[data-el="wuwa"] aside.hsr-id.free.wide-art:not(.rover-art) .el-tag { top: auto; bottom: 64px; }
+    :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free.wide-art:not(.rover-art) .portrait-stage .portrait { object-fit: contain; object-position: center center; }
+    :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free.wide-art:not(.rover-art) h1 { top: auto; bottom: 96px; }
+    :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free.wide-art:not(.rover-art) .el-tag { top: auto; bottom: 64px; }
   }
 
 
@@ -740,8 +740,8 @@
         // Crit DPS
         ['claret','Claret','Crit DPS'], ['sigrid','Sigrid','Crit DPS'], ['ye-shunguang','Ye Shunguang','Crit DPS'],
         ['banyue','Banyu','Crit DPS'], ['billy-starlight','Billy Starlight','Crit DPS'], ['cissia','Cissia','Crit DPS'],
-        ['pyrois','Pyloris','Crit DPS'], ['seed','Seed','Crit DPS'], ['yidhari','Yidhari','Crit DPS'], ['yixuan','Yixuan','Crit DPS'],
-        ['anby-demara-soldier-0','Anby Demara','Crit DPS'], ['evelyn','Evelyn','Crit DPS'], ['harumasa','Harumasa','Crit DPS'],
+        ['pyrois','Pyrois','Crit DPS'], ['seed','Seed','Crit DPS'], ['yidhari','Yidhari','Crit DPS'], ['yixuan','Yixuan','Crit DPS'],
+        ['anby-demara-soldier-0','Soldier 0','Crit DPS'], ['evelyn','Evelyn','Crit DPS'], ['harumasa','Harumasa','Crit DPS'],
         ['nekomata','Nekomata','Crit DPS'], ['orphie-and-magus','Orphie and Magus','Crit DPS'], ['soldier-11','Soldier 11','Crit DPS'],
         ['ellen','Ellen','Crit DPS'], ['hugo','Hugo','Crit DPS'], ['manato','Manato','Crit DPS'], ['zhu-yuan','Zhu Yuan','Crit DPS'],
         // Anomaly DPS
@@ -2181,6 +2181,9 @@
 
   /* Imagen grande que se ve SOLO dentro de la build (la galería sigue usando la de "files") */
   const DETAIL_FILES = { wuwa: { 'aug': 'aug_card3.webp', 'buling': 'buling_card3.webp', 'brant': 'card_brant3.webp', 'camellya': 'card_cam3.webp', 'canta': 'card_canta3.webp', 'carlotta': 'card_carlotta3.webp', 'changli': 'card_changli3.webp', 'keeper': 'card_keeper3.webp', 'phoebe': 'card_phoebe3.webp', 'roccia': 'card_roccia3.webp', 'xiangli-yao': 'card_xiang3.webp', 'zani': 'card_zani3.webp', 'zhezhi': 'card_zhe3.webp', 'cart': 'cart_card3.webp', 'chisa': 'chisa_card3.webp', 'cia': 'cia_card3.webp', 'denia': 'denia_card3.webp', 'encore': 'encore_card3.webp', 'gal': 'gal_card3.webp', 'hiyuki': 'hiyuki_card3.webp', 'hsin': 'hsin_card3.webp', 'iuno': 'iuno_card3.webp', 'jianxin': 'jiaxin_card3.webp', 'jihni': 'jihni_card3.webp', 'jingran': 'jingran_card3.webp', 'jiyan': 'jiyan_card3.webp', 'calcharo': 'kakarot_card3.webp', 'lingyang': 'ling_card3.webp', 'lucilla': 'Lucilla_card3.webp', 'lucy': 'lucy_card3.webp', 'lupa': 'lupa_card3.webp', 'luuk-herssen': 'Luuk Herssen_card3.webp', 'lynae': 'Lynae_card3.webp', 'math': 'math_card3.webp', 'mornye': 'Mornye_card3.webp', 'mortefi': 'mortefi_card3.webp', 'phr': 'phr_card3.webp', 'qingxiao': 'qingxiao_card3.webp', 'qiu': 'qiu_card3.webp', 'rebecca': 'rebecca_card3.webp', 'senhua': 'senhua_card3.webp', 'sigrika': 'Sigrika_card3.webp', 'suisui': 'suisui_card3.webp', 'suoming': 'suoming_card3.webp', 'verina': 'verina_card3.webp', 'yangyang-xuanling': 'yangyang-xuanling_card3.webp', 'yinlin': 'yinglin_card3.webp', 'rover-aero': 'Rover_3.webp', 'rover-electro': 'Rover_3.webp', 'rover-spectro': 'Rover_3.webp', 'rover-havoc': 'Rover_3.webp' } };
+  /* ZZZ: la build usa la misma imagen <slug>_card.webp, con el mismo diseño libre y recorte automático que WuWa */
+  DETAIL_FILES.zzz = Object.fromEntries(GAMES.zzz.chars.map(c => [c[0], c[0] + '_card.webp']));
+
   function imgBig(gameKey, slug) {
     const f = DETAIL_FILES[gameKey] && DETAIL_FILES[gameKey][slug];
     return f ? './' + encodeURI(f) : img(gameKey, slug);
@@ -2204,13 +2207,37 @@
     });
   }
 
+  /* ZZZ (galería): todas las cards se recortan igual -> mismo tamaño de cabeza/torso sin importar el tamaño original de la imagen */
+  window.normCard = function (img) {
+    if (img.dataset.norm) return;
+    img.dataset.norm = '1';
+    try {
+      const w = img.naturalWidth, h = img.naturalHeight; if (!w || !h) return;
+      const k = Math.min(1, 500 / Math.max(w, h));
+      const cw = Math.max(1, Math.round(w * k)), ch = Math.max(1, Math.round(h * k));
+      const c = document.createElement('canvas'); c.width = cw; c.height = ch;
+      const cx = c.getContext('2d', { willReadFrequently: true }); cx.drawImage(img, 0, 0, cw, ch);
+      const d = cx.getImageData(0, 0, cw, ch).data;
+      let y0 = ch, y1 = -1;
+      for (let y = 0; y < ch; y++) for (let x = 0; x < cw; x++) if (d[(y * cw + x) * 4 + 3] > 24) { if (y < y0) y0 = y; if (y > y1) y1 = y; }
+      if (y1 < 0) return;
+      const H = y1 - y0 + 1, S = Math.round(H * 0.5);              // cuadro = mitad superior del personaje
+      let sA = 0, sX = 0;
+      for (let y = y0; y < Math.min(ch, y0 + S); y++) for (let x = 0; x < cw; x++) { const a = d[(y * cw + x) * 4 + 3]; if (a > 24) { sA += a; sX += a * x; } }
+      const mx = sA ? sX / sA : cw / 2;
+      const o = document.createElement('canvas'); o.width = o.height = 320;
+      o.getContext('2d').drawImage(c, mx - S / 2, y0 - S * 0.04, S, S, 0, 0, 320, 320);
+      o.toBlob(b => { if (b) img.src = URL.createObjectURL(b); }, 'image/webp', .9);
+    } catch (e) { /* imagen no accesible (p. ej. abierta como archivo local): se deja como está */ }
+  };
+
   function renderGrid() {
     const q = norm($('search').value);
     const list = GAMES[currentGame].chars
       .filter(c => norm(c[1]).includes(q) || norm(c[0]).includes(q))
       .map(([slug, name, role]) => `
         <a class="card" href="#${slug}">
-          <img src="${img(currentGame, slug)}" alt="${name}" loading="lazy">
+          <img src="${img(currentGame, slug)}" alt="${name}" loading="lazy"${currentGame === 'zzz' ? ' onload="normCard(this)"' : ''}>
           <span>${name}${role ? `<small>${role}</small>` : ''}${zzzMini(currentGame, slug)}${hsrMini(currentGame, slug)}${wuwaMini(currentGame, slug)}</span>
         </a>`).join('');
     $('grid').innerHTML = list;
