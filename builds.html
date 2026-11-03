@@ -341,6 +341,11 @@
     .art-bar button { flex: none; border: 0; border-radius: 999px; padding: 5px 10px; font: inherit; font-weight: 600; color: #fff; background: var(--e2); cursor: pointer; }
   }
   @media (max-width: 1100px) { .art-bar { display: none; } }
+  /* WuWa (escritorio): el botón "← Todos los personajes" sube junto a la barra superior, sin mover el resto del diseño */
+  @media (min-width: 1101px) { div[data-el="wuwa"] > a.back { position: relative; top: -70px; z-index: 5; } }
+  /* panel de build: oculto hasta que todo esté cargado, luego aparece con un fundido */
+  #build-body { transition: opacity .35s ease; }
+  #build-body.bd-hold { opacity: 0; }
   /* Rover (dos figuras): se ve entero y el nombre va arriba */
   @media (min-width: 1101px) {
     div[data-el="wuwa"] aside.hsr-id.free.wide-art.rover-art .portrait-stage .portrait { object-fit: contain; object-position: center bottom; }
@@ -1754,12 +1759,27 @@
       clearTimeout(timer); timer = setTimeout(() => doSave(false), 800);
     }
     build();
-    if (W) loadWuwa().then(() => rows());
+    /* Al recargar (F5) el panel espera a tener datos, catálogo e imágenes listos y recién entonces aparece (sin íconos vacíos) */
+    let holdGate = null;
+    if (!EDIT) {
+      body.classList.add('bd-hold');
+      let tm = null, shown = false, pend = W ? 2 : 1;
+      const imgsDone = () => Array.prototype.every.call(body.querySelectorAll('img'), im => im.complete);
+      const reveal = () => { if (shown) return; shown = true; clearTimeout(tm); clearTimeout(cap); mo.disconnect(); body.classList.remove('bd-hold'); };
+      const check = () => { if (pend > 0 || shown) return; clearTimeout(tm); tm = setTimeout(() => { if (imgsDone()) reveal(); else check(); }, 450); };
+      const mo = new MutationObserver(check);
+      mo.observe(body, { childList: true, subtree: true });
+      body.addEventListener('load', check, true);
+      body.addEventListener('error', check, true);
+      const cap = setTimeout(reveal, 5000);   // seguridad: nunca dejar el panel oculto
+      holdGate = () => { pend--; check(); };
+    }
+    if (W) loadWuwa().then(() => rows()).catch(() => {}).then(() => holdGate && holdGate());
     fetch(api, { cache: 'no-store' }).then(r => r.ok ? r.json() : Promise.reject()).then(d => {
       if (dirty) return; /* ya editaste algo: la respuesta del servidor llega tarde y no debe pisarlo */
       const sv = fix(d);
       if (has(sv)) { b = sv; build(); } /* si el servidor responde vacío, se conserva la copia local en vez de borrarla */
-    }).catch(() => {});
+    }).catch(() => {}).then(() => holdGate && holdGate());
     if (!EDIT) return;
 
     body.addEventListener('input', e => {
