@@ -754,7 +754,6 @@
     zzz: {
       label: 'Zenless Zone Zero',
       suffix: '_card.webp',
-      files: { 'kafka-zzz': 'Agent_Kafka_Portrait.webp', 'robin-zzz': 'Agent_Robin_Portrait3.webp' },
       chars: [
         // Crit DPS
         ['claret','Claret','Crit DPS'], ['sigrid','Sigrid','Crit DPS'], ['ye-shunguang','Ye Shunguang','Crit DPS'],
@@ -2330,13 +2329,17 @@
   };
 
 
+  /* Ajuste opcional del encuadre de una tarjeta de ZZZ (object-position), p. ej.: ZZZ_CARD_POS['zhao'] = '50% 30%' */
+  const ZZZ_CARD_POS = {};
+  /* Tarjetas que se centran solas en la cabeza (normCard); el número es cuánto del personaje entra en el cuadro (0.75 = cabeza y torso) */
+  const ZZZ_CARD_AUTO = { 'zhao': 0.75 };
   function renderGrid() {
     const q = norm($('search').value);
     const list = GAMES[currentGame].chars
       .filter(c => norm(c[1]).includes(q) || norm(c[0]).includes(q))
       .map(([slug, name, role]) => `
         <a class="card" href="#${slug}">
-          <img src="${img(currentGame, slug)}" alt="${name}" loading="lazy"${currentGame === 'zzz' ? ` data-pend="1" data-nf="${GAMES.zzz.files && GAMES.zzz.files[slug] ? '0.38' : '0.6'}" onload="normCard(this)" onerror="this.removeAttribute('data-pend')"` : ''}>
+          <img src="${img(currentGame, slug)}" alt="${name}" loading="lazy"${currentGame === 'zzz' ? ` data-alt="${esc(imgBig('zzz', slug))}"${ZZZ_CARD_AUTO[slug] ? ` data-nf="${ZZZ_CARD_AUTO[slug]}" data-pend="1"` : ''}${ZZZ_CARD_POS[slug] ? ` style="object-position:${ZZZ_CARD_POS[slug]}"` : ''} onload="if(this.dataset.nf)normCard(this)" onerror="if(!this.dataset.fb&&this.dataset.alt){this.dataset.fb=1;this.dataset.nf='0.38';this.setAttribute('data-pend','1');this.src=this.dataset.alt}else{this.removeAttribute('data-pend')}"` : ''}>
           <span>${name}${role ? `<small>${role}</small>` : ''}${zzzMini(currentGame, slug)}${hsrMini(currentGame, slug)}${wuwaMini(currentGame, slug)}</span>
         </a>`).join('');
     $('grid').innerHTML = list;
