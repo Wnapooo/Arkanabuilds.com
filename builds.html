@@ -337,7 +337,7 @@
   }
   /* card3 recortada: el personaje llena la columna de arriba a abajo, centrado, como Augusta */
   @media (min-width: 1101px) {
-    div[data-el="wuwa"] aside.hsr-id.free.trimmed .portrait-stage .portrait { object-fit: cover; object-position: center top; }
+    div[data-el="wuwa"] aside.hsr-id.free.trimmed .portrait-stage .portrait { object-fit: cover; object-position: var(--fx, 50%) top; }
     div[data-el="wuwa"] aside.hsr-id.free.trimmed h1 { top: auto; bottom: 96px; }
     div[data-el="wuwa"] aside.hsr-id.free.trimmed .el-tag { top: auto; bottom: 64px; }
   }
@@ -1989,6 +1989,18 @@
     return null;
   }
 
+  /* Desplaza horizontalmente la imagen recortada para que el centro de masa del personaje quede en el centro de la columna */
+  window.focusArt = function (img) {
+    const cxf = parseFloat(img.dataset.cx), iw = +img.dataset.sw, ih = +img.dataset.sh;
+    const cw = img.clientWidth, ch = img.clientHeight;
+    if (!(cxf >= 0) || !iw || !ih || !cw || !ch) return;
+    const sw = iw * Math.max(cw / iw, ch / ih);
+    if (sw <= cw + 1) { img.style.removeProperty('--fx'); return; }
+    const p = Math.min(1, Math.max(0, (cw / 2 - cxf * sw) / (cw - sw)));
+    img.style.setProperty('--fx', (p * 100).toFixed(1) + '%');
+  };
+  window.addEventListener('resize', () => document.querySelectorAll('aside.trimmed .portrait').forEach(window.focusArt));
+
   /* Recorta el espacio transparente de la card3 para que el personaje quede grande y centrado en la columna */
   window.trimArt = function (img) {
     const aside = img.closest('aside');
@@ -2003,9 +2015,9 @@
       const c = document.createElement('canvas'); c.width = cw; c.height = ch;
       const cx = c.getContext('2d'); cx.drawImage(img, 0, 0, cw, ch);
       const d = cx.getImageData(0, 0, cw, ch).data;
-      let x0 = cw, y0 = ch, x1 = -1, y1 = -1;
+      let x0 = cw, y0 = ch, x1 = -1, y1 = -1; let sumA = 0, sumX = 0;
       for (let y = 0; y < ch; y++) for (let x = 0; x < cw; x++) {
-        if (d[(y * cw + x) * 4 + 3] > 24) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+        const al = d[(y * cw + x) * 4 + 3]; if (al > 24) { sumA += al; sumX += al * x; if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
       }
       if (x1 < 0) return;
       const pad = 3;
@@ -2016,9 +2028,12 @@
       o.getContext('2d').drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
       o.toBlob(b => {
         if (!b) return;
+        img.dataset.sw = sw; img.dataset.sh = sh;
+        img.dataset.cx = Math.min(1, Math.max(0, ((sumX / sumA) / k - sx) / sw));
         img.src = URL.createObjectURL(b);
         aside.classList.remove('wide-art');
         aside.classList.add('trimmed');
+        requestAnimationFrame(() => window.focusArt(img));
       }, 'image/webp', .92);
     } catch (e) { /* imagen no accesible (p. ej. abierta como archivo local): se deja como está */ }
   };
