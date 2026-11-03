@@ -309,6 +309,24 @@
   /* Muestra la imagen del personaje completa (hasta las piernas), sin recortarla a un cuadrado */
   .portrait-stage { aspect-ratio: auto; }
   .portrait-stage .portrait { display: block; height: auto; aspect-ratio: auto; object-fit: contain; }
+  /* WuWa: imagen libre (sin cuadro ni fondo), grande y llegando hasta abajo */
+  div[data-el="wuwa"] aside.hsr-id { position: relative; }
+  div[data-el="wuwa"] aside.hsr-id .portrait-stage { background: none; border: 0; box-shadow: none; border-radius: 0; overflow: visible; isolation: auto; margin: 0 0 14px; }
+  div[data-el="wuwa"] aside.hsr-id .portrait-stage::before { display: none; }
+  div[data-el="wuwa"] aside.hsr-id .portrait-stage .portrait { width: 100%; height: auto; filter: drop-shadow(0 10px 26px rgba(0,0,0,.55)); }
+  div[data-el="wuwa"] .hsr-grid .panel { position: relative; z-index: 1; }
+  @media (min-width: 1101px) {
+    /* columna del personaje más ancha: la imagen crece con ella y se apoya abajo, a la altura del final de los paneles */
+    div[data-el="wuwa"] .hsr-grid { grid-template-columns: 280px minmax(0, 1fr) 340px; }
+    div[data-el="wuwa"] aside.hsr-id { align-self: stretch; display: flex; flex-direction: column; justify-content: flex-end; margin-left: -28px; }
+    div[data-el="wuwa"] aside.hsr-id .portrait-stage { margin: 0; }
+    /* el nombre va abajo a la izquierda, sobre la esquina vacía de la imagen */
+    div[data-el="wuwa"] aside.hsr-id h1 { position: absolute; left: 28px; bottom: 44px; margin: 0; z-index: 3; }
+    div[data-el="wuwa"] aside.hsr-id .el-tag { position: absolute; left: 28px; bottom: 12px; z-index: 3; }
+  }
+  @media (min-width: 1500px) {
+    div[data-el="wuwa"] .hsr-grid { grid-template-columns: clamp(300px, 24vw, 460px) minmax(0, 1fr) 340px; }
+  }
 
 
   .el-badge {
