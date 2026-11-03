@@ -358,13 +358,18 @@ body.editing a.char-icon { -webkit-touch-callout: none; -webkit-user-select: non
   var KEYSTORE = 'tierlist-admin-key';
   var SAFE = /^\.\/[\w\-.\/#]+$/;
   var SAFE_SRC = /^(\.\/[\w\-.\/#]+|https:\/\/cdn\.prydwen\.gg\/images\/ww\/characters\/[\w\-.]+)$/;
+  var CDN = 'https://cdn.prydwen.gg/images/ww/characters/';
+  /* El servidor solo acepta rutas locales (./...): los iconos del CDN se guardan como ./prydwen/<archivo> y se convierten al cargar */
+  function enc(s) { return s.indexOf(CDN) === 0 ? './prydwen/' + s.slice(CDN.length) : s; }
+  function dec(s) { return s.indexOf('./prydwen/') === 0 ? CDN + s.slice(10) : s; }
   var rows = Array.prototype.slice.call(document.querySelectorAll('.icon-row'));
   var dragged = null, saveTimer = null;
 
   function serialize() {
     return rows.map(function (r) {
       return Array.prototype.map.call(r.querySelectorAll('a.char-icon'), function (a) {
-        return { h: a.getAttribute('href'), t: a.getAttribute('title') || '', s: a.querySelector('img').getAttribute('src') };
+        var img = a.querySelector('img');
+        return { h: a.getAttribute('href'), t: a.getAttribute('title') || '', s: enc(img ? img.getAttribute('src') : (a.getAttribute('data-src') || '')) };
       });
     });
   }
@@ -380,7 +385,7 @@ body.editing a.char-icon { -webkit-touch-callout: none; -webkit-user-select: non
     var a = document.createElement('a');
     a.className = 'char-icon'; a.href = it.h; a.title = it.t;
     var img = document.createElement('img');
-    img.referrerPolicy = 'no-referrer'; img.src = it.s; img.alt = it.t; img.loading = 'lazy'; img.draggable = false;
+    img.referrerPolicy = 'no-referrer'; img.src = dec(it.s); img.alt = it.t; img.loading = 'lazy'; img.draggable = false;
     a.appendChild(img);
     return a;
   }
@@ -460,7 +465,6 @@ body.editing a.char-icon { -webkit-touch-callout: none; -webkit-user-select: non
     row.insertBefore(dragged, ref);
   }
 
-  var CDN = 'https://cdn.prydwen.gg/images/ww/characters/';
   var CATALOG = [
     { t: 'Rover (Aero)', h: './builds.html#rover-aero', s: './rover_card.webp' },
     { t: 'Chixia', h: './builds.html#chixia', s: CDN + 'chixia_icon.webp' },
