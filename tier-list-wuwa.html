@@ -164,6 +164,8 @@ td.drop-active, .pool.drop-active { background: rgba(129,140,248,.06); }
   transition: border-color .15s ease, color .15s ease;
 }
 .toolbar button:hover { border-color: #818cf8; color: #fff; }
+.toolbar input { background: #1c1e27; color: #e5e7eb; border: 1px solid #2a2d38; border-radius: 8px; padding: 7px 10px; font-size: 13px; font-family: inherit; min-width: 180px; }
+.toolbar input:focus { outline: none; border-color: #818cf8; }
 #toast {
   position: fixed; bottom: 20px; right: 20px; background: #1e1b3a; color: #a5b4fc;
   border: 1px solid #3730a3; padding: 8px 14px; border-radius: 8px; font-size: 13px;
@@ -321,7 +323,7 @@ body.editing a.char-icon { -webkit-touch-callout: none; -webkit-user-select: non
   </table>
 
   <div class="divider"><span>SIN CLASIFICAR</span></div>
-  <div class="pool"><div class="icon-row"><a class="char-icon" href="./builds.html#lily" title="Lily"><img src="./lily_icon.png" alt="Lily" loading="lazy"></a><a class="char-icon" href="./builds.html#rover-aero" title="Rover (Aero)"><img src="./rover_card.webp" alt="Rover (Aero)" loading="lazy"></a><a class="char-icon" href="./builds.html#lingyang" title="Lingyang"><img src="https://cdn.prydwen.gg/images/ww/characters/ling_icon.webp" referrerpolicy="no-referrer" alt="Lingyang" loading="lazy" onerror="this.parentNode.setAttribute('data-src',this.getAttribute('src'));this.replaceWith(this.alt)"></a><a class="char-icon" href="./builds.html#encore" title="Encore"><img src="https://cdn.prydwen.gg/images/ww/characters/encore_icon.webp" referrerpolicy="no-referrer" alt="Encore" loading="lazy" onerror="this.parentNode.setAttribute('data-src',this.getAttribute('src'));this.replaceWith(this.alt)"></a><a class="char-icon" href="./builds.html#calcharo" title="Calcharo"><img src="https://cdn.prydwen.gg/images/ww/characters/kakarot_icon.webp" referrerpolicy="no-referrer" alt="Calcharo" loading="lazy" onerror="this.parentNode.setAttribute('data-src',this.getAttribute('src'));this.replaceWith(this.alt)"></a><a class="char-icon" href="./builds.html#jianxin" title="Jianxin"><img src="https://cdn.prydwen.gg/images/ww/characters/jiaxin_icon.webp" referrerpolicy="no-referrer" alt="Jianxin" loading="lazy" onerror="this.parentNode.setAttribute('data-src',this.getAttribute('src'));this.replaceWith(this.alt)"></a><a class="char-icon" href="./builds.html#jinhsi" title="Jinhsi"><img src="https://cdn.prydwen.gg/images/ww/characters/jihni_icon.webp" referrerpolicy="no-referrer" alt="Jinhsi" loading="lazy" onerror="this.parentNode.setAttribute('data-src',this.getAttribute('src'));this.replaceWith(this.alt)"></a><a class="char-icon" href="./builds.html#yinlin" title="Yinlin"><img src="https://cdn.prydwen.gg/images/ww/characters/yinglin_icon.webp" referrerpolicy="no-referrer" alt="Yinlin" loading="lazy" onerror="this.parentNode.setAttribute('data-src',this.getAttribute('src'));this.replaceWith(this.alt)"></a><a class="char-icon" href="./builds.html#xiangli-yao" title="Xiangli Yao"><img src="https://cdn.prydwen.gg/images/ww/characters/icon_xiang.webp" referrerpolicy="no-referrer" alt="Xiangli Yao" loading="lazy" onerror="this.parentNode.setAttribute('data-src',this.getAttribute('src'));this.replaceWith(this.alt)"></a><a class="char-icon" href="./builds.html#camellya" title="Camellya"><img src="https://cdn.prydwen.gg/images/ww/characters/icon_cam.webp" referrerpolicy="no-referrer" alt="Camellya" loading="lazy" onerror="this.parentNode.setAttribute('data-src',this.getAttribute('src'));this.replaceWith(this.alt)"></a><a class="char-icon" href="./builds.html#zhezhi" title="Zhezhi"><img src="https://cdn.prydwen.gg/images/ww/characters/icon_zhe.webp" referrerpolicy="no-referrer" alt="Zhezhi" loading="lazy" onerror="this.parentNode.setAttribute('data-src',this.getAttribute('src'));this.replaceWith(this.alt)"></a><a class="char-icon" href="./builds.html#carlotta" title="Carlotta"><img src="https://cdn.prydwen.gg/images/ww/characters/icon_carlotta.webp" referrerpolicy="no-referrer" alt="Carlotta" loading="lazy" onerror="this.parentNode.setAttribute('data-src',this.getAttribute('src'));this.replaceWith(this.alt)"></a><a class="char-icon" href="./builds.html#roccia" title="Roccia"><img src="https://cdn.prydwen.gg/images/ww/characters/icon_roccia.webp" referrerpolicy="no-referrer" alt="Roccia" loading="lazy" onerror="this.parentNode.setAttribute('data-src',this.getAttribute('src'));this.replaceWith(this.alt)"></a><a class="char-icon" href="./builds.html#brant" title="Brant"><img src="https://cdn.prydwen.gg/images/ww/characters/icon_brant.webp" referrerpolicy="no-referrer" alt="Brant" loading="lazy" onerror="this.parentNode.setAttribute('data-src',this.getAttribute('src'));this.replaceWith(this.alt)"></a></div></div>
+  <div class="pool"><div class="icon-row"><a class="char-icon" href="./builds.html#lily" title="Lily"><img src="./lily_icon.png" alt="Lily" loading="lazy"></a><a class="char-icon" href="./builds.html#lingyang" title="Lingyang"><img src="https://cdn.prydwen.gg/images/ww/characters/ling_icon.webp" referrerpolicy="no-referrer" alt="Lingyang" loading="lazy" onerror="this.parentNode.setAttribute('data-src',this.getAttribute('src'));this.replaceWith(this.alt)"></a><a class="char-icon" href="./builds.html#encore" title="Encore"><img src="https://cdn.prydwen.gg/images/ww/characters/encore_icon.webp" referrerpolicy="no-referrer" alt="Encore" loading="lazy" onerror="this.parentNode.setAttribute('data-src',this.getAttribute('src'));this.replaceWith(this.alt)"></a><a class="char-icon" href="./builds.html#calcharo" title="Calcharo"><img src="https://cdn.prydwen.gg/images/ww/characters/kakarot_icon.webp" referrerpolicy="no-referrer" alt="Calcharo" loading="lazy" onerror="this.parentNode.setAttribute('data-src',this.getAttribute('src'));this.replaceWith(this.alt)"></a><a class="char-icon" href="./builds.html#jianxin" title="Jianxin"><img src="https://cdn.prydwen.gg/images/ww/characters/jiaxin_icon.webp" referrerpolicy="no-referrer" alt="Jianxin" loading="lazy" onerror="this.parentNode.setAttribute('data-src',this.getAttribute('src'));this.replaceWith(this.alt)"></a><a class="char-icon" href="./builds.html#jinhsi" title="Jinhsi"><img src="https://cdn.prydwen.gg/images/ww/characters/jihni_icon.webp" referrerpolicy="no-referrer" alt="Jinhsi" loading="lazy" onerror="this.parentNode.setAttribute('data-src',this.getAttribute('src'));this.replaceWith(this.alt)"></a><a class="char-icon" href="./builds.html#yinlin" title="Yinlin"><img src="https://cdn.prydwen.gg/images/ww/characters/yinglin_icon.webp" referrerpolicy="no-referrer" alt="Yinlin" loading="lazy" onerror="this.parentNode.setAttribute('data-src',this.getAttribute('src'));this.replaceWith(this.alt)"></a><a class="char-icon" href="./builds.html#xiangli-yao" title="Xiangli Yao"><img src="https://cdn.prydwen.gg/images/ww/characters/icon_xiang.webp" referrerpolicy="no-referrer" alt="Xiangli Yao" loading="lazy" onerror="this.parentNode.setAttribute('data-src',this.getAttribute('src'));this.replaceWith(this.alt)"></a><a class="char-icon" href="./builds.html#camellya" title="Camellya"><img src="https://cdn.prydwen.gg/images/ww/characters/icon_cam.webp" referrerpolicy="no-referrer" alt="Camellya" loading="lazy" onerror="this.parentNode.setAttribute('data-src',this.getAttribute('src'));this.replaceWith(this.alt)"></a><a class="char-icon" href="./builds.html#zhezhi" title="Zhezhi"><img src="https://cdn.prydwen.gg/images/ww/characters/icon_zhe.webp" referrerpolicy="no-referrer" alt="Zhezhi" loading="lazy" onerror="this.parentNode.setAttribute('data-src',this.getAttribute('src'));this.replaceWith(this.alt)"></a><a class="char-icon" href="./builds.html#carlotta" title="Carlotta"><img src="https://cdn.prydwen.gg/images/ww/characters/icon_carlotta.webp" referrerpolicy="no-referrer" alt="Carlotta" loading="lazy" onerror="this.parentNode.setAttribute('data-src',this.getAttribute('src'));this.replaceWith(this.alt)"></a><a class="char-icon" href="./builds.html#roccia" title="Roccia"><img src="https://cdn.prydwen.gg/images/ww/characters/icon_roccia.webp" referrerpolicy="no-referrer" alt="Roccia" loading="lazy" onerror="this.parentNode.setAttribute('data-src',this.getAttribute('src'));this.replaceWith(this.alt)"></a><a class="char-icon" href="./builds.html#brant" title="Brant"><img src="https://cdn.prydwen.gg/images/ww/characters/icon_brant.webp" referrerpolicy="no-referrer" alt="Brant" loading="lazy" onerror="this.parentNode.setAttribute('data-src',this.getAttribute('src'));this.replaceWith(this.alt)"></a></div></div>
 
 
 
@@ -458,13 +460,32 @@ body.editing a.char-icon { -webkit-touch-callout: none; -webkit-user-select: non
     row.insertBefore(dragged, ref);
   }
 
+  var CDN = 'https://cdn.prydwen.gg/images/ww/characters/';
+  var CATALOG = [
+    { t: 'Rover (Aero)', h: './builds.html#rover-aero', s: './rover_card.webp' },
+    { t: 'Chixia', h: './builds.html#chixia', s: CDN + 'chixia_icon.webp' },
+    { t: 'Baizhi', h: './builds.html#baizhi', s: CDN + 'baizhi_icon.webp' },
+    { t: 'Danjin', h: './builds.html#danjin', s: CDN + 'danjin_icon.webp' },
+    { t: 'Taoqi', h: './builds.html#taoqi', s: CDN + 'taoqi_icon.webp' },
+    { t: 'Yuanwu', h: './builds.html#yuanwu', s: CDN + 'yuanwu_icon.webp' },
+    { t: 'Aalto', h: './builds.html#aalto', s: CDN + 'aalto_icon.webp' }
+  ];
+  function addHtml() {
+    var present = {};
+    Array.prototype.forEach.call(document.querySelectorAll('a.char-icon'), function (a) { present[(a.title || '').toLowerCase()] = 1; });
+    var opts = CATALOG.filter(function (c) { return !present[c.t.toLowerCase()]; })
+      .map(function (c) { return '<option value="' + c.t + '">'; }).join('');
+    return '<input id="add-name" list="add-list" placeholder="Agregar personaje…" autocomplete="off"><datalist id="add-list">' + opts + '</datalist>' +
+      '<button type="button" id="btn-add">+ Agregar</button>';
+  }
+
   function initEditor() {
     document.body.classList.add('editing');
     var bar = document.createElement('div');
     bar.className = 'toolbar';
     bar.innerHTML = '<span class="hint">Modo editor: lo que muevas se publica para todos.' +
       (stale ? ' (El orden guardado era de una versión anterior; se publicará de nuevo al mover algo.)' : '') +
-      '</span><button type="button" id="btn-reset">↺ Restablecer</button><button type="button" id="btn-exit">Salir del editor</button>';
+      '</span>' + addHtml() + '<button type="button" id="btn-reset">↺ Restablecer</button><button type="button" id="btn-exit">Salir del editor</button>';
     var main = document.querySelector('.tier-main');
     main.insertBefore(bar, main.firstChild);
 
@@ -475,6 +496,28 @@ body.editing a.char-icon { -webkit-touch-callout: none; -webkit-user-select: non
       });
     }
     makeDraggable();
+
+    /* ---------- Buscador: escribe un nombre y se agrega a "Sin clasificar" ---------- */
+    document.getElementById('btn-add').addEventListener('click', addByName);
+    document.getElementById('add-name').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); addByName(); } });
+    function slugOf(n) { return n.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''); }
+    function addByName() {
+      var inp = document.getElementById('add-name'), name = inp.value.trim();
+      if (!name) return;
+      var low = name.toLowerCase();
+      var exists = Array.prototype.some.call(document.querySelectorAll('a.char-icon'), function (a) { return (a.title || '').toLowerCase() === low; });
+      if (exists) { toast('Ya está en la lista'); return; }
+      var item = null;
+      CATALOG.forEach(function (c) { if (c.t.toLowerCase() === low) item = c; });
+      if (!item) {
+        var src = prompt('No tengo el icono de "' + name + '". Pega la URL del icono (cdn.prydwen.gg) o una ruta como ./archivo.webp:');
+        if (!src) return;
+        item = { t: name, h: './builds.html#' + slugOf(name), s: src.trim() };
+      }
+      if (!SAFE.test(item.h) || !SAFE_SRC.test(item.s)) { toast('Icono o ruta no válidos'); return; }
+      document.querySelector('.pool .icon-row').appendChild(build(item));
+      makeDraggable(); inp.value = ''; save(); toast('Agregado a Sin clasificar');
+    }
 
     document.addEventListener('dragstart', function (e) {
       var a = e.target.closest && e.target.closest('a.char-icon');
