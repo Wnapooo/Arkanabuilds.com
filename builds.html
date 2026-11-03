@@ -309,23 +309,25 @@
   /* Muestra la imagen del personaje completa (hasta las piernas), sin recortarla a un cuadrado */
   .portrait-stage { aspect-ratio: auto; }
   .portrait-stage .portrait { display: block; height: auto; aspect-ratio: auto; object-fit: contain; }
-  /* WuWa: imagen libre (sin cuadro ni fondo), grande y llegando hasta abajo */
+  /* WuWa: imagen libre (sin cuadro), alta, de arriba a abajo del bloque de paneles */
   div[data-el="wuwa"] aside.hsr-id { position: relative; }
   div[data-el="wuwa"] aside.hsr-id .portrait-stage { background: none; border: 0; box-shadow: none; border-radius: 0; overflow: visible; isolation: auto; margin: 0 0 14px; }
   div[data-el="wuwa"] aside.hsr-id .portrait-stage::before { display: none; }
   div[data-el="wuwa"] aside.hsr-id .portrait-stage .portrait { width: 100%; height: auto; filter: drop-shadow(0 10px 26px rgba(0,0,0,.55)); }
   div[data-el="wuwa"] .hsr-grid .panel { position: relative; z-index: 1; }
   @media (min-width: 1101px) {
-    /* columna del personaje más ancha: la imagen crece con ella y se apoya abajo, a la altura del final de los paneles */
     div[data-el="wuwa"] .hsr-grid { grid-template-columns: 280px minmax(0, 1fr) 340px; }
-    div[data-el="wuwa"] aside.hsr-id { align-self: stretch; display: flex; flex-direction: column; justify-content: flex-end; margin-left: -28px; }
-    div[data-el="wuwa"] aside.hsr-id .portrait-stage { margin: 0; }
-    /* el nombre va abajo a la izquierda, sobre la esquina vacía de la imagen */
-    div[data-el="wuwa"] aside.hsr-id h1 { position: absolute; left: 28px; bottom: 44px; margin: 0; z-index: 3; }
-    div[data-el="wuwa"] aside.hsr-id .el-tag { position: absolute; left: 28px; bottom: 12px; z-index: 3; }
+    /* la columna ocupa todo el alto y llega hasta el borde izquierdo de la pantalla */
+    div[data-el="wuwa"] aside.hsr-id { align-self: stretch; display: flex; flex-direction: column; margin-left: calc(-1 * (max(0px, (100vw - 1840px) / 2) + 28px)); }
+    div[data-el="wuwa"] aside.hsr-id .portrait-stage { flex: 1; min-height: 560px; margin: 0; position: relative; }
+    div[data-el="wuwa"] aside.hsr-id .portrait-stage .portrait { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; object-fit: contain; object-position: center bottom; }
+    /* el nombre va abajo a la izquierda, sobre la imagen */
+    div[data-el="wuwa"] aside.hsr-id h1 { position: absolute; left: 28px; bottom: 96px; margin: 0; z-index: 3; font-size: 34px; }
+    div[data-el="wuwa"] aside.hsr-id .el-tag { position: absolute; left: 28px; bottom: 64px; z-index: 3; }
   }
   @media (min-width: 1500px) {
-    div[data-el="wuwa"] .hsr-grid { grid-template-columns: clamp(300px, 24vw, 460px) minmax(0, 1fr) 340px; }
+    div[data-el="wuwa"] .hsr-grid { grid-template-columns: clamp(300px, 20vw, 400px) minmax(0, 1fr) 340px; }
+    div[data-el="wuwa"] aside.hsr-id .portrait-stage .portrait { object-fit: cover; object-position: center top; }
   }
 
 
@@ -727,7 +729,7 @@
       suffix: '_card.webp',
       // Nombre real de cada archivo (las imágenes nuevas tienen nombres distintos)
       files: {
-        'aug':'aug_card3.webp', 'brant':'card_brant2.webp', 'buling':'buling_card2.webp',
+        'aug':'aug_card2.webp', 'brant':'card_brant2.webp', 'buling':'buling_card2.webp',
         'canta':'card_canta2.webp', 'carlotta':'card_carlotta2.webp', 'cart':'cart_card2.webp',
         'changli':'card_changli2.webp', 'chisa':'chisa_card2.webp', 'cia':'cia_card2.webp',
         'denia':'denia_card2.webp', 'gal':'gal_card2.webp', 'hiyuki':'hiyuki_card2.webp',
@@ -1969,6 +1971,12 @@
     return null;
   }
 
+  /* Imagen grande que se ve SOLO dentro de la build (la galería sigue usando la de "files") */
+  const DETAIL_FILES = { wuwa: { 'aug': 'aug_card3.webp' } };
+  function imgBig(gameKey, slug) {
+    const f = DETAIL_FILES[gameKey] && DETAIL_FILES[gameKey][slug];
+    return f ? './' + encodeURI(f) : img(gameKey, slug);
+  }
   function img(gameKey, slug) {
     const g = GAMES[gameKey];
     const file = (g.files && g.files[slug]) || (slug + g.suffix);
@@ -2024,7 +2032,7 @@
           <div class="hsr-grid">
             <aside class="hsr-id">
               <div class="portrait-stage">
-                <img class="portrait" src="${img(game, slug)}" alt="${c[1]}">
+                <img class="portrait" src="${imgBig(game, slug)}" alt="${c[1]}">
                 ${el ? `<img class="el-badge" src="${elIcon(el)}" alt="${EL_LABEL[el]}" onerror="this.remove()">` : isWw ? `<img class="el-badge" src="./element_${wb.el}.webp" alt="${WUWA_LABEL[wb.el]}" title="${WUWA_LABEL[wb.el]}" onerror="this.remove()">` : zi ? `<img class="el-badge" src="${zzzElIcon(zi[0])}" alt="${zzzElName(slug)}" title="${zzzElName(slug)}" onerror="this.remove()">` : ''}${pa ? `<img class="path-badge" src="${pathIcon(pa)}" alt="${PATH_LABEL[pa]}" title="${PATH_LABEL[pa]}" onerror="this.remove()">` : zi ? `<img class="path-badge" src="${zzzSpecIcon(zi[1])}" alt="${ZZZ_SPEC_LABEL[zi[1]]}" title="${ZZZ_SPEC_LABEL[zi[1]]}" onerror="this.remove()">` : ''}
               </div>
               <h1>${c[1]}</h1>
