@@ -1320,7 +1320,7 @@
     ed.addEventListener('input', () => {
       dirty = true;
       try { localStorage.setItem(lk, ed.value); } catch (e) {}
-      clearTimeout(timer); timer = setTimeout(() => doSave(false), 800);
+      clearTimeout(timer); timer = setTimeout(() => doSave(false), 2500);
     });
   }
 
@@ -1756,7 +1756,7 @@
     function save() {
       dirty = true;
       try { localStorage.setItem(lk, JSON.stringify(b)); } catch (e) {}
-      clearTimeout(timer); timer = setTimeout(() => doSave(false), 800);
+      clearTimeout(timer); timer = setTimeout(() => doSave(false), 2500);
     }
     build();
     /* Al recargar (F5) el panel espera a tener datos, catálogo e imágenes listos y recién entonces aparece (sin íconos vacíos) */
