@@ -2310,12 +2310,18 @@
       const c = document.createElement('canvas'); c.width = cw; c.height = ch;
       const cx = c.getContext('2d', { willReadFrequently: true }); cx.drawImage(img, 0, 0, cw, ch);
       const d = cx.getImageData(0, 0, cw, ch).data;
-      let y0 = ch, y1 = -1;
-      for (let y = 0; y < ch; y++) for (let x = 0; x < cw; x++) if (d[(y * cw + x) * 4 + 3] > 24) { if (y < y0) y0 = y; if (y > y1) y1 = y; }
-      if (y1 < 0) { img.removeAttribute('data-pend'); return; }
-      const H = y1 - y0 + 1, S = Math.round(H * 0.5);              // cuadro = mitad superior del personaje
+      /* filas "densas": al menos 3% del ancho con píxeles opacos (así los hilos, plumas o brillos finos no cuentan como personaje) */
+      const need = Math.max(3, Math.round(cw * 0.03));
+      let y0 = -1, y1 = -1;
+      for (let y = 0; y < ch; y++) {
+        let n = 0; for (let x = 0; x < cw; x++) if (d[(y * cw + x) * 4 + 3] > 40) n++;
+        if (n >= need) { if (y0 < 0) y0 = y; y1 = y; }
+      }
+      if (y0 < 0) { img.removeAttribute('data-pend'); return; }
+      const nf = parseFloat(img.dataset.nf) || 0.6;
+      const H = y1 - y0 + 1, S = Math.round(H * nf);               // cuadro = parte superior del personaje (cabeza y torso)
       let sA = 0, sX = 0;
-      for (let y = y0; y < Math.min(ch, y0 + S); y++) for (let x = 0; x < cw; x++) { const a = d[(y * cw + x) * 4 + 3]; if (a > 24) { sA += a; sX += a * x; } }
+      for (let y = y0; y < Math.min(ch, y0 + S); y++) for (let x = 0; x < cw; x++) { const a = d[(y * cw + x) * 4 + 3]; if (a > 40) { sA += a; sX += a * x; } }
       const mx = sA ? sX / sA : cw / 2;
       const o = document.createElement('canvas'); o.width = o.height = 320;
       o.getContext('2d').drawImage(c, mx - S / 2, y0 - S * 0.04, S, S, 0, 0, 320, 320);
@@ -2323,13 +2329,14 @@
     } catch (e) { img.removeAttribute('data-pend'); /* imagen no accesible (p. ej. abierta como archivo local): se deja como está */ }
   };
 
+
   function renderGrid() {
     const q = norm($('search').value);
     const list = GAMES[currentGame].chars
       .filter(c => norm(c[1]).includes(q) || norm(c[0]).includes(q))
       .map(([slug, name, role]) => `
         <a class="card" href="#${slug}">
-          <img src="${img(currentGame, slug)}" alt="${name}" loading="lazy"${currentGame === 'zzz' ? ' data-pend="1" onload="normCard(this)" onerror="this.removeAttribute(\'data-pend\')"' : ''}>
+          <img src="${img(currentGame, slug)}" alt="${name}" loading="lazy"${currentGame === 'zzz' ? ` data-pend="1" data-nf="${GAMES.zzz.files && GAMES.zzz.files[slug] ? '0.38' : '0.6'}" onload="normCard(this)" onerror="this.removeAttribute('data-pend')"` : ''}>
           <span>${name}${role ? `<small>${role}</small>` : ''}${zzzMini(currentGame, slug)}${hsrMini(currentGame, slug)}${wuwaMini(currentGame, slug)}</span>
         </a>`).join('');
     $('grid').innerHTML = list;
