@@ -754,6 +754,7 @@
     zzz: {
       label: 'Zenless Zone Zero',
       suffix: '_card.webp',
+      files: { 'kafka-zzz': 'Agent_Kafka_Portrait.webp', 'robin-zzz': 'Agent_Robin_Portrait3.webp' },
       chars: [
         // Crit DPS
         ['claret','Claret','Crit DPS'], ['sigrid','Sigrid','Crit DPS'], ['ye-shunguang','Ye Shunguang','Crit DPS'],
@@ -767,14 +768,14 @@
         ['alice','Alice','Anomaly DPS'], ['aria','Aria','Anomaly DPS'], ['burnice','Burnice','Anomaly DPS'],
         ['miyabi','Miyabi','Anomaly DPS'], ['promeia','Promeia','Anomaly DPS'],
         ['grace-howard','Grace Howard','Anomaly DPS'], ['jane-doe','Jane Doe','Anomaly DPS'], ['piper','Piper','Anomaly DPS'],
-        ['vivian','Vivian','Anomaly DPS'], ['yanagi','Yanagi','Anomaly DPS'],
+        ['vivian','Vivian','Anomaly DPS'], ['yanagi','Yanagi','Anomaly DPS'], ['kafka-zzz','Kafka','Anomaly DPS'],
         // Support
         ['dialyn','Dialyn','Support'], ['lucia','Lucia','Support'], ['nangong-yu','Nangong Yu','Support'], ['norma','Norma','Support'],
         ['roxy','Roxy','Support'], ['sunna','Sunna','Support'], ['ukinami-yuzuha','Ukinami Yuzuha','Support'],
         ['astra-yao','Astra Yao','Support'], ['koleda','Koleda','Support'], ['nicole-demara','Nicole Demara','Support'],
         ['rina','Rina','Support'], ['trigger','Trigger','Support'], ['zhao','Zhao','Support'],
         ['ju-fufu','Ju Fufu','Support'], ['lighter','Lighter','Support'], ['lycaon','Lycaon','Support'],
-        ['pan-yinhu','Pan Yinhu','Support'], ['qingyi','Qingyi','Support']
+        ['pan-yinhu','Pan Yinhu','Support'], ['qingyi','Qingyi','Support'], ['robin-zzz','Robin','Support']
       ]
     },
     wuwa: {
@@ -920,14 +921,16 @@
     'alice':['physical','anomaly'], 'aria':['ether','anomaly'], 'burnice':['fire','anomaly'],
     'miyabi':['ice','anomaly'], 'promeia':['ice','anomaly'], 'grace-howard':['electric','anomaly'],
     'jane-doe':['physical','anomaly'], 'piper':['physical','anomaly'], 'vivian':['ether','anomaly'],
-    'yanagi':['electric','anomaly'],
+    'yanagi':['electric','anomaly'], 'kafka-zzz':['electric','anomaly'],
     // Support
     'dialyn':['physical','stun'], 'lucia':['ether','support'], 'nangong-yu':['ether','stun'], 'norma':['fire','stun'],
     'roxy':['wind','stun'], 'sunna':['physical','support'], 'ukinami-yuzuha':['physical','support'],
     'astra-yao':['ether','support'], 'koleda':['fire','stun'], 'nicole-demara':['ether','support'],
     'rina':['electric','support'], 'trigger':['electric','stun'], 'zhao':['ice','defence'],
     'ju-fufu':['fire','stun'], 'lighter':['fire','stun'], 'lycaon':['ice','stun'],
-    'pan-yinhu':['physical','defence'], 'qingyi':['electric','stun']
+    'pan-yinhu':['physical','defence'], 'qingyi':['electric','stun'],
+    // Crossover HSR (v3.4): datos provisionales, revisar cuando salgan oficiales
+    'robin-zzz':['ether','defence']
   };
   const ZZZ_VARIANT = { 'miyabi':'Frost', 'yixuan':'Auric Ink', 'ye-shunguang':'Honed Edge' };
   const ZZZ_EL_LABEL = { electric:'Eléctrico', ether:'Éter', fire:'Fuego', ice:'Hielo', lumiflux:'Lumiflux', physical:'Físico', wind:'Viento' };
@@ -1044,7 +1047,7 @@
      Motivo según el color de cada personaje (rojo/naranja = llamas, dorado = rayos, verde = hexágonos,
      cian = cristales de hielo, azul = cortes, violeta/rosa = ondas de éter) y composición única
      generada a partir de su nombre. Para forzar un motivo: ZZZ_MOTIF['slug'] = 'flame' (flame, volt, hex, frost, slash, ether) */
-  const ZZZ_MOTIF = {};
+  const ZZZ_MOTIF = { 'kafka-zzz': 'volt', 'robin-zzz': 'ether' };
   function zzzFx(slug, bg) {
     let s = 2166136261;
     for (const ch of slug) s = Math.imul(s ^ ch.charCodeAt(0), 16777619) >>> 0;
@@ -1256,7 +1259,9 @@
     'lighter':['#2a0a08','#ff4a2a','#ffc050',5],
     'lycaon':['#0a1a34','#4a9aff','#d0e8ff',0],
     'pan-yinhu':['#0e1a14','#4ad08a','#f0d890',1],
-    'qingyi':['#14122a','#7a8aff','#ffb0d0',2]
+    'qingyi':['#14122a','#7a8aff','#ffb0d0',2],
+    'kafka-zzz':['#1c0a2e','#c04ae0','#ff4a7a',5],
+    'robin-zzz':['#0c1636','#8ab4ff','#ffe0b0',4]
   };
 
   /* Iconos de la tier list (slug -> archivo). Si falta uno se usa la imagen de la card */
@@ -2221,7 +2226,7 @@
     'harumasa': 'Agent_Asaba_Harumasa_Portrait.webp',
     'astra-yao': 'Agent_Astra_Yao_Portrait.webp',
     'burnice': 'Agent_Burnice_White_Portrait.webp',
-    'claret': 'Agent_Clara_Flint_Portrait.webp',
+    'claret': 'Agent_Claret_Flint_Portrait.webp',
     'dialyn': 'Agent_Dialyn_Portrait.webp',
     'ellen': 'Agent_Ellen_Joe_Portrait.webp',
     'evelyn': 'Agent_Evelyn_Chevalier_Portrait.webp',
@@ -2238,7 +2243,7 @@
     'nekomata': 'Agent_Nekomiya_Mana_Portrait.webp',
     'nicole-demara': 'Agent_Nicole_Demara_Portrait.webp',
     'norma': 'Agent_Norma_Hollowell_Portrait.webp',
-    'orphie-and-magus': 'Agent_Orphie_Magnusson_%26_Magus_Portrait.webp',
+    'orphie-and-magus': 'Agent_Orphie_Magnusson_%2526_Magus_Portrait.webp'  /* el archivo se llama con "%26" literal; en la URL el % va como %25 */,
     'pan-yinhu': 'Agent_Pan_Yinhu_Portrait.webp',
     'phoenix': 'Agent_Phoenix_Reffaella_Portrait.webp',
     'piper': 'Agent_Piper_Wheel_Portrait.webp',
@@ -2248,7 +2253,7 @@
     'remielle': 'Agent_Remielle_Dan_Portrait.webp',
     'roxy': 'Agent_Roxy_Ifrita_Pryce_Portrait.webp',
     'seed': 'Agent_Seed_Portrait.webp',
-    'sigrid': 'Agent_Sigrid_de_L_Azur_Portrait.webp',
+    'sigrid': "Agent_Sigrid_de_L'Azur_Portrait.webp",
     'anby-demara-soldier-0': 'Agent_Soldier_0_-_Anby_Portrait.webp',
     'soldier-11': 'Agent_Soldier_11_Portrait.webp',
     'billy-starlight': 'Agent_Starlight_-_Billy_Kid_Portrait.webp',
@@ -2266,7 +2271,9 @@
     'banyue': 'Agent_Banyue_Portrait.webp',
     'cissia': 'Agent_Cissia_Portrait.webp',
     'yixuan': 'Agent_Yixuan_Portrait.webp',
-    'zhao': 'Agent_Zhao_Portrait.webp'
+    'zhao': 'Agent_Zhao_Portrait.webp',
+    'kafka-zzz': 'Agent_Kafka_Portrait.webp',
+    'robin-zzz': 'Agent_Robin_Portrait3.webp'
   };
 
   function imgBig(gameKey, slug) {
