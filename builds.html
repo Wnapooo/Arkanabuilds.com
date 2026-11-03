@@ -332,6 +332,15 @@
   /* la imagen espera a estar recortada y centrada antes de mostrarse (evita el salto al recargar) */
   div[data-el="wuwa"] aside.hsr-id.free .portrait-stage .portrait { opacity: 0; transition: opacity .25s ease; }
   div[data-el="wuwa"] aside.hsr-id.free .portrait-stage .portrait.ready { opacity: 1; }
+  /* posición personalizada (guardada con ?edit): la imagen se ve entera y se mueve/escala con transform */
+  @media (min-width: 1101px) {
+    div[data-el="wuwa"] aside.hsr-id.free.custom .portrait-stage img.portrait { object-fit: contain !important; object-position: center center !important; transform: translate(var(--tx, 0%), var(--ty, 0%)) scale(var(--ts, 1)); transform-origin: center center; }
+    div[data-el="wuwa"] aside.hsr-id.free .portrait-stage.art-edit { cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
+    div[data-el="wuwa"] aside.hsr-id.free .portrait-stage.art-edit.dragging { cursor: grabbing; }
+    .art-bar { position: absolute; top: 10px; right: 10px; z-index: 6; max-width: calc(100% - 64px); display: flex; align-items: center; gap: 8px; padding: 4px 4px 4px 12px; border-radius: 999px; font-size: 11px; line-height: 1.3; color: #fff; background: rgba(8,9,14,.78); border: 1px solid var(--e2); cursor: default; }
+    .art-bar button { flex: none; border: 0; border-radius: 999px; padding: 5px 10px; font: inherit; font-weight: 600; color: #fff; background: var(--e2); cursor: pointer; }
+  }
+  @media (max-width: 1100px) { .art-bar { display: none; } }
   /* Rover (dos figuras): se ve entero y el nombre va arriba */
   @media (min-width: 1101px) {
     div[data-el="wuwa"] aside.hsr-id.free.wide-art.rover-art .portrait-stage .portrait { object-fit: contain; object-position: center bottom; }
@@ -1992,6 +2001,105 @@
     return null;
   }
 
+  /* ============================================================
+     POSICIÓN DE LA IMAGEN (WuWa): con ?edit se arrastra / hace zoom y se guarda para todos.
+     Se guarda como texto "x,y,zoom" en /api/dupes?g=wuwa&c=<slug>-pos (mismo sistema y clave que los dupes);
+     si el servidor no lo acepta, queda solo en este navegador.
+     ============================================================ */
+  const ART_API = slug => '/api/dupes?g=wuwa&c=' + encodeURIComponent(slug + '-pos');
+  const artLocal = slug => 'artpos:' + slug;
+  const artParse = t => { const a = String(t || '').split(',').map(Number); return a.length === 3 && a.every(Number.isFinite) && a[2] > 0 ? { x: a[0], y: a[1], s: a[2] } : null; };
+  const artFmt = p => [p.x, p.y, p.s].map(v => Math.round(v * 100) / 100).join(',');
+  window.getArtPos = function (slug) {
+    let local = null;
+    try { local = artParse(localStorage.getItem(artLocal(slug))); } catch (e) {}
+    const srv = new Promise(res => {
+      const ac = new AbortController(), t = setTimeout(() => { ac.abort(); res(null); }, 1500);
+      fetch(ART_API(slug), { cache: 'no-store', signal: ac.signal })
+        .then(r => r.ok ? r.json() : null)
+        .then(d => { clearTimeout(t); res(d && typeof d.text === 'string' ? artParse(d.text) : null); })
+        .catch(() => { clearTimeout(t); res(null); });
+    });
+    return srv.then(p => p || local);
+  };
+  window.applyArtPos = function (aside, img) {
+    const p = aside._pos;
+    if (p) {
+      img.style.setProperty('--tx', p.x + '%'); img.style.setProperty('--ty', p.y + '%'); img.style.setProperty('--ts', p.s);
+      aside.classList.add('custom');
+    } else {
+      ['--tx', '--ty', '--ts'].forEach(k => img.style.removeProperty(k));
+      aside.classList.remove('custom');
+    }
+  };
+  window.initArtEdit = function (aside, img) {
+    const stage = img.closest('.portrait-stage');
+    if (!stage) return;
+    const slug = aside.dataset.slug;
+    stage.classList.add('art-edit');
+    img.draggable = false;
+    const bar = document.createElement('div');
+    bar.className = 'art-bar';
+    bar.innerHTML = '<span>Arrastra para mover · rueda = zoom · doble clic = automático</span><button type="button">Automático</button>';
+    stage.appendChild(bar);
+    let cur = null, timer = null, drag = null;
+    const dims = () => ({ cw: img.clientWidth, ch: img.clientHeight });
+    /* posición equivalente a la que se ve ahora en modo automático, para que no salte al empezar a editar */
+    const auto = () => {
+      const { cw, ch } = dims();
+      const iw = +img.dataset.sw || img.naturalWidth, ih = +img.dataset.sh || img.naturalHeight;
+      if (!cw || !ch || !iw || !ih || !aside.classList.contains('trimmed')) return { x: 0, y: 0, s: 1 };
+      const cover = Math.max(cw / iw, ch / ih), contain = Math.min(cw / iw, ch / ih);
+      const sw = iw * cover, sh = ih * cover;
+      const fx = parseFloat(img.style.getPropertyValue('--fx')), pp = Number.isFinite(fx) ? fx / 100 : .5;
+      return { x: sw > cw + 1 ? 100 * (pp - .5) * (cw - sw) / cw : 0, y: sh > ch + 1 ? 100 * ((sh - ch) / 2) / ch : 0, s: cover / contain };
+    };
+    const ensure = () => { if (!cur) cur = aside._pos ? { ...aside._pos } : auto(); };
+    function save(retry) {
+      const key = getKey(retry);
+      if (!key) { toast('Sin clave: solo guardado en este navegador'); return; }
+      fetch(ART_API(slug), {
+        method: 'PUT',
+        headers: { 'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: cur ? artFmt(cur) : '' })
+      }).then(r => {
+        if (r.status === 401) { localStorage.removeItem(KEYSTORE); if (!retry) return save(true); toast('Clave incorrecta'); return; }
+        toast(r.ok ? 'Posición guardada para todos ✓' : 'Guardado solo en este navegador (' + r.status + ')');
+      }).catch(() => toast('Guardado solo en este navegador'));
+    }
+    function persist() {
+      try { cur ? localStorage.setItem(artLocal(slug), artFmt(cur)) : localStorage.removeItem(artLocal(slug)); } catch (e) {}
+      clearTimeout(timer); timer = setTimeout(() => save(false), 700);
+    }
+    const set = () => { aside._pos = { ...cur }; window.applyArtPos(aside, img); persist(); };
+    const reset = () => { cur = null; aside._pos = null; window.applyArtPos(aside, img); persist(); };
+    stage.addEventListener('pointerdown', e => {
+      if (e.button !== 0 || e.target.closest('.art-bar')) return;
+      ensure(); drag = { x: e.clientX, y: e.clientY };
+      try { stage.setPointerCapture(e.pointerId); } catch (er) {}
+      stage.classList.add('dragging'); e.preventDefault();
+    });
+    stage.addEventListener('pointermove', e => {
+      if (!drag) return;
+      const { cw, ch } = dims();
+      cur.x += 100 * (e.clientX - drag.x) / cw; cur.y += 100 * (e.clientY - drag.y) / ch;
+      drag = { x: e.clientX, y: e.clientY }; set();
+    });
+    const end = () => { drag = null; stage.classList.remove('dragging'); };
+    stage.addEventListener('pointerup', end);
+    stage.addEventListener('pointercancel', end);
+    stage.addEventListener('wheel', e => {
+      e.preventDefault(); ensure();
+      const { cw, ch } = dims(), r = stage.getBoundingClientRect();
+      const qx = e.clientX - (r.left + r.width / 2), qy = e.clientY - (r.top + r.height / 2);
+      const ns = Math.min(4, Math.max(.3, cur.s * Math.exp(-e.deltaY * .0015))), k = ns / cur.s;
+      const tx = cur.x * cw / 100, ty = cur.y * ch / 100;
+      cur.x = 100 * (qx - k * (qx - tx)) / cw; cur.y = 100 * (qy - k * (qy - ty)) / ch; cur.s = ns; set();
+    }, { passive: false });
+    stage.addEventListener('dblclick', e => { if (!e.target.closest('.art-bar')) reset(); });
+    bar.querySelector('button').addEventListener('click', reset);
+  };
+
   /* Desplaza horizontalmente la imagen recortada para que el centro de masa del personaje quede en el centro de la columna */
   window.focusArt = function (img) {
     const cxf = parseFloat(img.dataset.cx), iw = +img.dataset.sw, ih = +img.dataset.sh;
@@ -2007,7 +2115,15 @@
   /* Recorta el espacio transparente de la card3 para que el personaje quede grande y centrado en la columna */
   window.trimArt = function (img) {
     const aside = img.closest('aside');
-    const done = () => img.classList.add('ready');
+    const slug = aside && aside.dataset.slug;
+    const posP = img._posP || (img._posP = slug ? window.getArtPos(slug) : Promise.resolve(null));
+    const done = () => posP.then(p => {
+      img.classList.add('ready');
+      if (!aside) return;
+      if (!aside._artSet) { aside._artSet = true; aside._pos = p; }
+      window.applyArtPos(aside, img);
+      if (EDIT && !aside._artEdit) { aside._artEdit = true; window.initArtEdit(aside, img); }
+    });
     if (!aside) { done(); return; }
     if (img.dataset.trim) { if (img.dataset.sw) window.focusArt(img); done(); return; }   // 2.ª carga: ya es la imagen recortada
     img.dataset.trim = '1';
@@ -2102,7 +2218,7 @@
           <div class="hsr-bg${isZzz ? ' zzz' : ''}${isWw ? ' wuwa' : ''}${bg ? ' fx lay-' + bg[3] : ''}" style="${bg ? `--b1:${bg[0]};--b2:${bg[1]};--b3:${bg[2]};` : ''}--art:url('${img(game, slug)}')">${isZzz ? `${zzzFx(slug, bg)}<span class="zzz-word">${c[1]}</span>` : isWw ? wuwaFx(slug, bg, wb.el) : ''}</div>
           <a class="back" href="#">← Todos los personajes</a>
           <div class="hsr-grid">
-            <aside class="hsr-id${DETAIL_FILES[game] && DETAIL_FILES[game][slug] ? ' free' : ''}${/^rover/.test(slug) ? ' rover-art' : ''}">
+            <aside class="hsr-id${DETAIL_FILES[game] && DETAIL_FILES[game][slug] ? ' free' : ''}${/^rover/.test(slug) ? ' rover-art' : ''}" data-slug="${slug}">
               <div class="portrait-stage">
                 <img class="portrait" src="${imgBig(game, slug)}" alt="${c[1]}" onload="trimArt(this)">
                 ${el ? `<img class="el-badge" src="${elIcon(el)}" alt="${EL_LABEL[el]}" onerror="this.remove()">` : isWw ? `<img class="el-badge" src="./element_${wb.el}.webp" alt="${WUWA_LABEL[wb.el]}" title="${WUWA_LABEL[wb.el]}" onerror="this.remove()">` : zi ? `<img class="el-badge" src="${zzzElIcon(zi[0])}" alt="${zzzElName(slug)}" title="${zzzElName(slug)}" onerror="this.remove()">` : ''}${pa ? `<img class="path-badge" src="${pathIcon(pa)}" alt="${PATH_LABEL[pa]}" title="${PATH_LABEL[pa]}" onerror="this.remove()">` : zi ? `<img class="path-badge" src="${zzzSpecIcon(zi[1])}" alt="${ZZZ_SPEC_LABEL[zi[1]]}" title="${ZZZ_SPEC_LABEL[zi[1]]}" onerror="this.remove()">` : ''}
