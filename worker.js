@@ -230,6 +230,15 @@ async function zzzCatalog() {
 
 export default {
   async fetch(request, env) {
+    try {
+      return await handle(request, env);
+    } catch (e) {
+      return json({ error: String((e && e.message) || e) }, 500);
+    }
+  },
+};
+
+async function handle(request, env) {
     const url = new URL(request.url);
     if (url.pathname === '/api/layout') {
       const ctx = { request, env };
@@ -266,5 +275,4 @@ export default {
       }
     }
     return env.ASSETS.fetch(request);
-  },
-};
+}
