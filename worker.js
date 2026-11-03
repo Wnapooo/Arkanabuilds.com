@@ -162,6 +162,7 @@ function cleanItems(a, k) {
   return (Array.isArray(a) ? a : []).slice(0, LIMITS[k]).map((x) => ({
     i: str(x && x.i, 12), n: str(x && x.n, 80), c: str(x && x.c, 200),
     p: x && [1, 2, 3, 4, 5].includes(x.p) ? x.p : undefined,  // WuWa usa 1, 2, 3 y 5 piezas
+    cost: x && [1, 3, 4].includes(x.cost) ? x.cost : undefined,  // WuWa: coste del eco (1, 3 o 4)
   })).filter((x) => x.i && x.n && ICON_RE.test(x.c) && !x.c.includes('..'));
 }
 
@@ -193,7 +194,7 @@ async function buildsPut({ request, env }) {
     arts: cleanItems(body.arts, 'arts'),
     orn: cleanItems(body.orn, 'orn'),
     echoes: cleanItems(body.echoes, 'echoes'),
-    main: { torso: str(m.torso, 160), botas: str(m.botas, 160), esfera: str(m.esfera, 160), cuerda: str(m.cuerda, 160) },
+    main: { torso: str(m.torso, 160), botas: str(m.botas, 160), botas2: str(m.botas2, 160), esfera: str(m.esfera, 160), esfera2: str(m.esfera2, 160), cuerda: str(m.cuerda, 160) },
     sub: str(body.sub, 160), talents: str(body.talents, 160), note: str(body.note, 160),
   };
   await env.TIERLIST.put('build:' + g + ':' + c, JSON.stringify(out));
