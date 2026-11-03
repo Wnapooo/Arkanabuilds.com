@@ -165,6 +165,30 @@ td.drop-active, .pool.drop-active { background: rgba(129,140,248,.06); }
 }
 #toast.show { opacity: 1; transform: none; }
 
+/* ===== Buscador y "Sin clasificar" (modo editor) ===== */
+.pool[hidden] { display: none; }
+.pool { padding: 0 16px 40px; font-family: system-ui, -apple-system, sans-serif; }
+.divider { display: flex; align-items: center; gap: 12px; padding: 14px 0 10px; font-size: 13px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; color: #a5b4fc; border-top: 1px solid #1f222f; margin-top: 8px; }
+.divider .pool-hint { font-weight: 400; text-transform: none; letter-spacing: 0; color: #8b8f99; font-size: 12px; }
+.divider button { margin-left: auto; background: #1c1e27; color: #cbd5e1; border: 1px solid #2a2d38; border-radius: 8px; padding: 5px 10px; font-size: 12px; cursor: pointer; font-family: inherit; }
+.divider button:hover { border-color: #818cf8; color: #fff; }
+.pool .icon-row { padding: 6px; border: 1px dashed #2d3142; border-radius: 12px; min-height: 90px; }
+.tl-search { position: relative; flex: 0 1 300px; }
+.tl-search input { width: 100%; background: #14161d; color: #e5e7eb; border: 1px solid #2a2d38; border-radius: 8px; padding: 8px 12px; font-size: 13px; font-family: inherit; }
+.tl-search input:focus { outline: none; border-color: #818cf8; }
+.tl-results { position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 20; max-height: 380px; overflow-y: auto; background: #14161d; border: 1px solid #2a2d38; border-radius: 10px; box-shadow: 0 14px 34px rgba(0,0,0,.55); padding: 4px; }
+.tl-results[hidden] { display: none; }
+.tl-opt { display: flex; align-items: center; gap: 10px; width: 100%; padding: 6px 8px; border: 0; border-radius: 8px; background: none; color: #e5e7eb; font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
+.tl-opt:hover { background: #1e1b3a; }
+.tl-opt img { width: 34px; height: 34px; border-radius: 7px; object-fit: cover; object-position: top; background: #1c1e28; flex: none; }
+.tl-opt small { display: block; color: #8b8f99; font-size: 11px; }
+.tl-opt em { margin-left: auto; font-style: normal; font-size: 11px; color: #6b7280; }
+.tl-opt.placed { opacity: .55; }
+.tl-empty { padding: 12px; color: #8b8f99; font-size: 13px; }
+a.char-icon.flash { outline: 2px solid #818cf8; outline-offset: 2px; animation: tlflash 1.4s ease; }
+@keyframes tlflash { 0%,60% { box-shadow: 0 0 0 6px rgba(129,140,248,.45); } 100% { box-shadow: 0 0 0 0 transparent; } }
+@media (max-width: 800px) { .tl-search { flex: 1 1 100%; order: 3; } }
+
 /* ===== Adaptación a móvil ===== */
 body.editing a.char-icon { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
 @media (max-width: 800px) {
@@ -477,6 +501,12 @@ body.editing a.char-icon { -webkit-touch-callout: none; -webkit-user-select: non
     </tbody>
   </table>
 
+  <!-- ================= SIN CLASIFICAR (se llena desde el buscador del modo editor) ================= -->
+  <section class="pool" id="pool" hidden>
+    <div class="divider">Sin clasificar <span class="pool-hint">Arrastra cada personaje a su tier</span><button type="button" id="btn-clear-pool">Vaciar</button></div>
+    <div class="icon-row" id="pool-row"></div>
+  </section>
+
     </main>
   </div>
 
@@ -527,11 +557,15 @@ body.editing a.char-icon { -webkit-touch-callout: none; -webkit-user-select: non
     a.className = 'char-icon'; a.href = it.h; a.title = it.t;
     var img = document.createElement('img');
     img.src = it.s; img.alt = it.t; img.loading = 'lazy'; img.draggable = false;
-    img.onerror = function () { a.setAttribute('data-src', it.s); this.replaceWith(this.alt); };
+    img.onerror = function () {
+      if (!this.dataset.fb && /^\.\/[\w\-]+\.webp$/.test(it.s)) { this.dataset.fb = 1; this.src = it.s.replace('.webp', '_card.webp'); return; }
+      a.setAttribute('data-src', it.s); this.replaceWith(this.alt);
+    };
     a.appendChild(img);
     return a;
   }
   function applyLayout(d) {
+    if (d && Array.isArray(d.layout) && d.layout.length === rows.length - 1) d.layout = d.layout.concat([[]]);
     if (!d || d.base !== BASE || !Array.isArray(d.layout) || d.layout.length !== rows.length) return false;
     var ok = d.layout.every(function (row) {
       return Array.isArray(row) && row.every(function (it) {
@@ -544,6 +578,10 @@ body.editing a.char-icon { -webkit-touch-callout: none; -webkit-user-select: non
       d.layout[i].forEach(function (it) { r.appendChild(build(it)); });
     });
     return true;
+  }
+  function syncPool() {
+    var p = document.getElementById('pool'), r = document.getElementById('pool-row');
+    if (p && r) p.hidden = !(document.body.classList.contains('editing') || r.querySelector('a.char-icon'));
   }
   function toast(msg) {
     var t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
@@ -562,6 +600,7 @@ body.editing a.char-icon { -webkit-touch-callout: none; -webkit-user-select: non
     .then(function () {
       finish();
       if (EDIT) initEditor();
+      syncPool();
     });
 
   /* ---------- Modo editor ---------- */
@@ -650,7 +689,7 @@ body.editing a.char-icon { -webkit-touch-callout: none; -webkit-user-select: non
       if (!dragged) return;
       dragged.classList.remove('dragging'); dragged = null;
       document.querySelectorAll('.drop-active').forEach(function (z) { z.classList.remove('drop-active'); });
-      save();
+      syncPool(); save();
     });
 
     /* ---------- Soporte táctil: mantén pulsado un ícono ~0.35 s y arrástralo ---------- */
@@ -713,6 +752,116 @@ body.editing a.char-icon { -webkit-touch-callout: none; -webkit-user-select: non
     });
     document.getElementById('btn-exit').addEventListener('click', function () {
       location.href = location.pathname;
+    });
+
+    /* ---------- Buscador de personajes + "Sin clasificar" ---------- */
+    var CAT = [
+    ['claret','Claret','Crit DPS'],
+    ['sigrid','Sigrid','Crit DPS'],
+    ['ye-shunguang','Ye Shunguang','Crit DPS'],
+    ['banyue','Banyu','Crit DPS'],
+    ['billy-starlight','Billy Starlight','Crit DPS'],
+    ['cissia','Cissia','Crit DPS'],
+    ['pyrois','Pyrois','Crit DPS'],
+    ['seed','Seed','Crit DPS'],
+    ['yidhari','Yidhari','Crit DPS'],
+    ['yixuan','Yixuan','Crit DPS'],
+    ['anby-demara-soldier-0','Soldier 0','Crit DPS'],
+    ['evelyn','Evelyn','Crit DPS'],
+    ['harumasa','Harumasa','Crit DPS'],
+    ['nekomata','Nekomata','Crit DPS'],
+    ['orphie-and-magus','Orphie and Magus','Crit DPS'],
+    ['soldier-11','Soldier 11','Crit DPS'],
+    ['ellen','Ellen','Crit DPS'],
+    ['hugo','Hugo','Crit DPS'],
+    ['manato','Manato','Crit DPS'],
+    ['zhu-yuan','Zhu Yuan','Crit DPS'],
+    ['sunbringer','Sunbringer','Crit DPS'],
+    ['phoenix','Phoenix','Anomaly DPS'],
+    ['remielle','Remielle','Anomaly DPS'],
+    ['velina','Velina','Anomaly DPS'],
+    ['alice','Alice','Anomaly DPS'],
+    ['aria','Aria','Anomaly DPS'],
+    ['burnice','Burnice','Anomaly DPS'],
+    ['miyabi','Miyabi','Anomaly DPS'],
+    ['promeia','Promeia','Anomaly DPS'],
+    ['grace-howard','Grace Howard','Anomaly DPS'],
+    ['jane-doe','Jane Doe','Anomaly DPS'],
+    ['piper','Piper','Anomaly DPS'],
+    ['vivian','Vivian','Anomaly DPS'],
+    ['yanagi','Yanagi','Anomaly DPS'],
+    ['kafka-zzz','Kafka','Anomaly DPS'],
+    ['dialyn','Dialyn','Support'],
+    ['lucia','Lucia','Support'],
+    ['nangong-yu','Nangong Yu','Support'],
+    ['norma','Norma','Support'],
+    ['roxy','Roxy','Support'],
+    ['sunna','Sunna','Support'],
+    ['ukinami-yuzuha','Ukinami Yuzuha','Support'],
+    ['astra-yao','Astra Yao','Support'],
+    ['koleda','Koleda','Support'],
+    ['nicole-demara','Nicole Demara','Support'],
+    ['rina','Rina','Support'],
+    ['trigger','Trigger','Support'],
+    ['zhao','Zhao','Support'],
+    ['ju-fufu','Ju Fufu','Support'],
+    ['lighter','Lighter','Support'],
+    ['lycaon','Lycaon','Support'],
+    ['pan-yinhu','Pan Yinhu','Support'],
+    ['qingyi','Qingyi','Support'],
+    ['robin-zzz','Robin','Support']
+  ];
+    var wrap = document.createElement('div');
+    wrap.className = 'tl-search';
+    wrap.innerHTML = '<input type="search" id="tl-q" placeholder="Buscar personaje (' + CAT.length + ')..." autocomplete="off"><div class="tl-results" id="tl-res" hidden></div>';
+    bar.insertBefore(wrap, document.getElementById('btn-reset'));
+    var q = wrap.querySelector('input'), res = wrap.querySelector('.tl-results'), poolRow = document.getElementById('pool-row');
+    function norm(t) { return String(t).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim(); }
+    function linkOf(slug) { return document.querySelector('a.char-icon[href="./builds.html#' + slug + '"]'); }
+    function renderRes() {
+      var t = norm(q.value), list = CAT.filter(function (c) { return !t || norm(c[1]).indexOf(t) > -1 || c[0].indexOf(t) > -1; });
+      res.innerHTML = '';
+      if (!list.length) { res.innerHTML = '<div class="tl-empty">Sin resultados</div>'; return; }
+      list.forEach(function (c) {
+        var a = linkOf(c[0]), inPool = a && poolRow.contains(a);
+        var b = document.createElement('button');
+        b.type = 'button'; b.className = 'tl-opt' + (a ? ' placed' : ''); b.setAttribute('data-s', c[0]);
+        var im = document.createElement('img'); im.src = './' + c[0] + '.webp'; im.alt = ''; im.loading = 'lazy';
+        im.onerror = function () { if (!this.dataset.fb) { this.dataset.fb = 1; this.src = './' + c[0] + '_card.webp'; } else this.style.visibility = 'hidden'; };
+        var tx = document.createElement('span'); tx.textContent = c[1];
+        var sm = document.createElement('small'); sm.textContent = c[2]; tx.appendChild(sm);
+        b.appendChild(im); b.appendChild(tx);
+        if (a) { var em = document.createElement('em'); em.textContent = inPool ? 'sin clasificar' : 'ya en tier list'; b.appendChild(em); }
+        res.appendChild(b);
+      });
+    }
+    function pick(slug) {
+      var c = CAT.filter(function (x) { return x[0] === slug; })[0]; if (!c) return;
+      var a = linkOf(slug);
+      if (!a) {
+        a = build({ h: './builds.html#' + slug, t: c[1], s: './' + slug + '.webp' });
+        a.setAttribute('draggable', 'true');
+        poolRow.appendChild(a); syncPool(); save();
+        toast(c[1] + ' → Sin clasificar');
+      }
+      a.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      a.classList.remove('flash'); void a.offsetWidth; a.classList.add('flash');
+      setTimeout(function () { a.classList.remove('flash'); }, 1500);
+      renderRes();
+    }
+    q.addEventListener('focus', function () { res.hidden = false; renderRes(); });
+    q.addEventListener('input', function () { res.hidden = false; renderRes(); });
+    q.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { res.hidden = true; q.blur(); }
+      if (e.key === 'Enter') { var f = res.querySelector('.tl-opt:not(.placed)') || res.querySelector('.tl-opt'); if (f) pick(f.getAttribute('data-s')); }
+    });
+    res.addEventListener('mousedown', function (e) { e.preventDefault(); });
+    res.addEventListener('click', function (e) { var o = e.target.closest('.tl-opt'); if (o) pick(o.getAttribute('data-s')); });
+    document.addEventListener('click', function (e) { if (!wrap.contains(e.target)) res.hidden = true; });
+    document.getElementById('btn-clear-pool').addEventListener('click', function () {
+      if (!poolRow.querySelector('a.char-icon')) return;
+      if (!confirm('¿Quitar todos los personajes de "Sin clasificar"?')) return;
+      poolRow.innerHTML = ''; save(); toast('Sin clasificar vaciado');
     });
   }
 })();
