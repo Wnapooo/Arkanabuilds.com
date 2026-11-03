@@ -761,7 +761,7 @@
         ['pyrois','Pyrois','Crit DPS'], ['seed','Seed','Crit DPS'], ['yidhari','Yidhari','Crit DPS'], ['yixuan','Yixuan','Crit DPS'],
         ['anby-demara-soldier-0','Soldier 0','Crit DPS'], ['evelyn','Evelyn','Crit DPS'], ['harumasa','Harumasa','Crit DPS'],
         ['nekomata','Nekomata','Crit DPS'], ['orphie-and-magus','Orphie and Magus','Crit DPS'], ['soldier-11','Soldier 11','Crit DPS'],
-        ['ellen','Ellen','Crit DPS'], ['hugo','Hugo','Crit DPS'], ['manato','Manato','Crit DPS'], ['zhu-yuan','Zhu Yuan','Crit DPS'],
+        ['ellen','Ellen','Crit DPS'], ['hugo','Hugo','Crit DPS'], ['manato','Manato','Crit DPS'], ['zhu-yuan','Zhu Yuan','Crit DPS'], ['sunbringer','Sunbringer','Crit DPS'],
         // Anomaly DPS
         ['phoenix','Phoenix','Anomaly DPS'], ['remielle','Remielle','Anomaly DPS'], ['velina','Velina','Anomaly DPS'],
         ['alice','Alice','Anomaly DPS'], ['aria','Aria','Anomaly DPS'], ['burnice','Burnice','Anomaly DPS'],
@@ -929,7 +929,8 @@
     'ju-fufu':['fire','stun'], 'lighter':['fire','stun'], 'lycaon':['ice','stun'],
     'pan-yinhu':['physical','defence'], 'qingyi':['electric','stun'],
     // Crossover HSR (v3.4): datos provisionales, revisar cuando salgan oficiales
-    'robin-zzz':['ether','defence']
+    'robin-zzz':['ether','defence'],
+    'sunbringer':['fire','armorer']
   };
   const ZZZ_VARIANT = { 'miyabi':'Frost', 'yixuan':'Auric Ink', 'ye-shunguang':'Honed Edge' };
   const ZZZ_EL_LABEL = { electric:'Eléctrico', ether:'Éter', fire:'Fuego', ice:'Hielo', lumiflux:'Lumiflux', physical:'Físico', wind:'Viento' };
@@ -1046,7 +1047,7 @@
      Motivo según el color de cada personaje (rojo/naranja = llamas, dorado = rayos, verde = hexágonos,
      cian = cristales de hielo, azul = cortes, violeta/rosa = ondas de éter) y composición única
      generada a partir de su nombre. Para forzar un motivo: ZZZ_MOTIF['slug'] = 'flame' (flame, volt, hex, frost, slash, ether) */
-  const ZZZ_MOTIF = { 'kafka-zzz': 'volt', 'robin-zzz': 'ether' };
+  const ZZZ_MOTIF = { 'kafka-zzz': 'volt', 'robin-zzz': 'ether', 'sunbringer': 'flame' };
   function zzzFx(slug, bg) {
     let s = 2166136261;
     for (const ch of slug) s = Math.imul(s ^ ch.charCodeAt(0), 16777619) >>> 0;
@@ -1260,7 +1261,8 @@
     'pan-yinhu':['#0e1a14','#4ad08a','#f0d890',1],
     'qingyi':['#14122a','#7a8aff','#ffb0d0',2],
     'kafka-zzz':['#1c0a2e','#c04ae0','#ff4a7a',5],
-    'robin-zzz':['#0c1636','#8ab4ff','#ffe0b0',4]
+    'robin-zzz':['#0c1636','#8ab4ff','#ffe0b0',4],
+    'sunbringer':['#160709','#ff5a2a','#f5c76a',2]
   };
 
   /* Iconos de la tier list (slug -> archivo). Si falta uno se usa la imagen de la card */
@@ -2272,7 +2274,8 @@
     'yixuan': 'Agent_Yixuan_Portrait.webp',
     'zhao': 'Agent_Zhao_Portrait.webp',
     'kafka-zzz': 'Agent_Kafka_Portrait.webp',
-    'robin-zzz': 'Agent_Robin_Portrait3.webp'
+    'robin-zzz': 'Agent_Robin_Portrait3.webp',
+    'sunbringer': 'Agent_Sunbringer_Portrait.webp'
   };
 
   function imgBig(gameKey, slug) {
