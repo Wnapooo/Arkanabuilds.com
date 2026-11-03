@@ -534,7 +534,7 @@
   .bd-it img { width: 72px; height: 72px; object-fit: contain; }
   .bd-it b { font-size: 12px; line-height: 1.25; color: var(--text); }
   .bd-it em { font-style: normal; font-size: 11px; font-weight: 800; padding: 1px 7px; border-radius: 99px; background: #ff6b4a; color: #1a0a06; }
-  .bd-it em[data-t] { cursor: pointer; }
+  .bd-it em[data-t], .bd-it em[data-ct] { cursor: pointer; }
   .bd-row[data-k="echoes"] { flex-wrap: nowrap; gap: 8px; }
   .bd-row[data-k="echoes"] .bd-it { box-sizing: border-box; flex: 1 1 0; min-width: 0; width: auto; max-width: 112px; }
   .bd-it[draggable="true"] { cursor: grab; }
@@ -1473,11 +1473,11 @@
     const has = x => x.cones.length || x.arts.length || x.orn.length || (x.echoes && x.echoes.length) || Object.values(x.main).some(Boolean) || x.sub || x.talents || x.note;
     const flat = t => String(t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim();
     const original = body.innerHTML;
-    let b = empty(), timer = null, openPc = -1, dirty = false;
+    let b = empty(), timer = null, openPc = -1, openCost = -1, dirty = false;
     try { b = fix(JSON.parse(localStorage.getItem(lk))); } catch (e) {}
 
     const ecoCost = name => wwEcoCostLookup(name);  /* coste real del eco según el juego, buscado por nombre (incl. variantes Nightmare/Reminiscence/Phantom) */
-    const card = (x, k, j) => { const cc = k === 'echoes' ? ecoCost(x.n) : null; return `<div class="bd-it"${EDIT ? ` draggable="true" data-dk="${k}" data-dj="${j}"` : ''}>${W ? wwImgTag(x, wk(k)) : x.c ? `<img src="${iconUrl(x.c)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">` : '<div class="bd-ph"></div>'}<b>${esc(x.n)}</b>${cc ? `<em class="bd-cost">Coste ${cc}</em>` : ''}${x.p ? `<em${EDIT && k === 'arts' ? ` data-t="${j}" title="${W ? 'Elegir piezas del set' : 'Cambiar piezas del set'}"` : ''}>${x.p}-PC</em>` : ''}${EDIT && W && k === 'arts' && openPc === j ? `<div class="bd-pcs">${[1, 2, 3, 5].map(n => `<button type="button" data-pc="${j}:${n}" class="${x.p === n ? 'on' : ''}">${n}-PC</button>`).join('')}</div>` : ''}${EDIT ? `<button type="button" class="bd-x" data-d="${k}:${j}" aria-label="Quitar">×</button>` : ''}</div>`; };
+    const card = (x, k, j) => { const cc = k === 'echoes' ? (x.cost != null ? x.cost : ecoCost(x.n)) : null; return `<div class="bd-it"${EDIT ? ` draggable="true" data-dk="${k}" data-dj="${j}"` : ''}>${W ? wwImgTag(x, wk(k)) : x.c ? `<img src="${iconUrl(x.c)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">` : '<div class="bd-ph"></div>'}<b>${esc(x.n)}</b>${cc ? `<em class="bd-cost"${EDIT ? ` data-ct="${j}" title="Cambiar coste del eco"` : ''}>Coste ${cc}</em>` : ''}${x.p ? `<em${EDIT && k === 'arts' ? ` data-t="${j}" title="${W ? 'Elegir piezas del set' : 'Cambiar piezas del set'}"` : ''}>${x.p}-PC</em>` : ''}${EDIT && W && k === 'arts' && openPc === j ? `<div class="bd-pcs">${[1, 2, 3, 5].map(n => `<button type="button" data-pc="${j}:${n}" class="${x.p === n ? 'on' : ''}">${n}-PC</button>`).join('')}</div>` : ''}${EDIT && k === 'echoes' && openCost === j ? `<div class="bd-pcs">${[4, 3, 1].map(n => `<button type="button" data-cost="${j}:${n}" class="${cc === n ? 'on' : ''}">Coste ${n}</button>`).join('')}</div>` : ''}${EDIT ? `<button type="button" class="bd-x" data-d="${k}:${j}" aria-label="Quitar">×</button>` : ''}</div>`; };
     const fld = (f, ph, v) => EDIT ? `<input class="bd-in" data-f="${f}" maxlength="160" placeholder="${ph}" value="${esc(v || '')}">` : esc(v || '');
 
     // ---- Iconos de talentos (Ultimate / Habilidad / Talento / Atk básico / Técnica) ----
@@ -1733,6 +1733,10 @@
       if (d) { const [k, j] = d.dataset.d.split(':'); b[k].splice(+j, 1); rows(); save(); return; }
       const pc = e.target.closest('[data-pc]');
       if (pc) { const [j, n] = pc.dataset.pc.split(':').map(Number); b.arts[j].p = n; openPc = -1; rows(); save(); return; }
+      const cst = e.target.closest('[data-cost]');
+      if (cst) { const [j, n] = cst.dataset.cost.split(':').map(Number); b.echoes[j].cost = n; openCost = -1; rows(); save(); return; }
+      const ct = e.target.closest('em[data-ct]');
+      if (ct) { const j = +ct.dataset.ct; openCost = openCost === j ? -1 : j; rows(); return; }
       const t = e.target.closest('em[data-t]');
       if (t && W) { const j = +t.dataset.t; openPc = openPc === j ? -1 : j; rows(); return; }
       if (t) { const x = b.arts[+t.dataset.t]; x.p = nextP(x.p); rows(); save(); return; }
