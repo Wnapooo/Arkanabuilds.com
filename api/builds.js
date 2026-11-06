@@ -1,7 +1,9 @@
 // /api/builds?g=<juego>&c=<slug>
 export const config = { runtime: 'edge' };
 
-import { kv } from '@vercel/kv';
+import { Redis } from '@upstash/redis';
+
+const redis = Redis.fromEnv();
 
 const PAGE_RE = /^[a-z0-9-]{1,40}$/;
 const MAX_BODY = 60000;
@@ -52,7 +54,7 @@ export default async function handler(request) {
   if (!c || !PAGE_RE.test(g)) return json({ error: 'personaje inválido' }, 400);
 
   if (request.method === 'GET') {
-    const value = await kv.get('build:' + g + ':' + c);
+    const value = await redis.get('build:' + g + ':' + c);
     return json(value || {});
   }
 
@@ -72,7 +74,7 @@ export default async function handler(request) {
       main: { torso: str(m.torso, 160), botas: str(m.botas, 160), botas2: str(m.botas2, 160), esfera: str(m.esfera, 160), esfera2: str(m.esfera2, 160), cuerda: str(m.cuerda, 160) },
       sub: str(body.sub, 160), talents: str(body.talents, 160), note: str(body.note, 160),
     };
-    await kv.set('build:' + g + ':' + c, out);
+    await redis.set('build:' + g + ':' + c, out);
     return json({ ok: true });
   }
 

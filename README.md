@@ -21,12 +21,21 @@ En [vercel.com](https://vercel.com) → **Add New Project** → importá el repo
 No hace falta configurar build command ni output directory: es un sitio
 estático con funciones en `/api`, Vercel lo detecta solo.
 
-## 3. Crear el KV Store (reemplazo de TIERLIST)
+## 3. Crear la base de datos (reemplazo de TIERLIST)
 
-1. Dentro del proyecto en Vercel: pestaña **Storage** → **Create Database** → **KV**.
-2. Ponele un nombre (ej. `tierlist`) y conectalo al proyecto (esto agrega
-   automáticamente las variables `KV_REST_API_URL`, `KV_REST_API_TOKEN`, etc.
-   a tu proyecto — no hay que tocarlas a mano).
+Vercel discontinuó su KV nativo; ahora el storage de clave-valor se hace a
+través de **Upstash Redis** vía el Marketplace de Vercel:
+
+1. Dentro del proyecto en Vercel: pestaña **Storage** → en la lista de
+   "Marketplace Database Providers" elegí **Upstash** ("Serverless DB
+   (Redis, Vector, Queue, Search)").
+2. Seguí el flujo: elegí **Redis**, poné un nombre (ej. `tierlist`),
+   región, y confirmá la creación.
+3. Conectá la base al proyecto Arkanabuilds (normalmente te lo pide el
+   mismo flujo, o hay un botón "Connect Project" después de crearla).
+4. Esto agrega automáticamente `UPSTASH_REDIS_REST_URL` y
+   `UPSTASH_REDIS_REST_TOKEN` a las variables de entorno del proyecto —
+   no hace falta tocarlas a mano.
 
 > Los datos viejos que tenías en el KV de Cloudflare **no se copian solos**.
 > Si querés migrar el contenido existente (layouts, teams, dupes, builds ya

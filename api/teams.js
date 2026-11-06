@@ -1,7 +1,9 @@
 // /api/teams?c=<slug>
 export const config = { runtime: 'edge' };
 
-import { kv } from '@vercel/kv';
+import { Redis } from '@upstash/redis';
+
+const redis = Redis.fromEnv();
 
 const PAGE_RE = /^[a-z0-9-]{1,40}$/;
 const MAX_BODY = 60000;
@@ -40,7 +42,7 @@ export default async function handler(request) {
   if (!c) return json({ error: 'personaje inválido' }, 400);
 
   if (request.method === 'GET') {
-    const value = await kv.get('teams:' + c);
+    const value = await redis.get('teams:' + c);
     return json(value || { teams: [] });
   }
 
@@ -57,7 +59,7 @@ export default async function handler(request) {
         .filter((s) => typeof s === 'string' && PAGE_RE.test(s))
         .slice(0, MAX_TEAM),
     }));
-    await kv.set('teams:' + c, { teams });
+    await redis.set('teams:' + c, { teams });
     return json({ ok: true });
   }
 

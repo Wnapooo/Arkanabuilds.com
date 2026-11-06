@@ -1,7 +1,9 @@
 // /api/dupes?g=<juego>&c=<slug>
 export const config = { runtime: 'edge' };
 
-import { kv } from '@vercel/kv';
+import { Redis } from '@upstash/redis';
+
+const redis = Redis.fromEnv();
 
 const PAGE_RE = /^[a-z0-9-]{1,40}$/;
 const MAX_BODY = 60000;
@@ -41,7 +43,7 @@ export default async function handler(request) {
   if (!c || !PAGE_RE.test(g)) return json({ error: 'personaje inválido' }, 400);
 
   if (request.method === 'GET') {
-    const value = await kv.get('dupes:' + g + ':' + c);
+    const value = await redis.get('dupes:' + g + ':' + c);
     return json(value || { text: '' });
   }
 
@@ -53,8 +55,8 @@ export default async function handler(request) {
     try { body = JSON.parse(text); } catch { return json({ error: 'JSON inválido' }, 400); }
     if (!body || typeof body.text !== 'string') return json({ error: 'formato inválido' }, 400);
     const clean = body.text.slice(0, MAX_DUPES);
-    if (clean.trim()) await kv.set('dupes:' + g + ':' + c, { text: clean });
-    else await kv.del('dupes:' + g + ':' + c);
+    if (clean.trim()) await redis.set('dupes:' + g + ':' + c, { text: clean });
+    else await redis.del('dupes:' + g + ':' + c);
     return json({ ok: true });
   }
 

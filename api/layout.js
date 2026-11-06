@@ -1,7 +1,9 @@
 // /api/layout?page=<slug>  (equivalente a onRequestGet/Put/Delete del Worker original)
 export const config = { runtime: 'edge' };
 
-import { kv } from '@vercel/kv';
+import { Redis } from '@upstash/redis';
+
+const redis = Redis.fromEnv();
 
 const PAGE_RE = /^[a-z0-9-]{1,40}$/;
 const SAFE_PATH = /^\.\/[\w\-.\/#]{1,150}$/;
@@ -58,7 +60,7 @@ export default async function handler(request) {
   if (!page) return json({ error: 'page inválida' }, 400);
 
   if (request.method === 'GET') {
-    const value = await kv.get('layout:' + page);
+    const value = await redis.get('layout:' + page);
     if (!value) return json(null, 404);
     return json(value);
   }
@@ -70,13 +72,13 @@ export default async function handler(request) {
     let body;
     try { body = JSON.parse(text); } catch { return json({ error: 'JSON inválido' }, 400); }
     if (!valid(body)) return json({ error: 'formato inválido' }, 400);
-    await kv.set('layout:' + page, { base: body.base, layout: body.layout });
+    await redis.set('layout:' + page, { base: body.base, layout: body.layout });
     return json({ ok: true });
   }
 
   if (request.method === 'DELETE') {
     if (!(await authorized(request))) return json({ error: 'no autorizado' }, 401);
-    await kv.del('layout:' + page);
+    await redis.del('layout:' + page);
     return json({ ok: true });
   }
 
