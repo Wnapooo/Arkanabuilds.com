@@ -3,7 +3,10 @@ export const config = { runtime: 'edge' };
 
 import { Redis } from '@upstash/redis';
 
-const redis = Redis.fromEnv();
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_KV_REST_API_URL,
+  token: process.env.UPSTASH_REDIS_REST_KV_REST_API_TOKEN,
+});
 
 const PAGE_RE = /^[a-z0-9-]{1,40}$/;
 const SAFE_PATH = /^\.\/[\w\-.\/#]{1,150}$/;
