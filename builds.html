@@ -1388,20 +1388,39 @@ body.sm-open .sm-backdrop { opacity: 1; pointer-events: auto; }
   /* ============================================================
      BUILD ESTRUCTURADA: conos, artefactos, ornamentos y stats
      Editar con ?edit (buscador). GET/PUT /api/builds?g=<juego>&c=<slug>
-     Catálogo e iconos: StarRailRes (jsDelivr). Sin build guardada se
+     Catálogo e iconos HSR: Project Yatta (sr.yatta.moe/es), respaldo StarRailRes (jsDelivr). Sin build guardada se
      muestra la imagen de siempre.
      ============================================================ */
   const SRR = 'https://cdn.jsdelivr.net/gh/Mar-7th/StarRailRes@master/';
   let catP = null, buildToken = 0;
-  function loadCatalog() {
-    if (catP) return catP;
+  /* HSR: catálogo desde Project Yatta (https://sr.yatta.moe/es). Si falla, usa StarRailRes como respaldo.
+     Los IDs son los mismos del juego, así que las builds ya guardadas siguen funcionando. */
+  const YATTA = 'https://sr.yatta.moe/';
+  const yattaIcon = (kind, id) => YATTA + 'hsr/assets/UI/' + kind + '/' + (kind === 'equipment' ? 'medium/' : '') + id + '.png';
+  function loadYatta() {
+    const get = ep => fetch(YATTA + 'api/v2/es/' + ep).then(r => r.ok ? r.json() : Promise.reject(new Error(ep + ' ' + r.status)));
+    const items = j => { const d = j && j.data; const o = d && (d.items || d); return Array.isArray(o) ? o : Object.values(o || {}); };
+    return Promise.all([get('equipment'), get('relic')]).then(([lc, rs]) => {
+      const cones = items(lc).filter(x => x && x.id != null && x.name).map(x => ({ i: String(x.id), n: String(x.name), c: yattaIcon('equipment', x.id) }));
+      /* Sets de artefactos: IDs 1xx = cavern (4 piezas), 3xx = ornamento planar (2 piezas) */
+      const sets = items(rs).filter(x => x && x.id != null && x.name).map(x => ({ i: String(x.id), n: String(x.name), c: yattaIcon('relic', x.id), planar: String(x.id).charAt(0) === '3' }));
+      if (!cones.length || !sets.length) throw new Error('Yatta vacío');
+      return { cones, sets };
+    });
+  }
+  function loadStarRailRes() {
     const get = l => Promise.all(['light_cones', 'relic_sets'].map(f =>
       fetch(SRR + 'index_min/' + l + '/' + f + '.json').then(r => r.ok ? r.json() : Promise.reject())));
     const arr = o => Array.isArray(o) ? o : Object.values(o || {});
-    catP = get('es').catch(() => get('en')).then(([lc, rs]) => ({
+    return get('es').catch(() => get('en')).then(([lc, rs]) => ({
       cones: arr(lc).filter(x => x && x.name && x.icon).map(x => ({ i: String(x.id), n: x.name, c: x.icon })),
       sets: arr(rs).filter(x => x && x.name && x.icon).map(x => ({ i: String(x.id), n: x.name, c: x.icon, planar: (x.desc || []).length < 2 }))
-    })).catch(e => { catP = null; throw e; });
+    }));
+  }
+  function loadCatalog() {
+    if (catP) return catP;
+    catP = loadYatta().catch(e => { console.warn('[HSR] Yatta falló, usando StarRailRes:', e); return loadStarRailRes(); })
+      .catch(e => { catP = null; throw e; });
     return catP;
   }
   const NK = 'https://static.nanoka.cc';
@@ -1577,7 +1596,7 @@ body.sm-open .sm-backdrop { opacity: 1; pointer-events: auto; }
     const LIM = W ? { cones: 5, arts: 3, orn: 0, echoes: 5 } : Z ? { cones: 2, arts: 4, orn: 3 } : { cones: 5, arts: 4, orn: 3 };
     const SEC = W ? [['cones', 'Armas', 'arma'], ['arts', 'Sets de ecos', 'set de ecos'], ['echoes', 'Ecos recomendados', 'eco']] : Z ? [['cones', 'Motores-W', 'motor-W'], ['arts', 'Discos de motor (4-PC)', 'disco de motor'], ['orn', 'Discos de motor (2-PC)', 'disco de motor 2-PC']] : [['cones', 'Conos de luz', 'cono de luz'], ['arts', 'Artefactos', 'artefacto'], ['orn', 'Ornamentos', 'ornamento']];
     const MAIN = W ? [['torso', 'Eco costo 4'], ['botas', 'Eco costo 3'], ['botas2', 'Eco costo 3'], ['esfera', 'Eco costo 1'], ['esfera2', 'Eco costo 1']] : Z ? [['torso', 'Disco 4'], ['botas', 'Disco 5'], ['esfera', 'Disco 6']] : [['torso', 'Torso'], ['botas', 'Botas'], ['esfera', 'Esfera'], ['cuerda', 'Cuerda']];
-    const iconUrl = c => !c ? '' : W ? c : Z ? NK + '/assets/zzz/' + c + '.webp' : SRR + c;
+    const iconUrl = c => !c ? '' : W ? c : /^https?:/i.test(c) ? c : Z ? NK + '/assets/zzz/' + c + '.webp' : SRR + c;
     const catalog = () => W ? loadWuwa() : Z ? loadZzz() : loadCatalog();
     /* WuWa: 5 ecos en total; hay sets de 1, 2, 3 o 5 piezas. Si el set tiene piezas fijas (WW_FIXED_P) se usan esas;
        si no, toma las que faltan para completar 5 (si hay un 3-PC, el siguiente es 2-PC). Se cambia pulsando la etiqueta. */
