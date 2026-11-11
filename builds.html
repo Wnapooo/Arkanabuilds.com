@@ -1397,6 +1397,16 @@ body.sm-open .sm-backdrop { opacity: 1; pointer-events: auto; }
      Los IDs son los mismos del juego, así que las builds ya guardadas siguen funcionando. */
   const YATTA = 'https://sr.yatta.moe/';
   const yattaIcon = (kind, id) => YATTA + 'hsr/assets/UI/' + kind + '/' + (kind === 'equipment' ? 'medium/' : '') + id + '.png';
+  /* Si el icono de un set falla, prueba en cadena otras fuentes (jsDelivr, GitHub raw, Yatta, icono de la pieza) y al final lo oculta */
+  const SRR_GH = 'https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/';
+  window.hsrRelicErr = function (img, id) {
+    id = String(id).replace(/\D/g, '');
+    const L = [SRR + 'icon/relic/' + id + '.png', SRR_GH + 'icon/relic/' + id + '.png',
+      YATTA + 'hsr/assets/UI/relic/' + id + '.png', YATTA + 'hsr/assets/UI/relic/medium/' + id + '.png',
+      SRR + 'icon/relic/' + id + '_0.png', SRR_GH + 'icon/relic/' + id + '_0.png'];
+    const n = +img.dataset.n || 0;
+    if (n < L.length) { img.dataset.n = n + 1; img.src = L[n]; } else img.style.visibility = 'hidden';
+  };
   function loadYatta() {
     const get = ep => fetch(YATTA + 'api/v2/es/' + ep).then(r => r.ok ? r.json() : Promise.reject(new Error(ep + ' ' + r.status)));
     const items = j => { const d = j && j.data; const o = d && (d.items || d); return Array.isArray(o) ? o : Object.values(o || {}); };
@@ -1603,7 +1613,7 @@ body.sm-open .sm-backdrop { opacity: 1; pointer-events: auto; }
     const MAIN = W ? [['torso', 'Eco costo 4'], ['botas', 'Eco costo 3'], ['botas2', 'Eco costo 3'], ['esfera', 'Eco costo 1'], ['esfera2', 'Eco costo 1']] : Z ? [['torso', 'Disco 4'], ['botas', 'Disco 5'], ['esfera', 'Disco 6']] : [['torso', 'Torso'], ['botas', 'Botas'], ['esfera', 'Esfera'], ['cuerda', 'Cuerda']];
     const iconUrl = c => !c ? '' : W ? c : /^https?:/i.test(c) ? c : Z ? NK + '/assets/zzz/' + c + '.webp' : SRR + c;
     /* Si el icono de Yatta falla (sets de reliquias), prueba StarRailRes y, si tampoco, oculta la imagen */
-    const imgFb = (k, x) => (!W && !Z && (k === 'arts' || k === 'orn') && x && x.i) ? "if(!this.dataset.f){this.dataset.f=1;this.src='" + SRR + "icon/relic/" + String(x.i).replace(/[^0-9]/g, '') + ".png'}else{this.style.visibility='hidden'}" : "this.style.visibility='hidden'";
+    const imgFb = (k, x) => (!W && !Z && (k === 'arts' || k === 'orn') && x && x.i) ? "hsrRelicErr(this,'" + String(x.i).replace(/\D/g, '') + "')" : "this.style.visibility='hidden'";
     const catalog = () => W ? loadWuwa() : Z ? loadZzz() : loadCatalog();
     /* WuWa: 5 ecos en total; hay sets de 1, 2, 3 o 5 piezas. Si el set tiene piezas fijas (WW_FIXED_P) se usan esas;
        si no, toma las que faltan para completar 5 (si hay un 3-PC, el siguiente es 2-PC). Se cambia pulsando la etiqueta. */
