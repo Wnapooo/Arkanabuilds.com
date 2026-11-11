@@ -1398,10 +1398,31 @@ body.sm-open .sm-backdrop { opacity: 1; pointer-events: auto; }
     const get = l => Promise.all(['light_cones', 'relic_sets'].map(f =>
       fetch(SRR + 'index_min/' + l + '/' + f + '.json').then(r => r.ok ? r.json() : Promise.reject())));
     const arr = o => Array.isArray(o) ? o : Object.values(o || {});
-    catP = get('es').catch(() => get('en')).then(([lc, rs]) => ({
-      cones: arr(lc).filter(x => x && x.name && x.icon).map(x => ({ i: String(x.id), n: x.name, c: x.icon })),
-      sets: arr(rs).filter(x => x && x.name && x.icon).map(x => ({ i: String(x.id), n: x.name, c: x.icon, planar: (x.desc || []).length < 2 }))
-    })).catch(e => { catP = null; throw e; });
+    /* Conos nuevos que el catálogo online (StarRailRes) aún no trae. Se añaden solos y desaparecen cuando el catálogo ya los incluya.
+       n = nombre, c = icono opcional (ruta relativa a SRR, p.ej. 'icon/light_cone/XXXXX.png'; vacío = cuadro sin imagen). */
+    const HSR_EXTRA_CONES = [
+      { i: 'x-aha-sig', n: 'Upon the First Echo of \u201cAHA\u201d', c: '', k: 'aha' }
+    ];
+    /* Hakush.in: datos beta de HSR, se actualiza antes que StarRailRes. Si falla o tarda, se ignora y se usa solo StarRailRes. */
+    const HK = 'https://api.hakush.in/hsr/';
+    const hakushCones = () => Promise.race([
+      fetch(HK + 'data/lightcone.json').then(r => r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status))),
+      new Promise((_, no) => setTimeout(() => no(new Error('timeout')), 6000))
+    ]).then(o => Object.keys(o || {}).filter(id => /^\d+$/.test(id)).map(id => {
+      const x = o[id] || {};
+      return { i: id, n: x.en || x.name || '', c: HK + 'UI/lightconemini/' + id + '.webp' };
+    }).filter(x => x.n)).catch(e => { console.warn('[HSR] Hakush.in no disponible, uso solo StarRailRes:', e && e.message); return []; });
+    catP = Promise.all([get('es').catch(() => get('en')), hakushCones()]).then(([[lc, rs], hk]) => {
+      const base = arr(lc).filter(x => x && x.name && x.icon).map(x => ({ i: String(x.id), n: x.name, c: x.icon }));
+      const ids = new Set(base.map(x => x.i));
+      const nuevos = hk.filter(x => !ids.has(x.i));
+      const all = base.concat(nuevos);
+      const extra = HSR_EXTRA_CONES.filter(e => !all.some(x => String(x.n).toLowerCase().includes(e.k)));
+      return {
+        cones: all.concat(extra),
+        sets: arr(rs).filter(x => x && x.name && x.icon).map(x => ({ i: String(x.id), n: x.name, c: x.icon, planar: (x.desc || []).length < 2 }))
+      };
+    }).catch(e => { catP = null; throw e; });
     return catP;
   }
   const NK = 'https://static.nanoka.cc';
@@ -1577,7 +1598,7 @@ body.sm-open .sm-backdrop { opacity: 1; pointer-events: auto; }
     const LIM = W ? { cones: 5, arts: 3, orn: 0, echoes: 5 } : Z ? { cones: 2, arts: 4, orn: 3 } : { cones: 5, arts: 4, orn: 3 };
     const SEC = W ? [['cones', 'Armas', 'arma'], ['arts', 'Sets de ecos', 'set de ecos'], ['echoes', 'Ecos recomendados', 'eco']] : Z ? [['cones', 'Motores-W', 'motor-W'], ['arts', 'Discos de motor (4-PC)', 'disco de motor'], ['orn', 'Discos de motor (2-PC)', 'disco de motor 2-PC']] : [['cones', 'Conos de luz', 'cono de luz'], ['arts', 'Artefactos', 'artefacto'], ['orn', 'Ornamentos', 'ornamento']];
     const MAIN = W ? [['torso', 'Eco costo 4'], ['botas', 'Eco costo 3'], ['botas2', 'Eco costo 3'], ['esfera', 'Eco costo 1'], ['esfera2', 'Eco costo 1']] : Z ? [['torso', 'Disco 4'], ['botas', 'Disco 5'], ['esfera', 'Disco 6']] : [['torso', 'Torso'], ['botas', 'Botas'], ['esfera', 'Esfera'], ['cuerda', 'Cuerda']];
-    const iconUrl = c => !c ? '' : W ? c : Z ? NK + '/assets/zzz/' + c + '.webp' : SRR + c;
+    const iconUrl = c => !c ? '' : /^https?:/.test(c) ? c : W ? c : Z ? NK + '/assets/zzz/' + c + '.webp' : SRR + c;
     const catalog = () => W ? loadWuwa() : Z ? loadZzz() : loadCatalog();
     /* WuWa: 5 ecos en total; hay sets de 1, 2, 3 o 5 piezas. Si el set tiene piezas fijas (WW_FIXED_P) se usan esas;
        si no, toma las que faltan para completar 5 (si hay un 3-PC, el siguiente es 2-PC). Se cambia pulsando la etiqueta. */
