@@ -644,6 +644,24 @@
   .bd-opt:hover { background: rgba(255,255,255,.08); }
   .bd-opt img { width: 36px; height: 36px; object-fit: contain; }
   .bd-opt.used { opacity: .45; }
+  .bd-findrow { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-start; margin-bottom: 10px; }
+  .bd-findrow .bd-find { flex: 1 1 220px; margin-bottom: 0; }
+  .bd-allbtn, .bd-gonly, .bd-gclose { font: inherit; font-size: 13px; font-weight: 700; padding: 7px 12px; border-radius: 8px; border: 1px solid var(--e2); background: rgba(255,255,255,.06); color: var(--text); cursor: pointer; white-space: nowrap; }
+  .bd-allbtn:hover, .bd-gonly:hover, .bd-gclose:hover { border-color: #ff6b4a; }
+  .bd-gonly.on { background: #ff6b4a; color: #1a0a06; border-color: #ff6b4a; }
+  .bd-allwrap { margin-top: 10px; padding: 10px; border-radius: 12px; background: rgba(0,0,0,.35); border: 1px solid var(--card-border); }
+  .bd-allbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .bd-gcount { flex: 1 1 auto; font-size: 13px; font-weight: 700; color: var(--muted); }
+  .bd-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px; max-height: 420px; overflow: auto; padding-right: 4px; }
+  .bd-gtile { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 4px; border-radius: 10px; border: 1px solid var(--card-border); background: rgba(255,255,255,.04); color: var(--text); font: inherit; text-align: center; cursor: pointer; }
+  .bd-gtile:hover { border-color: #ff6b4a; }
+  .bd-gtile img, .bd-gtile .bd-ph { width: 56px; height: 56px; object-fit: contain; border-radius: 8px; }
+  .bd-gtile span { font-size: 11px; font-weight: 700; line-height: 1.2; }
+  .bd-gtile small { font-size: 10px; color: var(--muted); }
+  .bd-gtile.used { opacity: .45; }
+  .bd-gtile.miss { border-color: #ef4444; background: rgba(239,68,68,.14); }
+  .bd-allwrap.only .bd-gtile:not(.miss) { display: none; }
+
   .bd-ph { width: 72px; height: 72px; border-radius: 10px; background: rgba(255,255,255,.06); }
   .bd-tal-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
   .bd-tal-chip { display: inline-flex; align-items: center; gap: 7px; padding: 5px 10px 5px 5px; border-radius: 999px; background: rgba(255,255,255,.06); border: 1px solid var(--card-border); font-size: 14px; font-weight: 700; color: var(--text); }
@@ -1399,13 +1417,42 @@ body.sm-open .sm-backdrop { opacity: 1; pointer-events: auto; }
   const yattaIcon = (kind, id) => YATTA + 'hsr/assets/UI/' + kind + '/' + (kind === 'equipment' ? 'medium/' : '') + id + '.png';
   /* Si el icono de un set falla, prueba en cadena otras fuentes (jsDelivr, GitHub raw, Yatta, icono de la pieza) y al final lo oculta */
   const SRR_GH = 'https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/';
-  window.hsrRelicErr = function (img, id) {
+  window.bdCount = function (wrap) {
+    const t = wrap.querySelectorAll('.bd-gtile').length, m = wrap.querySelectorAll('.bd-gtile.miss').length;
+    wrap.querySelector('.bd-gcount').textContent = t + ' en catálogo · ' + m + ' sin icono' + (wrap.dataset.done ? '' : ' (comprobando…)');
+  };
+  /* Sin icono tras probar todas las fuentes: cuadro "?" visible (en vez de ocultarlo) y marca roja en la vista "Ver todo" */
+  const MISS_SVG = 'data:image/svg+xml,' + encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' width='72' height='72'><rect x='2' y='2' width='68' height='68' rx='10' fill='none' stroke='#ff6b4a' stroke-width='2' stroke-dasharray='5 4'/><text x='36' y='47' font-size='30' text-anchor='middle' fill='#ff6b4a' font-family='sans-serif'>?</text></svg>");
+  window.hsrMiss = function (img) {
+    img.onerror = null; img.src = MISS_SVG; img.classList.add('bd-miss');
+    const box = img.closest('.bd-gtile, .bd-it');
+    console.warn('[HSR] sin icono:', box ? box.textContent.trim() : img.getAttribute('src'));
+    const t = img.closest('.bd-gtile');
+    if (t) { t.classList.add('miss'); const w = t.closest('.bd-allwrap'); if (w) window.bdCount(w); }
+  };
+  /* Icono de la API de Yatta (ruta relativa -> URL completa) */
+  const yattaApi = p => {
+    if (typeof p !== 'string' || !p) return '';
+    if (/^https?:/i.test(p)) return p;
+    p = p.replace(/^\/+/, '');
+    if (!/\.(png|webp|jpg)$/i.test(p)) p += '.png';
+    if (!/^hsr\//.test(p)) p = 'hsr/assets/' + (/^UI\//.test(p) ? '' : 'UI/') + p;
+    return YATTA + p;
+  };
+  /* Si un icono falla (cono o set), prueba en cadena otras fuentes y, si ninguna sirve, muestra el cuadro "?" */
+  window.hsrImgErr = function (img, kind, id) {
     id = String(id).replace(/\D/g, '');
-    const L = [SRR + 'icon/relic/' + id + '.png', SRR_GH + 'icon/relic/' + id + '.png',
-      YATTA + 'hsr/assets/UI/relic/' + id + '.png', YATTA + 'hsr/assets/UI/relic/medium/' + id + '.png',
-      SRR + 'icon/relic/' + id + '_0.png', SRR_GH + 'icon/relic/' + id + '_0.png'];
-    const n = +img.dataset.n || 0;
-    if (n < L.length) { img.dataset.n = n + 1; img.src = L[n]; } else img.style.visibility = 'hidden';
+    const eq = YATTA + 'hsr/assets/UI/equipment/', rl = YATTA + 'hsr/assets/UI/relic/';
+    const L = kind === 'cone'
+      ? [SRR + 'icon/light_cone/' + id + '.png', SRR_GH + 'icon/light_cone/' + id + '.png', eq + 'medium/' + id + '.png', eq + 'large/' + id + '.png', eq + id + '.png',
+         SRR + 'image/light_cone_preview/' + id + '.png', SRR_GH + 'image/light_cone_preview/' + id + '.png']
+      : [SRR + 'icon/relic/' + id + '.png', SRR_GH + 'icon/relic/' + id + '.png', rl + id + '.png', rl + 'medium/' + id + '.png',
+         SRR + 'icon/relic/' + id + '_0.png', SRR_GH + 'icon/relic/' + id + '_0.png', rl + id + '_0.png'];
+    if (img.dataset.alt) L.unshift(img.dataset.alt);
+    const cur = img.getAttribute('src');
+    let n = +img.dataset.n || 0;
+    while (n < L.length && L[n] === cur) n++;
+    if (n < L.length) { img.dataset.n = n + 1; img.src = L[n]; } else window.hsrMiss(img);
   };
   function loadYatta() {
     const get = ep => fetch(YATTA + 'api/v2/es/' + ep).then(r => r.ok ? r.json() : Promise.reject(new Error(ep + ' ' + r.status)));
@@ -1416,9 +1463,9 @@ body.sm-open .sm-backdrop { opacity: 1; pointer-events: auto; }
       .then(o => { const m = {}; (Array.isArray(o) ? o : Object.values(o || {})).forEach(x => { if (x && x.id != null && x.icon) m[String(x.id)] = x.icon; }); return m; })
       .catch(() => ({}));
     return Promise.all([get('equipment'), get('relic'), srrIcons()]).then(([lc, rs, ri]) => {
-      const cones = items(lc).filter(x => x && x.id != null && x.name).map(x => ({ i: String(x.id), n: String(x.name), c: yattaIcon('equipment', x.id) }));
+      const cones = items(lc).filter(x => x && x.id != null && x.name).map(x => ({ i: String(x.id), n: String(x.name), c: yattaIcon('equipment', x.id), u: yattaApi(x.icon) }));
       /* Sets de artefactos: IDs 1xx = cavern (4 piezas), 3xx = ornamento planar (2 piezas) */
-      const sets = items(rs).filter(x => x && x.id != null && x.name).map(x => ({ i: String(x.id), n: String(x.name), c: ri[String(x.id)] || yattaIcon('relic', x.id), planar: String(x.id).charAt(0) === '3' }));
+      const sets = items(rs).filter(x => x && x.id != null && x.name).map(x => ({ i: String(x.id), n: String(x.name), c: ri[String(x.id)] || yattaIcon('relic', x.id), u: yattaApi(x.icon), planar: String(x.id).charAt(0) === '3' }));
       if (!cones.length || !sets.length) throw new Error('Yatta vacío');
       return { cones, sets };
     });
@@ -1613,7 +1660,8 @@ body.sm-open .sm-backdrop { opacity: 1; pointer-events: auto; }
     const MAIN = W ? [['torso', 'Eco costo 4'], ['botas', 'Eco costo 3'], ['botas2', 'Eco costo 3'], ['esfera', 'Eco costo 1'], ['esfera2', 'Eco costo 1']] : Z ? [['torso', 'Disco 4'], ['botas', 'Disco 5'], ['esfera', 'Disco 6']] : [['torso', 'Torso'], ['botas', 'Botas'], ['esfera', 'Esfera'], ['cuerda', 'Cuerda']];
     const iconUrl = c => !c ? '' : W ? c : /^https?:/i.test(c) ? c : Z ? NK + '/assets/zzz/' + c + '.webp' : SRR + c;
     /* Si el icono de Yatta falla (sets de reliquias), prueba StarRailRes y, si tampoco, oculta la imagen */
-    const imgFb = (k, x) => (!W && !Z && (k === 'arts' || k === 'orn') && x && x.i) ? "hsrRelicErr(this,'" + String(x.i).replace(/\D/g, '') + "')" : "this.style.visibility='hidden'";
+    const imgFb = (k, x) => (!W && !Z && x && x.i && (k === 'cones' || k === 'arts' || k === 'orn')) ? "hsrImgErr(this,'" + (k === 'cones' ? 'cone' : 'relic') + "','" + String(x.i).replace(/\D/g, '') + "')" : "hsrMiss(this)";
+    const imgTag = (k, x, lazy) => x.c ? `<img src="${iconUrl(x.c)}" alt="" ${lazy ? 'loading="lazy" ' : ''}referrerpolicy="no-referrer"${x.u ? ` data-alt="${esc(x.u)}"` : ''} onerror="${imgFb(k, x)}">` : '<div class="bd-ph"></div>';
     const catalog = () => W ? loadWuwa() : Z ? loadZzz() : loadCatalog();
     /* WuWa: 5 ecos en total; hay sets de 1, 2, 3 o 5 piezas. Si el set tiene piezas fijas (WW_FIXED_P) se usan esas;
        si no, toma las que faltan para completar 5 (si hay un 3-PC, el siguiente es 2-PC). Se cambia pulsando la etiqueta. */
@@ -1636,7 +1684,7 @@ body.sm-open .sm-backdrop { opacity: 1; pointer-events: auto; }
     try { b = fix(JSON.parse(localStorage.getItem(lk))); } catch (e) {}
 
     const ecoCost = name => wwEcoCostLookup(name);  /* coste real del eco según el juego, buscado por nombre (incl. variantes Nightmare/Reminiscence/Phantom) */
-    const card = (x, k, j) => { const cc = k === 'echoes' ? (x.cost != null ? x.cost : ecoCost(x.n)) : null; return `<div class="bd-it"${EDIT ? ` draggable="true" data-dk="${k}" data-dj="${j}"` : ''}>${W ? wwImgTag(x, wk(k)) : x.c ? `<img src="${iconUrl(x.c)}" alt="" loading="lazy" onerror="${imgFb(k, x)}">` : '<div class="bd-ph"></div>'}<b>${esc(x.n)}</b>${k === 'echoes' ? (EDIT ? `<div class="bd-costsel">${[4, 3, 1].map(n => `<button type="button" data-cost="${j}:${n}" class="${cc === n ? 'on' : ''}">COST ${n}</button>`).join('')}</div>` : `<em class="bd-cost${cc ? '' : ' bd-cost-unk'}">COST ${cc || '?'}</em>`) : ''}${x.p ? `<em${EDIT && k === 'arts' ? ` data-t="${j}" title="${W ? 'Elegir piezas del set' : 'Cambiar piezas del set'}"` : ''}>${x.p}-PC</em>` : ''}${EDIT && W && k === 'arts' && openPc === j ? `<div class="bd-pcs">${[1, 2, 3, 5].map(n => `<button type="button" data-pc="${j}:${n}" class="${x.p === n ? 'on' : ''}">${n}-PC</button>`).join('')}</div>` : ''}${EDIT ? `<button type="button" class="bd-x" data-d="${k}:${j}" aria-label="Quitar">×</button>` : ''}</div>`; };
+    const card = (x, k, j) => { const cc = k === 'echoes' ? (x.cost != null ? x.cost : ecoCost(x.n)) : null; return `<div class="bd-it"${EDIT ? ` draggable="true" data-dk="${k}" data-dj="${j}"` : ''}>${W ? wwImgTag(x, wk(k)) : imgTag(k, x, true)}<b>${esc(x.n)}</b>${k === 'echoes' ? (EDIT ? `<div class="bd-costsel">${[4, 3, 1].map(n => `<button type="button" data-cost="${j}:${n}" class="${cc === n ? 'on' : ''}">COST ${n}</button>`).join('')}</div>` : `<em class="bd-cost${cc ? '' : ' bd-cost-unk'}">COST ${cc || '?'}</em>`) : ''}${x.p ? `<em${EDIT && k === 'arts' ? ` data-t="${j}" title="${W ? 'Elegir piezas del set' : 'Cambiar piezas del set'}"` : ''}>${x.p}-PC</em>` : ''}${EDIT && W && k === 'arts' && openPc === j ? `<div class="bd-pcs">${[1, 2, 3, 5].map(n => `<button type="button" data-pc="${j}:${n}" class="${x.p === n ? 'on' : ''}">${n}-PC</button>`).join('')}</div>` : ''}${EDIT ? `<button type="button" class="bd-x" data-d="${k}:${j}" aria-label="Quitar">×</button>` : ''}</div>`; };
     const fld = (f, ph, v) => EDIT ? `<input class="bd-in" data-f="${f}" maxlength="160" placeholder="${ph}" value="${esc(v || '')}">` : esc(v || '');
 
     // ---- Iconos de talentos (Ultimate / Habilidad / Talento / Atk básico / Técnica) ----
@@ -1831,9 +1879,10 @@ body.sm-open .sm-backdrop { opacity: 1; pointer-events: auto; }
       if (token !== buildToken) return;
       dupesBack();
       if (!EDIT && !has(b)) { body.innerHTML = original; return; }
-      const find = (k, w) => EDIT ? `<div class="bd-find"><input type="search" class="bd-q" data-k="${k}" placeholder="Buscar ${w}... (Enter añade el texto)" autocomplete="off" aria-label="Buscar"><div class="bd-res" hidden></div></div>` : '';
+      const find = (k, w) => EDIT ? `<div class="bd-findrow"><div class="bd-find"><input type="search" class="bd-q" data-k="${k}" placeholder="Buscar ${w}... (Enter añade el texto)" autocomplete="off" aria-label="Buscar"><div class="bd-res" hidden></div></div><button type="button" class="bd-allbtn" data-all="${k}">Ver todo</button></div>` : '';
+      const allwrap = k => EDIT ? `<div class="bd-allwrap" data-k="${k}" hidden><div class="bd-allbar"><span class="bd-gcount">Cargando…</span><button type="button" class="bd-gonly">Solo sin icono</button><button type="button" class="bd-gclose">Cerrar</button></div><div class="bd-grid"></div></div>` : '';
       body.innerHTML = `<div class="bd"><div class="bd-l">
-        ${SEC.map(([k, t, w]) => `<section data-s="${k}"><h4>${t}</h4>${find(k, w)}<div class="bd-row" data-k="${k}"></div></section>`).join('')}
+        ${SEC.map(([k, t, w]) => `<section data-s="${k}"><h4>${t}</h4>${find(k, w)}<div class="bd-row" data-k="${k}"></div>${allwrap(k)}</section>`).join('')}
       </div><div class="bd-r">
         <section class="bd-box"><h4>Stats principales</h4>${MAIN.map(([k, l]) => `<div class="bd-line" data-l="${k}"><span>${l}</span><div>${fld('main.' + k, 'Ej: CRIT Rate &gt; CRIT DMG', b.main[k])}</div></div>`).join('')}</section>
         <section class="bd-box"><h4>Stats secundarias <small>(prioridad)</small></h4><div class="bd-big" data-l="sub">${fld('sub', 'Ej: CRIT Rate &gt; CRIT DMG &gt; ATK% &gt; SPD', b.sub)}</div><div class="bd-note" data-l="note">${fld('note', 'Objetivo: ~100% CRIT Rate, 130-150% CRIT DMG...', b.note)}</div></section>
@@ -1891,13 +1940,49 @@ body.sm-open .sm-backdrop { opacity: 1; pointer-events: auto; }
           if (flat(t.value.trim()) !== q) return;
           const src = k === 'cones' ? cat.cones : k === 'echoes' ? (cat.echoes || []) : (Z || W) ? cat.sets : cat.sets.filter(x => x.planar === (k === 'orn'));
           const hit = src.filter(x => flat(x.n).includes(q)).slice(0, 30);
-          res.innerHTML = hit.length ? hit.map(x => `<button type="button" class="bd-opt${b[k].some(y => y.i === x.i) ? ' used' : ''}" data-k="${k}" data-i="${esc(x.i)}">${W ? wwImgTag(x, wk(k), true) : x.c ? `<img src="${iconUrl(x.c)}" alt="" loading="lazy" onerror="${imgFb(k, x)}">` : ''}${esc(x.n)}</button>`).join('') : '<div class="bd-msg">Sin resultados. Pulsa Enter para añadir el texto tal cual.</div>';
+          res.innerHTML = hit.length ? hit.map(x => `<button type="button" class="bd-opt${b[k].some(y => y.i === x.i) ? ' used' : ''}" data-k="${k}" data-i="${esc(x.i)}">${W ? wwImgTag(x, wk(k), true) : (x.c ? imgTag(k, x, true) : '')}${esc(x.n)}</button>`).join('') : '<div class="bd-msg">Sin resultados. Pulsa Enter para añadir el texto tal cual.</div>';
           if ((cat.basic || cat.why) && hit.length) res.insertAdjacentHTML('beforeend', '<div class="bd-msg">Catálogo online incompleto' + (cat.why ? ' (' + esc(cat.why) + ')' : '') + '. Enter añade otro nombre tal cual.</div>');
           res._hit = hit;
         }).catch(() => { res.innerHTML = '<div class="bd-msg">No se pudo cargar el catálogo. Pulsa Enter para añadir el texto tal cual.</div>'; });
       }
     });
+    const srcOf = (cat, k) => k === 'cones' ? cat.cones : k === 'echoes' ? (cat.echoes || []) : (Z || W) ? cat.sets : cat.sets.filter(x => x.planar === (k === 'orn'));
+    /* "Ver todo": muestra el catálogo completo de la sección; los que no tienen icono quedan marcados en rojo */
+    function openAll(k) {
+      const wrap = body.querySelector(`.bd-allwrap[data-k="${k}"]`);
+      if (!wrap) return;
+      if (!wrap.hidden) { wrap.hidden = true; return; }
+      wrap.hidden = false; wrap.dataset.done = ''; wrap.classList.remove('only');
+      wrap.querySelector('.bd-gonly').classList.remove('on');
+      const g = wrap.querySelector('.bd-grid'), cnt = wrap.querySelector('.bd-gcount');
+      cnt.textContent = 'Cargando…'; g.innerHTML = '';
+      catalog().then(cat => {
+        const src = srcOf(cat, k).slice().sort((p, q) => (parseInt(q.i, 10) || 0) - (parseInt(p.i, 10) || 0) || String(p.n).localeCompare(String(q.n)));
+        wrap._src = src;
+        g.innerHTML = src.map(x => `<button type="button" class="bd-gtile${!W && !x.c ? ' miss' : ''}${b[k].some(y => y.i === x.i) ? ' used' : ''}" data-gi="${esc(x.i)}" title="${esc(x.n)} · ID ${esc(x.i)}">${W ? wwImgTag(x, wk(k), true) : imgTag(k, x, false)}<span>${esc(x.n)}</span><small>ID ${esc(x.i)}</small></button>`).join('');
+        window.bdCount(wrap);
+        let n = 0;
+        const iv = setInterval(() => {
+          if (!wrap.isConnected || wrap.hidden || ++n > 40 || Array.prototype.every.call(g.querySelectorAll('img'), im => im.complete)) { clearInterval(iv); wrap.dataset.done = '1'; window.bdCount(wrap); }
+        }, 500);
+      }).catch(() => { cnt.textContent = 'No se pudo cargar el catálogo.'; });
+    }
     body.addEventListener('click', e => {
+      const ab = e.target.closest('.bd-allbtn');
+      if (ab) { openAll(ab.dataset.all); return; }
+      const gc = e.target.closest('.bd-gclose');
+      if (gc) { gc.closest('.bd-allwrap').hidden = true; return; }
+      const go = e.target.closest('.bd-gonly');
+      if (go) { go.classList.toggle('on'); go.closest('.bd-allwrap').classList.toggle('only'); return; }
+      const gt = e.target.closest('.bd-gtile');
+      if (gt) {
+        const wrap = gt.closest('.bd-allwrap'), k = wrap.dataset.k, x = (wrap._src || []).find(y => y.i === gt.dataset.gi);
+        if (!x) return;
+        if (b[k].some(y => y.i === x.i)) { toast('Ya está añadido'); return; }
+        if (b[k].length >= LIM[k]) { toast('Máximo ' + LIM[k]); return; }
+        b[k].push((k === 'cones' || k === 'echoes') ? { i: x.i, n: x.n, c: x.c } : { i: x.i, n: x.n, c: x.c, p: defP(k, x.n) });
+        gt.classList.add('used'); rows(); save(); return;
+      }
       const o = e.target.closest('.bd-opt');
       if (o) {
         const res = o.parentElement, k = o.dataset.k, x = (res._hit || []).find(y => y.i === o.dataset.i);
