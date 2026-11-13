@@ -280,8 +280,8 @@
 
   /* ===== Barra superior fija + botón de menú ===== */
   :root { --nav-h: 71px; --side-w: 360px; }
-  .navbar { position: sticky; top: 0; z-index: 30; height: var(--nav-h); background: rgba(11,12,16,.55); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
-  body.light .navbar { background: rgba(247,247,250,.7); }
+  .navbar { position: sticky; top: 0; z-index: 30; height: var(--nav-h); background: transparent; border-bottom: 0; backdrop-filter: none; -webkit-backdrop-filter: none; }
+  body.light .navbar { background: transparent; }
   .menu-btn { width: 34px; height: 34px; border-radius: 50%; background: var(--btn-secondary-bg); border: 1px solid var(--btn-secondary-border); color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; opacity: .9; transition: opacity .15s, transform .15s; }
   .menu-btn:hover { opacity: 1; transform: translateY(-1px); }
   .menu-btn svg { width: 16px; height: 16px; }
