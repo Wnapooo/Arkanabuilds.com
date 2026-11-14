@@ -11,7 +11,7 @@ const redis = new Redis({
 const PAGE_RE = /^[a-z0-9-]{1,40}$/;
 const MAX_BODY = 60000;
 // ruta relativa o URL de nanoka (WuWa guarda la URL completa)
-const ICON_RE = /^(?:[\w\-\/.]{0,120}|https:\/\/static\.nanoka\.cc\/[\w\-\/.]{1,160})$/;
+const ICON_RE = /^(?:[\w\-\/.]{0,120}|https:\/\/(?:static\.nanoka\.cc|sr\.yatta\.moe|cdn\.jsdelivr\.net|raw\.githubusercontent\.com)\/[\w\-\/.@]{1,200})$/;
 const LIMITS = { cones: 5, arts: 4, orn: 3, echoes: 5 };
 const str = (v, n) => (typeof v === 'string' ? v.slice(0, n) : '');
 
