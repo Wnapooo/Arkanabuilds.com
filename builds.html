@@ -1791,10 +1791,20 @@ body.sm-open .sm-backdrop { opacity: 1; pointer-events: auto; }
           const suf = SKILL_TYPE_SUFFIX[chip.dataset.tk];
           const ic = chip.querySelector('.bd-tal-ic');
           if (!suf || !ic) return;
-          const img = new Image();
-          img.alt = ''; img.referrerPolicy = 'no-referrer';
-          img.onload = () => { ic.innerHTML = ''; ic.appendChild(img); ic.classList.add('bd-tal-ic-real'); };
-          img.src = NK + '/assets/hsr/skillicons/SkillIcon_' + id + '_' + suf + '.webp';
+          /* Prueba nanoka y luego Project Yatta; si ninguno carga, se quedan los iconos genericos */
+          const srcs = [
+            NK + '/assets/hsr/skillicons/SkillIcon_' + id + '_' + suf + '.webp',
+            YATTA + 'hsr/assets/UI/skill/SkillIcon_' + id + '_' + suf + '.png'
+          ];
+          const tryNext = n => {
+            if (n >= srcs.length) return;
+            const img = new Image();
+            img.alt = ''; img.referrerPolicy = 'no-referrer';
+            img.onload = () => { ic.innerHTML = ''; ic.appendChild(img); ic.classList.add('bd-tal-ic-real'); };
+            img.onerror = () => tryNext(n + 1);
+            img.src = srcs[n];
+          };
+          tryNext(0);
         });
       });
     }
