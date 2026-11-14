@@ -1764,7 +1764,7 @@ body.sm-open .sm-backdrop { opacity: 1; pointer-events: auto; }
     // Himeko Nova = 1510 (la original Himeko es 1003: antes se usaban sus iconos por error).
     // IMPORTANTE: ya NO se usa el personaje base como reemplazo de las variantes; si no hay ID
     // correcto, se muestran los iconos genericos en vez de los de otro personaje.
-    const HSR_ID_OVERRIDE = { 'acheron': 1308, 'himeko-nova': 1510, 'march-7th-swordmaster': 1224, 'imbibitor-lunae': 1213 };
+    const HSR_ID_OVERRIDE = { 'aha': 1511, 'acheron': 1308, 'himeko-nova': 1510, 'march-7th-swordmaster': 1224, 'imbibitor-lunae': 1213 };
     function findCharId(displayName) {
       if (HSR_ID_OVERRIDE[slug]) return Promise.resolve(String(HSR_ID_OVERRIDE[slug]));
       if (!displayName) return Promise.resolve(null);
