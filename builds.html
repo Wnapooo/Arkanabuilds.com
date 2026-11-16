@@ -1451,7 +1451,7 @@ body.sm-open .sm-backdrop { opacity: 1; pointer-events: auto; }
     const eq = YATTA + 'hsr/assets/UI/equipment/', rl = YATTA + 'hsr/assets/UI/relic/';
     const L = kind === 'cone'
       ? [SRR + 'icon/light_cone/' + id + '.png', SRR_GH + 'icon/light_cone/' + id + '.png', eq + 'medium/' + id + '.png', eq + 'large/' + id + '.png', eq + id + '.png',
-         SRR + 'image/light_cone_preview/' + id + '.png', SRR_GH + 'image/light_cone_preview/' + id + '.png'].concat(nkConeImgs(id))
+         SRR + 'image/light_cone_preview/' + id + '.png', SRR_GH + 'image/light_cone_preview/' + id + '.png']
       : [SRR + 'icon/relic/' + id + '.png', SRR_GH + 'icon/relic/' + id + '.png', rl + id + '.png', rl + 'medium/' + id + '.png',
          SRR + 'icon/relic/' + id + '_0.png', SRR_GH + 'icon/relic/' + id + '_0.png', rl + id + '_0.png'];
     if (img.dataset.alt) L.unshift(img.dataset.alt);
@@ -1485,40 +1485,9 @@ body.sm-open .sm-backdrop { opacity: 1; pointer-events: auto; }
       sets: arr(rs).filter(x => x && x.name && x.icon).map(x => ({ i: String(x.id), n: x.name, c: x.icon, planar: (x.desc || []).length < 2 }))
     }));
   }
-  /* Conos de luz nuevos (ej. 4.8: No Shifts on Rainy Days / Shine Bright Like Her) que Project Yatta aún no tiene.
-     Project Yatta sigue siendo la fuente principal: de Nanoka solo se AGREGAN los conos cuyo ID falta en el catálogo.
-     Si Nanoka no responde, el catálogo queda exactamente como antes. */
-  const NKH = 'https://static.nanoka.cc/assets/hsr/';
-  const nkConeImgs = id => [NKH + 'lightconemediumicon/' + id + '.webp', NKH + 'lightconeicon/' + id + '.webp', NKH + 'lightcone/' + id + '.webp'];
-  function nanokaCones() {
-    const NKB = 'https://static.nanoka.cc';
-    const get = u => fetch(u).then(r => r.ok ? r.json() : Promise.reject(new Error(u + ' ' + r.status)));
-    const txt = v => typeof v === 'string' ? v : (v && (v.en || v.EN || v.name || v.Name)) || '';
-    const nameOf = x => txt(x && (x.en || x.name || x.Name || x.title)) || txt(x && x.zh);
-    const entries = o => { o = (o && !Array.isArray(o) && (o.data || o.list || o.items)) || o; return Array.isArray(o) ? o.map((x, k) => [x && x.id != null ? x.id : k, x]) : Object.entries(o || {}); };
-    return get(NKB + '/manifest.json').then(m => {
-      const e = m && (m.hsr || m.HSR || m.starrail);
-      const rev = !e ? null : typeof e === 'string' ? e : (e.live || e.latest || e.current || e.version || null);
-      if (!rev) throw new Error('manifest sin revisión de hsr');
-      return ['lightcone', 'light_cone', 'lightcones', 'equipment'].reduce((p, f) => p.catch(() =>
-        get(NKB + '/hsr/' + rev + '/' + f + '.json').then(j => { const l = entries(j).filter(([k, x]) => /^2\d{4}$/.test(String(k)) && nameOf(x)); return l.length ? l : Promise.reject(new Error(f + ' vacío')); })
-      ), Promise.reject());
-    }).then(l => l.map(([k, x]) => { const imgs = nkConeImgs(String(k)); return { i: String(k), n: nameOf(x), c: imgs[0], u: imgs[1] }; }));
-  }
-  function withNanokaCones(cat) {
-    const limit = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 6000));
-    return Promise.race([nanokaCones(), limit]).then(extra => {
-      const have = new Set(cat.cones.map(x => String(x.i)));
-      const add = extra.filter(x => !have.has(x.i));
-      add.forEach(x => cat.cones.push(x));
-      if (add.length) console.info('[HSR] Conos agregados desde Nanoka:', add.map(x => x.n).join(', '));
-      return cat;
-    }).catch(e => { console.warn('[HSR] Nanoka no disponible, se usa solo Yatta:', e && e.message); return cat; });
-  }
   function loadCatalog() {
     if (catP) return catP;
     catP = loadYatta().catch(e => { console.warn('[HSR] Yatta falló, usando StarRailRes:', e); return loadStarRailRes(); })
-      .then(withNanokaCones)
       .catch(e => { catP = null; throw e; });
     return catP;
   }
