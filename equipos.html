@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Equipos ranking — ArkanaBuilds</title>
+<link rel="icon" type="image/png" href="./favicon.png">
+<style>
+  :root {
+    --bg: #0b0c10;
+    --text: #e5e7eb;
+    --muted: #9ca3af;
+    --heading: #f3f4f6;
+    --border: #1a1c23;
+    --card: #14161d;
+    --card-border: #1f222c;
+    --chip: #1c1e27;
+    --chip-border: #2a2d38;
+    --accent: #818cf8;
+    --toggle-bg: #23252f;
+    --toggle-knob: #6b7280;
+  }
+  body.light {
+    --bg: #f7f7fa;
+    --text: #1f2230;
+    --muted: #5b5f6d;
+    --heading: #1a1c23;
+    --border: #e4e4ea;
+    --card: #ffffff;
+    --card-border: #e4e4ea;
+    --chip: #ffffff;
+    --chip-border: #d9d9e1;
+    --toggle-bg: #d9d9e1;
+    --toggle-knob: #6366f1;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, sans-serif;
+    transition: background .2s ease, color .2s ease;
+  }
+
+  /* ===== Navbar ===== */
+  .navbar { display: flex; align-items: center; justify-content: space-between; padding: 20px 40px; border-bottom: 1px solid var(--border); }
+  .logo { font-weight: 600; font-size: 15px; color: var(--text); letter-spacing: .5px; }
+  .nav-right { display: flex; align-items: center; gap: 28px; }
+  .social-icons { display: flex; align-items: center; gap: 14px; }
+  .icon-circle { width: 30px; height: 30px; border-radius: 50%; background: var(--chip); border: 1px solid var(--chip-border); opacity: .85; display: flex; align-items: center; justify-content: center; font-size: 14px; text-decoration: none; color: var(--text); transition: opacity .15s ease, transform .15s ease; }
+  .icon-circle:hover { opacity: 1; transform: translateY(-1px); }
+  .sm-btn { width: 34px; height: 34px; border-radius: 50%; background: var(--chip); border: 1px solid var(--chip-border); color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; opacity: .9; transition: opacity .15s, transform .15s; }
+  .sm-btn:hover { opacity: 1; transform: translateY(-1px); }
+  .sm-btn svg { width: 16px; height: 16px; }
+
+  /* ===== Sidebar menú ===== */
+  :root { --sm-nav-h: 71px; --sm-w: 360px; }
+  .sm-menu { position: fixed; top: var(--sm-nav-h); bottom: 0; right: 0; width: min(86vw, var(--sm-w)); z-index: 1000; display: flex; flex-direction: column; gap: 22px; padding: 22px 20px 28px; overflow-y: auto; box-sizing: border-box; background: rgba(14,15,21,.96); border-left: 1px solid #1f222c; box-shadow: 0 0 40px rgba(0,0,0,.5); transform: translateX(100%); visibility: hidden; transition: transform .25s ease, visibility .25s; -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); font-family: system-ui, -apple-system, sans-serif; }
+  body.light .sm-menu { background: rgba(255,255,255,.97); }
+  body.sm-open .sm-menu { transform: translateX(0); visibility: visible; }
+  .sm-backdrop { display: none; position: fixed; inset: var(--sm-nav-h) 0 0 0; z-index: 900; background: rgba(0,0,0,.5); opacity: 0; pointer-events: none; transition: opacity .25s ease; }
+  body.sm-open .sm-backdrop { display: block; opacity: 1; pointer-events: auto; }
+  .sm-nav { display: flex; flex-direction: column; gap: 4px; }
+  .sm-link { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 10px; color: #9ca3af; text-decoration: none; font-size: 15px; font-weight: 600; transition: background .15s, color .15s; }
+  .sm-link:hover { background: rgba(129,140,248,.1); color: #e5e7eb; }
+  .sm-link.active { background: rgba(129,140,248,.14); color: #818cf8; }
+  .sm-ico { width: 22px; text-align: center; font-size: 16px; }
+
+  /* ===== Contenido ===== */
+  main { max-width: 1100px; margin: 0 auto; padding: 40px 24px 80px; }
+  h1 { margin: 0 0 6px; font-size: 30px; color: var(--heading); }
+  .sub { color: var(--muted); margin: 0 0 22px; font-size: 15px; }
+  .top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+  .tab { background: var(--chip); border: 1px solid var(--chip-border); color: var(--muted); border-radius: 999px; padding: 8px 16px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; }
+  .tab.on { background: var(--accent); border-color: var(--accent); color: #0b0c10; }
+  .btn { background: var(--accent); color: #0b0c10; text-decoration: none; border-radius: 8px; padding: 9px 16px; font-size: 14px; font-weight: 700; }
+  .list { display: flex; flex-direction: column; gap: 12px; }
+  .team { background: var(--card); border: 1px solid var(--card-border); border-radius: 14px; padding: 14px; display: grid; grid-template-columns: 48px 1fr auto; gap: 10px 14px; align-items: center; }
+  .rank { font-size: 24px; font-weight: 800; color: var(--muted); text-align: center; }
+  .team:nth-child(1) .rank { color: #fbbf24; } .team:nth-child(2) .rank { color: #94a3b8; } .team:nth-child(3) .rank { color: #d08a52; }
+  .meta { font-size: 12px; color: var(--muted); }
+  .sc { text-align: right; } .pts { font-size: 20px; font-weight: 800; color: var(--heading); font-variant-numeric: tabular-nums; }
+  .tier { display: inline-block; font-weight: 800; font-size: 12px; padding: 2px 10px; border-radius: 999px; margin-bottom: 3px; }
+  .tier.S { background: rgba(251,191,36,.18); color: #d99a06; } .tier.A { background: rgba(129,140,248,.18); color: var(--accent); } .tier.B { background: rgba(148,163,184,.2); color: #7b8794; }
+  .chars { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; }
+  .ch { border-radius: 10px; padding: 9px 11px; background: linear-gradient(110deg, var(--c1), var(--c2)); color: #fff; font-size: 13px; font-weight: 700; }
+  .ch small { display: block; font-weight: 500; opacity: .8; font-size: 11px; }
+  .empty { color: var(--muted); font-size: 14px; padding: 18px 4px; }
+  .foot { margin-top: 24px; font-size: 12px; color: var(--muted); }
+  @media (max-width: 800px) { .navbar { padding: 14px 16px; } main { padding: 28px 16px 60px; } }
+  @media (max-width: 600px) { .team { grid-template-columns: 36px 1fr; } .sc { grid-column: 1 / -1; text-align: left; display: flex; gap: 10px; align-items: center; } }
+  /* ===== Fondo temático (estrellas / constelaciones / portal de banners) ===== */
+  :root { --star: #c7d2fe; --gold: #fbbf24; --glow1: rgba(129,140,248,.22); --glow2: rgba(251,191,36,.10); --glow3: rgba(34,211,238,.10); --fx-op: 1; }
+  body.light { --star: #6366f1; --gold: #f59e0b; --glow1: rgba(99,102,241,.14); --glow2: rgba(245,158,11,.10); --glow3: rgba(34,211,238,.10); --fx-op: .55; }
+  .bg-fx { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none;
+    background:
+      radial-gradient(ellipse 60% 50% at 12% 0%, var(--glow1), transparent 70%),
+      radial-gradient(ellipse 50% 45% at 100% 100%, var(--glow2), transparent 70%),
+      radial-gradient(ellipse 45% 40% at 95% 5%, var(--glow3), transparent 70%),
+      radial-gradient(ellipse 50% 40% at 0% 100%, var(--glow1), transparent 70%); }
+  .bg-fx svg { position: absolute; inset: 0; width: 100%; height: 100%; opacity: var(--fx-op); }
+  .bg-fx .ring circle { fill: none; stroke: var(--star); stroke-width: 1; opacity: .10; }
+  .bg-fx .ring { transform-origin: 800px 450px; animation: fxSpin 240s linear infinite; }
+  .bg-fx .cl { stroke: var(--star); stroke-width: 1; opacity: .22; }
+  .bg-fx .cs { fill: var(--star); opacity: .7; }
+  .bg-fx .st { fill: var(--star); opacity: .55; }
+  .bg-fx .sp { fill: var(--star); opacity: .8; }
+  .bg-fx .sp.gold { fill: var(--gold); }
+  .bg-fx .t1 { animation: fxTw 4s ease-in-out infinite; }
+  .bg-fx .t2 { animation: fxTw 6s ease-in-out -2s infinite; }
+  .bg-fx .t3 { animation: fxTw 5s ease-in-out -3.5s infinite; }
+  @keyframes fxTw { 0%,100% { opacity: .15; } 50% { opacity: 1; } }
+  @keyframes fxSpin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .bg-fx .ring, .bg-fx .t1, .bg-fx .t2, .bg-fx .t3 { animation: none; } }
+</style>
+</head>
+<body>
+<div class="bg-fx" aria-hidden="true">
+<svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<g class="ring" transform="translate(800 450)"><circle r="300"/><circle r="430" stroke-dasharray="3 14"/><circle r="560" stroke-dasharray="1 22"/></g>
+<line class="cl" x1="120" y1="170" x2="230" y2="120"/>
+<line class="cl" x1="230" y1="120" x2="340" y2="190"/>
+<line class="cl" x1="340" y1="190" x2="450" y2="140"/>
+<line class="cl" x1="450" y1="140" x2="520" y2="250"/>
+<circle class="cs" cx="120" cy="170" r="3.2"/>
+<circle class="cs" cx="230" cy="120" r="3.2"/>
+<circle class="cs" cx="340" cy="190" r="3.2"/>
+<circle class="cs" cx="450" cy="140" r="3.2"/>
+<circle class="cs" cx="520" cy="250" r="3.2"/>
+<line class="cl" x1="1180" y1="120" x2="1290" y2="210"/>
+<line class="cl" x1="1290" y1="210" x2="1400" y2="150"/>
+<line class="cl" x1="1400" y1="150" x2="1470" y2="270"/>
+<line class="cl" x1="1290" y1="210" x2="1350" y2="330"/>
+<line class="cl" x1="1470" y1="270" x2="1350" y2="330"/>
+<circle class="cs" cx="1180" cy="120" r="3.2"/>
+<circle class="cs" cx="1290" cy="210" r="3.2"/>
+<circle class="cs" cx="1400" cy="150" r="3.2"/>
+<circle class="cs" cx="1470" cy="270" r="3.2"/>
+<circle class="cs" cx="1350" cy="330" r="3.2"/>
+<line class="cl" x1="180" y1="650" x2="290" y2="720"/>
+<line class="cl" x1="290" y1="720" x2="260" y2="820"/>
+<line class="cl" x1="290" y1="720" x2="400" y2="770"/>
+<circle class="cs" cx="180" cy="650" r="3.2"/>
+<circle class="cs" cx="290" cy="720" r="3.2"/>
+<circle class="cs" cx="260" cy="820" r="3.2"/>
+<circle class="cs" cx="400" cy="770" r="3.2"/>
+<line class="cl" x1="1250" y1="640" x2="1360" y2="590"/>
+<line class="cl" x1="1360" y1="590" x2="1480" y2="680"/>
+<line class="cl" x1="1480" y1="680" x2="1400" y2="780"/>
+<line class="cl" x1="1360" y1="590" x2="1400" y2="780"/>
+<circle class="cs" cx="1250" cy="640" r="3.2"/>
+<circle class="cs" cx="1360" cy="590" r="3.2"/>
+<circle class="cs" cx="1480" cy="680" r="3.2"/>
+<circle class="cs" cx="1400" cy="780" r="3.2"/>
+<circle class="st" cx="518" cy="136" r="0.7"/>
+<circle class="st t3" cx="1314" cy="85" r="0.7"/>
+<circle class="st" cx="344" cy="77" r="1.4"/>
+<circle class="st t3" cx="385" cy="496" r="0.7"/>
+<circle class="st t3" cx="198" cy="201" r="0.7"/>
+<circle class="st" cx="937" cy="45" r="0.9"/>
+<circle class="st" cx="891" cy="120" r="1.4"/>
+<circle class="st" cx="865" cy="514" r="0.9"/>
+<circle class="st" cx="931" cy="575" r="1.1"/>
+<circle class="st t3" cx="876" cy="57" r="0.7"/>
+<circle class="st t1" cx="330" cy="612" r="1.4"/>
+<circle class="st t1" cx="745" cy="831" r="1.1"/>
+<circle class="st" cx="397" cy="162" r="0.9"/>
+<circle class="st t2" cx="919" cy="473" r="1.1"/>
+<circle class="st t3" cx="461" cy="882" r="0.7"/>
+<circle class="st t2" cx="669" cy="681" r="0.9"/>
+<circle class="st t3" cx="675" cy="866" r="0.7"/>
+<circle class="st t1" cx="917" cy="788" r="1.1"/>
+<circle class="st" cx="1112" cy="535" r="1.4"/>
+<circle class="st" cx="1344" cy="850" r="1.4"/>
+<circle class="st t1" cx="97" cy="631" r="1.4"/>
+<circle class="st" cx="1147" cy="798" r="1.1"/>
+<circle class="st t2" cx="1505" cy="320" r="0.7"/>
+<circle class="st" cx="94" cy="691" r="0.9"/>
+<circle class="st" cx="637" cy="825" r="1.4"/>
+<circle class="st" cx="266" cy="361" r="1.1"/>
+<circle class="st t2" cx="1311" cy="778" r="1.1"/>
+<circle class="st" cx="1578" cy="614" r="1.4"/>
+<circle class="st" cx="241" cy="159" r="0.9"/>
+<circle class="st t1" cx="19" cy="748" r="0.9"/>
+<circle class="st t3" cx="451" cy="131" r="1.1"/>
+<circle class="st t2" cx="906" cy="858" r="0.7"/>
+<circle class="st t2" cx="1439" cy="702" r="1.4"/>
+<circle class="st" cx="638" cy="93" r="1.4"/>
+<circle class="st" cx="305" cy="886" r="1.4"/>
+<circle class="st" cx="176" cy="541" r="0.7"/>
+<circle class="st t3" cx="907" cy="483" r="1.1"/>
+<circle class="st" cx="41" cy="787" r="1.4"/>
+<circle class="st t2" cx="1015" cy="860" r="1.1"/>
+<circle class="st t2" cx="197" cy="764" r="1.4"/>
+<circle class="st t1" cx="774" cy="77" r="0.7"/>
+<circle class="st t3" cx="1185" cy="431" r="0.9"/>
+<circle class="st" cx="37" cy="856" r="1.1"/>
+<circle class="st" cx="1104" cy="823" r="1.1"/>
+<circle class="st" cx="1114" cy="235" r="1.1"/>
+<circle class="st" cx="569" cy="201" r="1.1"/>
+<circle class="st" cx="981" cy="710" r="0.9"/>
+<circle class="st" cx="1309" cy="666" r="0.9"/>
+<circle class="st" cx="828" cy="320" r="0.7"/>
+<circle class="st t3" cx="1264" cy="425" r="0.9"/>
+<circle class="st t1" cx="1530" cy="403" r="1.1"/>
+<circle class="st" cx="129" cy="92" r="1.4"/>
+<circle class="st t2" cx="540" cy="434" r="0.7"/>
+<circle class="st" cx="1455" cy="310" r="0.7"/>
+<circle class="st t2" cx="1456" cy="704" r="0.9"/>
+<circle class="st" cx="1422" cy="391" r="1.1"/>
+<circle class="st t2" cx="1281" cy="874" r="1.4"/>
+<circle class="st" cx="642" cy="852" r="0.9"/>
+<circle class="st" cx="1589" cy="25" r="1.4"/>
+<circle class="st t1" cx="979" cy="536" r="1.4"/>
+<circle class="st" cx="249" cy="493" r="0.7"/>
+<circle class="st t3" cx="1279" cy="654" r="0.7"/>
+<circle class="st" cx="1199" cy="125" r="0.9"/>
+<circle class="st t3" cx="45" cy="192" r="0.9"/>
+<circle class="st" cx="522" cy="490" r="0.9"/>
+<circle class="st t3" cx="1456" cy="318" r="1.4"/>
+<circle class="st t3" cx="1304" cy="465" r="0.9"/>
+<circle class="st" cx="243" cy="459" r="1.4"/>
+<circle class="st" cx="974" cy="698" r="0.9"/>
+<circle class="st t3" cx="226" cy="557" r="0.7"/>
+<circle class="st" cx="99" cy="614" r="1.4"/>
+<circle class="st t1" cx="1413" cy="51" r="0.9"/>
+<circle class="st t3" cx="68" cy="88" r="1.4"/>
+<circle class="st t2" cx="45" cy="805" r="0.7"/>
+<circle class="st t1" cx="521" cy="876" r="0.9"/>
+<circle class="st t3" cx="724" cy="480" r="1.4"/>
+<circle class="st t3" cx="1506" cy="629" r="1.1"/>
+<circle class="st" cx="1428" cy="182" r="1.4"/>
+<circle class="st" cx="667" cy="353" r="1.1"/>
+<circle class="st t1" cx="1074" cy="386" r="0.9"/>
+<circle class="st t1" cx="1254" cy="807" r="0.9"/>
+<circle class="st" cx="229" cy="795" r="1.4"/>
+<circle class="st" cx="1195" cy="85" r="1.4"/>
+<circle class="st t2" cx="1584" cy="749" r="0.9"/>
+<circle class="st" cx="1591" cy="363" r="1.4"/>
+<circle class="st" cx="571" cy="83" r="1.1"/>
+<circle class="st t2" cx="541" cy="413" r="0.7"/>
+<circle class="st" cx="530" cy="562" r="0.7"/>
+<circle class="st" cx="1576" cy="710" r="0.7"/>
+<circle class="st t1" cx="425" cy="36" r="0.9"/>
+<circle class="st t2" cx="1209" cy="738" r="1.1"/>
+<circle class="st t1" cx="239" cy="827" r="1.4"/>
+<circle class="st t2" cx="143" cy="52" r="0.9"/>
+<circle class="st" cx="1432" cy="242" r="0.7"/>
+<circle class="st" cx="1283" cy="75" r="0.9"/>
+<circle class="st t1" cx="423" cy="110" r="0.7"/>
+<circle class="st t3" cx="1591" cy="376" r="1.1"/>
+<circle class="st" cx="207" cy="474" r="0.9"/>
+<circle class="st" cx="1551" cy="236" r="0.9"/>
+<circle class="st t1" cx="1492" cy="566" r="0.9"/>
+<circle class="st t1" cx="713" cy="605" r="1.1"/>
+<circle class="st" cx="1286" cy="895" r="0.7"/>
+<circle class="st t3" cx="29" cy="455" r="0.9"/>
+<circle class="st t2" cx="760" cy="841" r="0.7"/>
+<circle class="st t3" cx="1050" cy="491" r="1.4"/>
+<circle class="st t1" cx="492" cy="194" r="0.9"/>
+<circle class="st t2" cx="318" cy="794" r="0.9"/>
+<circle class="st" cx="1583" cy="884" r="0.9"/>
+<circle class="st t2" cx="113" cy="667" r="1.1"/>
+<circle class="st t3" cx="261" cy="76" r="1.4"/>
+<path class="sp gold t1" transform="translate(640 110) scale(1.3)" d="M0-10C1-3 3-1 10 0 3 1 1 3 0 10-1 3-3 1-10 0-3-1-1-3 0-10Z"/>
+<path class="sp gold t2" transform="translate(1010 780) scale(1.6)" d="M0-10C1-3 3-1 10 0 3 1 1 3 0 10-1 3-3 1-10 0-3-1-1-3 0-10Z"/>
+<path class="sp t3" transform="translate(90 430) scale(1.0)" d="M0-10C1-3 3-1 10 0 3 1 1 3 0 10-1 3-3 1-10 0-3-1-1-3 0-10Z"/>
+<path class="sp t1" transform="translate(1520 470) scale(1.2)" d="M0-10C1-3 3-1 10 0 3 1 1 3 0 10-1 3-3 1-10 0-3-1-1-3 0-10Z"/>
+<path class="sp t2" transform="translate(820 300) scale(0.8)" d="M0-10C1-3 3-1 10 0 3 1 1 3 0 10-1 3-3 1-10 0-3-1-1-3 0-10Z"/>
+<path class="sp gold t3" transform="translate(430 520) scale(0.9)" d="M0-10C1-3 3-1 10 0 3 1 1 3 0 10-1 3-3 1-10 0-3-1-1-3 0-10Z"/>
+<path class="sp t1" transform="translate(1130 470) scale(1.0)" d="M0-10C1-3 3-1 10 0 3 1 1 3 0 10-1 3-3 1-10 0-3-1-1-3 0-10Z"/>
+</svg>
+</div>
+
+  <div class="navbar">
+    <div class="logo">✦ ArkanaBuilds ✦</div>
+    <div class="nav-right">
+      <div class="social-icons">
+        <a class="icon-circle" href="https://discord.gg/HgEqZERZ97" target="_blank" rel="noopener" title="Discord">💬</a>
+        <a class="icon-circle" href="https://x.com/Wnaapooo" target="_blank" rel="noopener" title="X / Twitter">𝕏</a>
+        <a class="icon-circle" href="https://www.instagram.com/wna.pooo_/" target="_blank" rel="noopener" title="Instagram">📷</a>
+        <a class="icon-circle" href="https://www.twitch.tv/wnapooo" target="_blank" rel="noopener" title="Twitch">🎥</a>
+      </div>
+      <button class="sm-btn" id="smBtn" type="button" aria-label="Abrir menú" aria-controls="smMenu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <main>
+    <h1>Equipos ranking</h1>
+    <p class="sub">Se actualiza solo con las runs que envía la comunidad.</p>
+    <div class="top"><div class="tabs" id="tabs"></div><a class="btn" id="submit" href="#" target="_blank" rel="noopener">Subir una run</a></div>
+    <div class="list" id="list"><div class="empty">Cargando…</div></div>
+    <p class="foot" id="foot"></p>
+  </main>
+
+  <aside class="sm-menu" id="smMenu" aria-label="Menú del sitio">
+    <nav class="sm-nav">
+      <a class="sm-link" href="/"><span class="sm-ico">🏠</span>Inicio</a>
+      <a class="sm-link" href="/builds"><span class="sm-ico">⚔️</span>Builds</a>
+      <a class="sm-link" href="/tier-list-zzz"><span class="sm-ico">🏆</span>Tier List</a>
+      <a class="sm-link" href="/banners"><span class="sm-ico">🎫</span>Banners</a>
+      <a class="sm-link active" href="/equipos"><span class="sm-ico">🏅</span>Equipos ranking</a>
+    </nav>
+  </aside>
+  <div class="sm-backdrop" id="smBackdrop"></div>
+
+  <script>
+    (function () {
+      var body = document.body, btn = document.getElementById('smBtn'), bd = document.getElementById('smBackdrop');
+      var saved = null; try { saved = localStorage.getItem('arkana-theme'); } catch (e) {}
+      if (saved === 'light') body.classList.add('light');
+      function setMenu(open) {
+        body.classList.toggle('sm-open', open);
+        btn.setAttribute('aria-expanded', open);
+      }
+      btn.addEventListener('click', function () { setMenu(!body.classList.contains('sm-open')); });
+      bd.addEventListener('click', function () { setMenu(false); });
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setMenu(false); });
+    })();
+
+  </script>
+
+  <script>
+
+var REPO = 'Wnapooo/Arkanabuilds.com';
+if (REPO) document.getElementById('submit').href = 'https://github.com/' + REPO + '/issues/new?template=nueva-run.yml'; else document.getElementById('submit').style.display = 'none';
+
+var GAMES = { zzz:'Zenless Zone Zero', hsr:'Honkai: Star Rail', ww:'Wuthering Waves' };
+var EL = { 'Físico':['#6b7280','#374151'], 'Fuego':['#ea580c','#7c2d12'], 'Hielo':['#38bdf8','#1e40af'], 'Rayo':['#a855f7','#581c87'], 'Eléctrico':['#3b82f6','#5b21b6'],
+  'Viento':['#34d399','#115e59'], 'Cuántico':['#6366f1','#312e81'], 'Imaginario':['#eab308','#854d0e'], 'Éter':['#ec4899','#6d28d9'], 'Glacio':['#38bdf8','#1e3a8a'],
+  'Fusion':['#f97316','#7f1d1d'], 'Electro':['#a855f7','#4c1d95'], 'Aero':['#2dd4bf','#134e4a'], 'Spectro':['#facc15','#78350f'], 'Havoc':['#e11d48','#4c0519'] };
+/* Elementos conocidos (agrega personajes nuevos aquí). Formato 'Nombre:Elemento' */
+var CH = {
+  zzz:'Ellen:Hielo,Zhu Yuan:Éter,Jane:Físico,Burnice:Fuego,Yixuan:Éter,Vivian:Éter,Astra Yao:Éter,Lucy:Fuego,Soukaku:Hielo,Lycaon:Hielo,Nicole:Éter,Qingyi:Eléctrico,Anby:Eléctrico,Seth:Hielo,Evelyn:Fuego,Caesar:Físico,Piper:Físico,Grace:Eléctrico,Yanagi:Eléctrico,Harumasa:Eléctrico',
+  hsr:'Acheron:Rayo,Firefly:Fuego,Jingliu:Hielo,Feixiao:Viento,Ruan Mei:Hielo,Robin:Físico,Aventurine:Imaginario,Fu Xuan:Cuántico,Kafka:Rayo,Jiaoqiu:Fuego,Huohuo:Viento,Bronya:Viento,Silver Wolf:Cuántico,Tribbie:Cuántico,Sparkle:Cuántico,Fugue:Fuego,Lingsha:Fuego,Pela:Hielo,Gallagher:Fuego,Topaz:Fuego',
+  ww:'Jinhsi:Spectro,Camellya:Havoc,Carlotta:Glacio,Shorekeeper:Spectro,Zani:Spectro,Phoebe:Spectro,Sanhua:Glacio,Mortefi:Fusion,Verina:Spectro,Jiyan:Aero,Yinlin:Electro,Encore:Fusion,Changli:Fusion,Xiangli Yao:Electro,Cantarella:Havoc,Danjin:Havoc,Lupa:Fusion,Brant:Fusion,Roccia:Havoc'
+};
+var KNOWN = {};
+Object.keys(CH).forEach(function (g) { KNOWN[g] = {}; CH[g].split(',').forEach(function (p) { var a = p.split(':'); KNOWN[g][a[0].toLowerCase()] = a[1]; }); });
+
+var game = 'zzz', runs = [], loaded = false, updated = null;
+function el(t, c, x) { var e = document.createElement(t); if (c) e.className = c; if (x != null) e.textContent = x; return e; }
+function agg(g) {
+  var m = {};
+  runs.filter(function (r) { return r.game === g; }).forEach(function (r) {
+    var t = m[r.key] || (m[r.key] = { team: r.team, best: 0, sum: 0, n: 0 });
+    t.best = Math.max(t.best, r.score); t.sum += r.score; t.n++;
+  });
+  var a = Object.keys(m).map(function (k) { return m[k]; }).sort(function (x, y) { return y.best - x.best; });
+  a.forEach(function (t, i) { var p = i / a.length; t.tier = p < .2 ? 'S' : p < .5 ? 'A' : 'B'; });
+  return a;
+}
+function render() {
+  var tabs = document.getElementById('tabs'); tabs.innerHTML = '';
+  Object.keys(GAMES).forEach(function (k) {
+    var b = el('button', 'tab' + (k === game ? ' on' : ''), GAMES[k]); b.onclick = function () { game = k; render(); }; tabs.appendChild(b);
+  });
+  var list = document.getElementById('list'); list.innerHTML = '';
+  if (!loaded) { list.appendChild(el('div', 'empty', 'Cargando…')); return; }
+  var teams = agg(game);
+  if (!teams.length) list.appendChild(el('div', 'empty', 'Aún no hay runs de este juego. ¡Sube la primera!'));
+  teams.forEach(function (t, i) {
+    var c = el('div', 'team'); c.appendChild(el('div', 'rank', '#' + (i + 1)));
+    c.appendChild(el('div', 'meta', t.n + (t.n === 1 ? ' run' : ' runs') + ' · promedio ' + Math.round(t.sum / t.n).toLocaleString('es')));
+    var sc = el('div', 'sc'); sc.appendChild(el('span', 'tier ' + t.tier, 'Tier ' + t.tier)); sc.appendChild(el('div', 'pts', t.best.toLocaleString('es'))); c.appendChild(sc);
+    var ch = el('div', 'chars');
+    t.team.forEach(function (n) {
+      var e = KNOWN[game][n.toLowerCase()], col = e ? EL[e] : ['#4b5563', '#1f2937'];
+      var d = el('div', 'ch', n); d.style.setProperty('--c1', col[0]); d.style.setProperty('--c2', col[1]); d.appendChild(el('small', null, e || '—')); ch.appendChild(d);
+    });
+    c.appendChild(ch); list.appendChild(c);
+  });
+  document.getElementById('foot').textContent = updated ? 'Actualizado: ' + updated.toLocaleTimeString('es') + ' · se refresca cada minuto' : '';
+}
+function load() {
+  fetch('/data/runs.json', { cache: 'no-store' }).then(function (r) { if (!r.ok) throw 0; return r.json(); })
+    .then(function (d) { runs = d.filter(function (r) { return r.team && r.key && r.score; }); loaded = true; updated = new Date(); render(); })
+    .catch(function () { loaded = true; document.getElementById('list').innerHTML = ''; document.getElementById('list').appendChild(el('div', 'empty', 'No se pudo cargar data/runs.json.')); });
+}
+render(); load(); setInterval(load, 60000);
+</script>
+</body>
+</html>
