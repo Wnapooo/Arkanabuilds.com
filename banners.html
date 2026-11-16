@@ -136,6 +136,19 @@
   details.pk-more summary { cursor: pointer; margin-bottom: 8px; }
   .banner-icons img.wtype { width: 52px; height: 52px; padding: 10px; align-self: flex-end; }
 
+  .banner-icons .ic-wrap { position: relative; display: inline-block; line-height: 0; }
+  .banner-icons .ic-wrap img.el { position: absolute; right: 4px; bottom: 4px; width: 26px; height: 26px; padding: 3px; border-radius: 50%; border: none; background: rgba(0,0,0,.65); }
+  .pk-opt { position: relative; }
+  .pk-opt img.el { position: absolute; right: 0; bottom: 0; width: 20px; height: 20px; padding: 2px; border-radius: 50%; background: rgba(0,0,0,.7); object-fit: contain; }
+
+  .pk-wgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(86px, 1fr)); gap: 6px; max-height: 270px; overflow-y: auto; padding: 6px; border: 1px solid var(--chip-border); border-radius: 10px; background: var(--chip); }
+  .pk-w { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 4px; border-radius: 8px; border: 2px solid transparent; background: transparent; color: var(--text); cursor: pointer; font-family: inherit; }
+  .pk-w:hover { border-color: var(--chip-border); }
+  .pk-w.on { border-color: var(--accent); }
+  .pk-w img { width: 52px; height: 52px; object-fit: contain; }
+  .pk-w span { font-size: 10.5px; line-height: 1.2; text-align: center; word-break: break-word; }
+  .pk-wmsg { font-size: 12px; color: var(--muted); }
+
   @media (max-width: 800px) {
     .navbar { padding: 14px 16px; }
     main { padding: 32px 16px 60px; }
@@ -430,7 +443,7 @@
 
         // Iconos: personaje + arma
         var icons = [];
-        if (b.icon) icons.push({ src: b.icon, alt: b.name });
+        if (b.icon) icons.push({ src: b.icon, alt: b.name, el: b.element });
         if (b.weaponIcon) icons.push({ src: b.weaponIcon, alt: b.weaponName });
         if (icons.length) {
           var row = document.createElement('div');
@@ -439,7 +452,11 @@
             var img = document.createElement('img');
             img.src = i.src; img.alt = i.alt || ''; img.loading = 'lazy'; img.referrerPolicy = 'no-referrer';
             if (i.src.indexOf('./weapon_') === 0) img.className = 'wtype';
-            row.appendChild(img);
+            if (i.el) {
+              var wrap = document.createElement('span'); wrap.className = 'ic-wrap';
+              var badge = document.createElement('img'); badge.className = 'el'; badge.src = i.el; badge.alt = '';
+              wrap.appendChild(img); wrap.appendChild(badge); row.appendChild(wrap);
+            } else row.appendChild(img);
           });
           div.appendChild(row);
         } else if (isEdit) {
@@ -560,7 +577,7 @@
       }
 
 
-      var WUWA_CHARS = [["Aalto", "https://cdn.prydwen.gg/images/ww/characters/aalto_icon.webp"], ["Aemeath", "./math_card.webp"], ["Augusta", "./aug_card.webp"], ["Baizhi", "https://cdn.prydwen.gg/images/ww/characters/baizhi_icon.webp"], ["Brant", "./icon_brant.webp"], ["Buling", "./buling_card.webp"], ["Calcharo", "./kakarot_card.webp"], ["Camellya", "https://cdn.prydwen.gg/images/ww/characters/icon_cam.webp"], ["Cantarella", "./canta_card.webp"], ["Carlotta", "./icon_carlotta.webp"], ["Cartethyia", "./cart_card.webp"], ["Changli", "./changli_card.webp"], ["Chisa", "./chisa_card.webp"], ["Chixia", "https://cdn.prydwen.gg/images/ww/characters/chixia_icon.webp"], ["Ciaccona", "./cia_card.webp"], ["Danjin", "https://cdn.prydwen.gg/images/ww/characters/danjin_icon.webp"], ["Denia", "./denia_card.webp"], ["Encore", "./encore_card.webp"], ["Galbrena", "./gal_card.webp"], ["Hiyuki", "./hiyuki_card.webp"], ["Hsin", "./hsin_card.webp"], ["Iuno", "./ioun_card.webp"], ["Jianxin", "./jiaxin_card.webp"], ["Jingran", "./jingran_card.webp"], ["Jinhsi", "./jihni_card.webp"], ["Jiyan", "./jiyan_card.webp"], ["Lily", "./lily_icon.png"], ["Lingyang", "./ling_card.webp"], ["Lucilla", "./lucilla_card.webp"], ["Lucy", "./lucy_card.webp"], ["Lupa", "./lupa_card.webp"], ["Luuk Herssen", "./luuk-herssen_card.webp"], ["Lynae", "./lynae_card.webp"], ["Mornye", "./mornye_card.webp"], ["Mortefi", "./mortefi_card.webp"], ["Phoebe", "./phoebe_card.webp"], ["Phrolova", "./phr_card.webp"], ["Qingxiao", "./qingxiao_card.webp"], ["Qiuyuan", "./qiu_card.webp"], ["Rebecca", "./rebecca_card.webp"], ["Roccia", "https://cdn.prydwen.gg/images/ww/characters/icon_roccia.webp"], ["Rover (Aero)", "./rover_card.webp"], ["Rover (Electro)", "./rover_card.webp"], ["Rover (Havoc)", "./rover-erosion_card.webp"], ["Rover (Spectro)", "./rover-frazzle_card.webp"], ["Sanhua", "./senhua_card.webp"], ["Shorekeeper", "./keeper_card.webp"], ["Sigrika", "./sigrika_card.webp"], ["Suisui", "./suisui_card.webp"], ["Suoming", "./suoming_card.webp"], ["Taoqi", "https://cdn.prydwen.gg/images/ww/characters/taoqi_icon.webp"], ["Verina", "./verina_card.webp"], ["Xiangli Yao", "https://cdn.prydwen.gg/images/ww/characters/icon_xiang.webp"], ["Yangyang Xuanling", "./yangyang-xuanling_card.webp"], ["Yinlin", "./yinglin_card.webp"], ["Yuanwu", "https://cdn.prydwen.gg/images/ww/characters/yuanwu_icon.webp"], ["Zani", "./zani_card.webp"], ["Zhezhi", "https://cdn.prydwen.gg/images/ww/characters/icon_zhe.webp"]];
+      var WUWA_CHARS = [["Aalto", "https://cdn.prydwen.gg/images/ww/characters/aalto_icon.webp"], ["Aemeath", "./math_card.webp"], ["Augusta", "./aug_card.webp"], ["Baizhi", "https://cdn.prydwen.gg/images/ww/characters/baizhi_icon.webp"], ["Brant", "./icon_brant.webp"], ["Buling", "./buling_card.webp"], ["Calcharo", "./kakarot_card.webp"], ["Camellya", "https://cdn.prydwen.gg/images/ww/characters/icon_cam.webp"], ["Cantarella", "./canta_card.webp"], ["Carlotta", "./icon_carlotta.webp"], ["Cartethyia", "./cart_card.webp"], ["Changli", "./changli_card.webp"], ["Chisa", "./chisa_card.webp"], ["Chixia", "https://cdn.prydwen.gg/images/ww/characters/chixia_icon.webp"], ["Ciaccona", "./cia_card.webp"], ["Danjin", "https://cdn.prydwen.gg/images/ww/characters/danjin_icon.webp"], ["Denia", "./denia_card.webp"], ["Encore", "./encore_card.webp"], ["Galbrena", "./gal_card.webp"], ["Hiyuki", "./hiyuki_card.webp"], ["Hsin", "./hsin_card.webp"], ["Iuno", "./ioun_card.webp"], ["Jianxin", "./jiaxin_card.webp"], ["Jingran", "./jingran_card.webp"], ["Jinhsi", "./jihni_card.webp"], ["Jiyan", "./jiyan_card.webp"], ["Lily", "./lily_icon.png"], ["Lingyang", "./ling_card.webp"], ["Lucilla", "./lucilla_card.webp"], ["Lucy", "./lucy_card.webp"], ["Lupa", "./lupa_card.webp"], ["Luuk Herssen", "./luuk-herssen_card.webp"], ["Lynae", "./lynae_card.webp"], ["Mornye", "./mornye_card.webp"], ["Mortefi", "./mortefi_card.webp"], ["Phoebe", "./phoebe_card.webp"], ["Phrolova", "./phr_card.webp"], ["Qingxiao", "./qingxiao_card.webp"], ["Qiuyuan", "./qiu_card.webp"], ["Rebecca", "./rebecca_card.webp"], ["Roccia", "https://cdn.prydwen.gg/images/ww/characters/icon_roccia.webp"], ["Rover (Aero)", "./rover_card.webp", "./element_aero.webp"], ["Rover (Electro)", "./rover_card.webp", "./element_electro.webp"], ["Rover (Havoc)", "./rover-erosion_card.webp", "./element_havoc.webp"], ["Rover (Spectro)", "./rover-frazzle_card.webp", "./element_spectro.webp"], ["Sanhua", "./senhua_card.webp"], ["Shorekeeper", "./keeper_card.webp"], ["Sigrika", "./sigrika_card.webp"], ["Suisui", "./suisui_card.webp"], ["Suoming", "./suoming_card.webp"], ["Taoqi", "https://cdn.prydwen.gg/images/ww/characters/taoqi_icon.webp"], ["Verina", "./verina_card.webp"], ["Xiangli Yao", "https://cdn.prydwen.gg/images/ww/characters/icon_xiang.webp"], ["Yangyang Xuanling", "./yangyang-xuanling_card.webp"], ["Yinlin", "./yinglin_card.webp"], ["Yuanwu", "https://cdn.prydwen.gg/images/ww/characters/yuanwu_icon.webp"], ["Zani", "./zani_card.webp"], ["Zhezhi", "https://cdn.prydwen.gg/images/ww/characters/icon_zhe.webp"]];
       var WEAPON_TYPES = [
         ['Espada', './weapon_sword.webp'], ['Mandoble', './weapon_broadblade.webp'],
         ['Guanteletes', './weapon_gauntlets.webp'], ['Pistolas', './weapon_pistols.webp'],
@@ -585,11 +602,12 @@
           WUWA_CHARS.forEach(function (c) {
             if (q && norm(c[0]).indexOf(q) === -1) return;
             var btn = document.createElement('button'); btn.type = 'button';
-            btn.className = 'pk-opt' + (b.icon === c[1] && b.name === c[0] ? ' on' : ''); btn.title = c[0];
+            btn.className = 'pk-opt' + (b.name === c[0] ? ' on' : ''); btn.title = c[0];
             var im = document.createElement('img'); im.src = c[1]; im.alt = c[0]; im.loading = 'lazy'; im.referrerPolicy = 'no-referrer';
             btn.appendChild(im);
+            if (c[2]) { var eb = document.createElement('img'); eb.className = 'el'; eb.src = c[2]; eb.alt = ''; btn.appendChild(eb); }
             btn.addEventListener('click', function () {
-              b.name = c[0]; b.icon = c[1]; showSel();
+              b.name = c[0]; b.icon = c[1]; b.element = c[2] || ''; showSel();
               search.previousSibling.textContent = 'Personaje con icono — ' + c[0];
               if (onPick) onPick(c[0]);
               fill(); render();
@@ -608,12 +626,55 @@
         return box;
       }
 
-      function weaponPicker(b) {
+      function weaponPicker(b, onPick) {
         var box = document.createElement('div'); box.className = 'pk';
-        var lab = document.createElement('div'); lab.style.cssText = 'font-size:12px;color:var(--muted)';
-        lab.textContent = 'Tipo de arma'; box.appendChild(lab);
-        var row = document.createElement('div'); row.className = 'pk-wt';
+        var top = document.createElement('div'); top.className = 'pk-top';
+        var sel = document.createElement('img'); sel.className = 'pk-sel'; sel.alt = ''; sel.referrerPolicy = 'no-referrer';
+        function showSel() { sel.classList.toggle('empty', !b.weaponIcon); if (b.weaponIcon) sel.src = b.weaponIcon; }
+        showSel(); top.appendChild(sel);
+        var search = document.createElement('input'); search.type = 'text'; search.placeholder = 'Buscar arma…';
+        var fld = field('Arma con icono' + (b.weaponName ? ' — ' + b.weaponName : ''), search);
+        top.appendChild(fld); box.appendChild(top);
+
+        var msg = document.createElement('div'); msg.className = 'pk-wmsg'; msg.textContent = 'Cargando catálogo de armas…';
+        var grid = document.createElement('div'); grid.className = 'pk-wgrid'; grid.style.display = 'none';
+        box.appendChild(msg); box.appendChild(grid);
+
+        var list = [];
         function fill() {
+          var q = norm(search.value); grid.innerHTML = '';
+          list.forEach(function (x) {
+            if (q && norm(x.n).indexOf(q) === -1) return;
+            var btn = document.createElement('button'); btn.type = 'button';
+            btn.className = 'pk-w' + (b.weaponName === x.n ? ' on' : ''); btn.title = x.n;
+            var im = document.createElement('img'); im.alt = ''; im.loading = 'lazy'; im.referrerPolicy = 'no-referrer';
+            var cands = weaponCands(x);
+            chainImg(im, cands);
+            var sp = document.createElement('span'); sp.textContent = x.n;
+            btn.appendChild(im); btn.appendChild(sp);
+            btn.addEventListener('click', function () {
+              b.weaponName = x.n;
+              b.weaponIcon = im.naturalWidth ? im.currentSrc : cands[0];   // guarda la ruta que sí cargó
+              showSel(); fld.firstChild.textContent = 'Arma con icono — ' + x.n;
+              if (onPick) onPick(x.n);
+              fill(); render();
+            });
+            grid.appendChild(btn);
+          });
+          if (!grid.children.length) grid.textContent = 'Sin resultados.';
+        }
+        search.addEventListener('input', fill);
+        loadWeapons().then(function (l) {
+          list = l;
+          if (!l.length) { msg.textContent = 'No se pudo cargar el catálogo de armas. Usa el tipo de arma o sube una imagen abajo.'; return; }
+          msg.textContent = l.length + ' armas en el catálogo'; grid.style.display = 'grid'; fill();
+        });
+
+        var more = document.createElement('details'); more.className = 'pk-more';
+        var sm = document.createElement('summary'); sm.textContent = 'Solo el tipo de arma, o icono propio (URL / subir imagen)'; more.appendChild(sm);
+        var lab = document.createElement('div'); lab.style.cssText = 'margin-bottom:6px'; lab.textContent = 'Tipo de arma:'; more.appendChild(lab);
+        var row = document.createElement('div'); row.className = 'pk-wt'; row.style.marginBottom = '10px';
+        function fillTypes() {
           row.innerHTML = '';
           WEAPON_TYPES.forEach(function (w) {
             var btn = document.createElement('button'); btn.type = 'button';
@@ -622,18 +683,73 @@
             var sp = document.createElement('span'); sp.textContent = w[0];
             btn.appendChild(im); btn.appendChild(sp);
             btn.addEventListener('click', function () {
-              b.weaponIcon = (b.weaponIcon === w[1]) ? '' : w[1];   // clic de nuevo = quitar
-              fill(); render();
+              b.weaponIcon = (b.weaponIcon === w[1]) ? '' : w[1];
+              showSel(); fillTypes(); render();
             });
             row.appendChild(btn);
           });
         }
-        fill(); box.appendChild(row);
-        var more = document.createElement('details'); more.className = 'pk-more';
-        var sm = document.createElement('summary'); sm.textContent = 'Icono del arma exacta (URL o subir imagen)'; more.appendChild(sm);
+        fillTypes(); more.appendChild(row);
         more.appendChild(imageBlock('Icono del arma', b, 'weaponIcon'));
         box.appendChild(more);
         return box;
+      }
+
+      /* ---- Catálogo de armas de WuWa (mismo origen que builds.html: static.nanoka.cc) ---- */
+      var NK = 'https://static.nanoka.cc';
+      var wwP = null;
+      function bareName(p) { return String(p || '').split('/').pop().split('.')[0]; }
+      function txtOf(v) { return typeof v === 'string' ? v : (v && (v.en || v.name || v.Name)) || ''; }
+      function nameOf(x) { return txtOf(x && (x.en || x.name || x.Name || x.title)) || txtOf(x && x.zh); }
+      function rawIconOf(x) { var p = x && (x.icon || x.Icon || x.image || x.img || x.IconPath); return typeof p === 'string' ? p : ''; }
+      function unwrap(o) { return (o && !Array.isArray(o) && (o.data || o.list || o.items)) || o; }
+      function toList(o) {
+        o = unwrap(o);
+        var ent = Array.isArray(o) ? o.map(function (x, k) { return [x && x.id != null ? x.id : k, x]; }) : Object.entries(o || {});
+        return ent.map(function (e) { var r = rawIconOf(e[1]); return { i: String(e[0]), n: nameOf(e[1]), b: bareName(r), r: r }; })
+          .filter(function (x) { return x.n; });
+      }
+      function getJSON(u) { return fetch(u).then(function (r) { if (!r.ok) throw new Error(u + ' ' + r.status); return r.json(); }); }
+      function revOf(m) {
+        var e = m && (m.ww || m.wuwa || m.wutheringwaves || m.WW);
+        if (!e) return null;
+        return typeof e === 'string' ? e : (e.live || e.latest || e.current || e.version || null);
+      }
+      var KNOWN = ['verdantsummit', 'staticmist', 'emeraldofgenesis', 'stringmaster', 'thelastdance'];
+      function loadWeapons() {
+        if (wwP) return wwP;
+        wwP = getJSON(NK + '/manifest.json').then(function (m) {
+          var rev = revOf(m); if (!rev) throw new Error('sin revisión de ww');
+          return getJSON(NK + '/ww/' + rev + '/weapon.json');
+        }).then(function (j) {
+          var l = toList(j);
+          var ok = l.filter(function (x) { return KNOWN.indexOf(x.n.toLowerCase().replace(/[^a-z0-9]/g, '')) !== -1; }).length;
+          if (ok < 2) throw new Error('weapon.json no coincide');
+          return l;
+        }).catch(function () {
+          // copia que guarda builds.html en este navegador (si existe)
+          try { var c = JSON.parse(localStorage.getItem('wwcat:v3')); if (c && c.cones && c.cones.length) return c.cones.map(function (x) { return { i: x.i, n: x.n, b: x.b || '', r: x.r || '', c: x.c || '' }; }); } catch (e) {}
+          return [];
+        });
+        return wwP;
+      }
+      // rutas posibles del icono: se prueban en orden hasta que una cargue
+      function weaponCands(x) {
+        var out = [], strip = function (s) { return s.replace(/\.[^/]*$/, ''); };
+        var u = x.r ? x.r.indexOf('UIResources') : -1;
+        if (u >= 0) { var p = strip(x.r.slice(u)); out.push(NK + '/assets/ww/UI/' + p + '.webp', NK + '/assets/ww/' + p + '.webp'); }
+        if (x.b) ['UIResources/Common/Image/IconWeapon', ''].forEach(function (d) {
+          var q = (d ? d + '/' : '') + x.b + '.webp';
+          out.push(NK + '/assets/ww/UI/' + q, NK + '/assets/ww/' + q);
+        });
+        if (x.c && /^https?:/i.test(x.c)) out.push(x.c);
+        out.push('./ww_weapon_' + String(x.n).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') + '.webp');
+        return out.filter(function (v, k) { return out.indexOf(v) === k; });
+      }
+      function chainImg(img, list) {
+        var k = 0;
+        img.onerror = function () { k++; if (k < list.length) img.src = list[k]; else { img.onerror = null; img.style.visibility = 'hidden'; } };
+        img.src = list[0];
       }
 
       function buildEditor() {
@@ -653,7 +769,8 @@
           row1.appendChild(field('Versión', textInput(b.version, 'ej. 3.0', function (v) { b.version = v; render(); })));
           var nameIn = textInput(b.name, 'Nombre del personaje', function (v) { b.name = v; render(); });
           row1.appendChild(field('Personaje', nameIn));
-          row1.appendChild(field('Arma', textInput(b.weaponName, 'Nombre del arma', function (v) { b.weaponName = v; render(); })));
+          var weaponIn = textInput(b.weaponName, 'Nombre del arma', function (v) { b.weaponName = v; render(); });
+          row1.appendChild(field('Arma', weaponIn));
           item.appendChild(row1);
 
           var row2 = document.createElement('div'); row2.className = 'ed-row';
@@ -667,7 +784,7 @@
 
           var imgs = document.createElement('div'); imgs.className = 'ed-imgs';
           imgs.appendChild(charPicker(b, function (n) { nameIn.value = n; }));
-          imgs.appendChild(weaponPicker(b));
+          imgs.appendChild(weaponPicker(b, function (n) { weaponIn.value = n; }));
           item.appendChild(imgs);
 
           var del = document.createElement('button');
