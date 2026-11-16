@@ -175,11 +175,6 @@
   </div>
 
   <main>
-    <h1 class="hero-title accent">Arkanabuilds</h1>
-    <h1 class="hero-title white">Banners</h1>
-    <p class="hero-sub">Cuánto falta para que terminen los banners activos de cada juego. Wuthering Waves se actualiza manualmente.</p>
-    <p class="updated-note" id="updatedNote"></p>
-
     <!-- Editor: solo visible con ?edit -->
     <section class="editor" id="editor">
       <h3>✏️ Modo edición — Wuthering Waves</h3>
@@ -366,10 +361,6 @@
         .then(function (data) {
           buildHSR(data);
           buildZZZ(data);
-          if (data.updated) {
-            document.getElementById('updatedNote').textContent =
-              'Datos actualizados: ' + fmtDate(Math.floor(new Date(data.updated).getTime() / 1000));
-          }
           tick();
           setInterval(tick, 1000);
         })
