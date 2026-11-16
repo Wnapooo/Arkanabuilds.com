@@ -183,16 +183,12 @@
     <!-- Editor: solo visible con ?edit -->
     <section class="editor" id="editor">
       <h3>✏️ Modo edición — Wuthering Waves</h3>
-      <p class="hint">
-        Agrega el banner, elige el personaje (con su icono) y el tipo de arma, y define cuándo termina.
-        <b>Guardar</b> lo deja en este navegador. Para que lo vea todo el mundo, usa <b>Descargar JSON</b> y sube el archivo como
-        <code>wuwa-banners.json</code> junto a esta página.
-      </p>
+      <p class="hint">Elige el personaje, el arma y cuándo termina el banner. <b>Guardar para todos</b> lo publica en el sitio al instante (la primera vez te pide la clave de administrador, la misma de la tier list).</p>
       <div id="edList"></div>
       <div class="ed-actions">
         <button class="btn" id="edAdd" type="button">➕ Agregar banner</button>
-        <button class="btn primary" id="edSave" type="button">💾 Guardar</button>
-        <button class="btn" id="edDownload" type="button">⬇️ Descargar JSON</button>
+        <button class="btn primary" id="edSave" type="button">💾 Guardar para todos</button>
+        <button class="btn" id="edDownload" type="button">⬇️ Copia de seguridad (JSON)</button>
         <button class="btn danger" id="edClear" type="button">🗑️ Borrar todo</button>
       </div>
       <div class="ed-msg" id="edMsg"></div>
@@ -796,27 +792,52 @@
         });
       }
 
-      function persist() {
+      var API = '/api/banners?g=wuwa';
+      var KEYSTORE = 'tierlist-admin-key';   // la misma clave que usas en la tier list
+      function getKey(force) {
+        var k = null; try { k = localStorage.getItem(KEYSTORE); } catch (e) {}
+        if (!k || force) {
+          k = prompt('Clave de administrador:');
+          if (k) { try { localStorage.setItem(KEYSTORE, k); } catch (e) {} } else k = null;
+        }
+        return k;
+      }
+      function persist(retry) {
+        var key = getKey(retry === true);
+        if (!key) { flash('Sin clave: no se guardó.'); return; }
         data.updated = new Date().toISOString();
-        try { localStorage.setItem(STORE_KEY, JSON.stringify(data)); flash('✔ Guardado en este navegador.'); }
-        catch (e) { flash('No se pudo guardar (¿imágenes muy pesadas?). Usa Descargar JSON.'); }
+        try { localStorage.setItem(STORE_KEY, JSON.stringify(data)); } catch (e) {}   // borrador local de respaldo
+        flash('Guardando…');
+        fetch(API, {
+          method: 'PUT',
+          headers: { 'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ banners: data.banners })
+        }).then(function (r) {
+          if (r.status === 401) {
+            try { localStorage.removeItem(KEYSTORE); } catch (e) {}
+            if (retry !== true) return persist(true);
+            flash('Clave incorrecta.'); return;
+          }
+          if (r.status === 413) { flash('Muy pesado: usa iconos del selector en vez de imágenes subidas.'); return; }
+          flash(r.ok ? '✔ Guardado para todos.' : 'Error al guardar (' + r.status + ').');
+        }).catch(function () { flash('Error de red: no se guardó.'); });
       }
 
       if (isEdit) {
         document.getElementById('edAdd').addEventListener('click', function () { data.banners.push(newBanner()); buildEditor(); render(); });
-        document.getElementById('edSave').addEventListener('click', persist);
+        document.getElementById('edSave').addEventListener('click', function () { persist(false); });
         document.getElementById('edDownload').addEventListener('click', function () {
           data.updated = new Date().toISOString();
           var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
           var a = document.createElement('a');
           a.href = URL.createObjectURL(blob); a.download = 'wuwa-banners.json';
           document.body.appendChild(a); a.click(); a.remove();
-          flash('⬇ Sube este archivo como wuwa-banners.json junto a la página.');
+          flash('⬇ Copia descargada.');
         });
         document.getElementById('edClear').addEventListener('click', function () {
           if (!confirm('¿Borrar todos los banners?')) return;
           data.banners = []; try { localStorage.removeItem(STORE_KEY); } catch (e) {}
-          buildEditor(); render(); flash('Borrado.');
+          buildEditor(); render(); flash('Borrado. Pulsa «Guardar para todos» para publicarlo.');
         });
       }
 
@@ -826,15 +847,17 @@
 
       function start(remote) {
         var local = readLocal();
-        // En modo edición manda lo guardado localmente; para visitantes, el JSON publicado y, si no existe, lo local.
-        data = normalize(isEdit ? (local || remote) : (remote || local));
+        // Lo publicado manda para todos. El borrador local solo se usa en modo edición si no se pudo leer lo publicado.
+        data = normalize(remote || (isEdit ? local : null));
         if (isEdit) buildEditor();
         render();
         setInterval(tick, 1000);
       }
 
-      fetch(JSON_FILE, { cache: 'no-store' })
-        .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      function getOk(u) { return fetch(u, { cache: 'no-store' }).then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }); }
+      getOk(API)
+        .then(function (d) { return (d && Array.isArray(d.banners)) ? d : Promise.reject(); })
+        .catch(function () { return getOk(JSON_FILE); })   // respaldo: wuwa-banners.json si existe
         .then(start)
         .catch(function () { start(null); });
     })();
