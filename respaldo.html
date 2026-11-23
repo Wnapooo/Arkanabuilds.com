@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Respaldo — ArkanaBuilds</title>
+<style>
+  :root { color-scheme: dark; --bg:#0b0c12; --card:#12141c; --line:#232636; --text:#e8eaf2; --muted:#8b90a5; --accent:#7c83ff; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:15px/1.5 system-ui,-apple-system,sans-serif; padding:32px 16px; }
+  main { max-width:720px; margin:0 auto; display:grid; gap:18px; }
+  h1 { margin:0 0 4px; font-size:24px; }
+  p.sub { margin:0; color:var(--muted); }
+  section { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px 20px; }
+  h2 { margin:0 0 6px; font-size:16px; }
+  p { margin:0 0 12px; color:var(--muted); font-size:14px; }
+  button { background:var(--accent); color:#fff; border:0; border-radius:8px; padding:9px 14px; font:600 14px system-ui,sans-serif; cursor:pointer; }
+  button.alt { background:#232636; }
+  button:disabled { opacity:.5; cursor:default; }
+  input[type=text], input[type=password] { width:100%; background:#0b0c12; border:1px solid var(--line); border-radius:8px; color:var(--text); padding:9px 11px; font:14px system-ui,sans-serif; margin-bottom:10px; }
+  .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+  pre { margin:12px 0 0; background:#0b0c12; border:1px solid var(--line); border-radius:8px; padding:10px 12px; white-space:pre-wrap; word-break:break-word; font:12.5px/1.5 ui-monospace,Consolas,monospace; max-height:260px; overflow:auto; color:#c9cde0; }
+  #msg { min-height:22px; font-weight:600; }
+  #msg.ok { color:#4ade80; } #msg.err { color:#f87171; }
+</style>
+</head>
+<body>
+<main>
+  <div>
+    <h1>Respaldo de ArkanaBuilds</h1>
+    <p class="sub">Página solo para el administrador. Necesita tu clave de administrador.</p>
+  </div>
+
+  <section>
+    <h2>Clave de administrador</h2>
+    <input type="password" id="key" placeholder="Clave" autocomplete="off">
+    <div id="msg"></div>
+  </section>
+
+  <section>
+    <h2>1. Descargar respaldo completo</h2>
+    <p>Baja un archivo con las tier lists, builds, equipos y dupes. Guárdalo en tu PC cada tanto.</p>
+    <button id="dl">Descargar respaldo</button>
+  </section>
+
+  <section>
+    <h2>2. Restaurar desde un archivo</h2>
+    <p>Sube un respaldo descargado antes. Lo guardado hoy pasa a ser la "versión anterior" de cada clave, por si te arrepientes.</p>
+    <input type="file" id="file" accept="application/json,.json">
+    <button id="up" class="alt" style="margin-top:10px">Restaurar archivo</button>
+  </section>
+
+  <section>
+    <h2>3. Volver a una versión anterior</h2>
+    <p>Cada guardado conserva la versión previa, y además hay una copia por día durante 30 días.</p>
+    <button id="list" class="alt">Ver respaldos disponibles</button>
+    <pre id="listout" hidden></pre>
+    <div style="height:12px"></div>
+    <input type="text" id="rk" placeholder="Clave a restaurar, ej: layout:wuwa">
+    <input type="text" id="rd" placeholder="Fecha (opcional, AAAA-MM-DD). Vacío = versión anterior">
+    <button id="rs">Restaurar</button>
+  </section>
+</main>
+
+<script>
+(function () {
+  var KEYSTORE = 'tierlist-admin-key';
+  var $ = function (id) { return document.getElementById(id); };
+  var keyEl = $('key'), msg = $('msg');
+  try { keyEl.value = localStorage.getItem(KEYSTORE) || ''; } catch (e) {}
+
+  function say(t, ok) { msg.textContent = t; msg.className = ok ? 'ok' : 'err'; }
+  function key() {
+    var k = keyEl.value.trim();
+    if (!k) { say('Escribe la clave de administrador.'); return null; }
+    try { localStorage.setItem(KEYSTORE, k); } catch (e) {}
+    return k;
+  }
+  function call(path, opts) {
+    var k = key(); if (!k) return Promise.reject(new Error('sin clave'));
+    opts = opts || {}; opts.headers = Object.assign({ Authorization: 'Bearer ' + k }, opts.headers || {});
+    return fetch(path, opts).then(function (r) {
+      if (r.status === 401) { try { localStorage.removeItem(KEYSTORE); } catch (e) {} throw new Error('Clave incorrecta'); }
+      return r.text().then(function (t) {
+        var j = null; try { j = JSON.parse(t); } catch (e) {}
+        if (!r.ok) throw new Error((j && j.error) || ('Error ' + r.status));
+        return { res: r, text: t, json: j };
+      });
+    });
+  }
+
+  $('dl').onclick = function () {
+    say('Preparando respaldo…', true);
+    call('/api/backup').then(function (o) {
+      var n = Object.keys((o.json && o.json.data) || {}).length;
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([o.text], { type: 'application/json' }));
+      a.download = 'arkanabuilds-respaldo-' + new Date().toISOString().slice(0, 10) + '.json';
+      document.body.appendChild(a); a.click(); a.remove();
+      say('Respaldo descargado (' + n + ' datos) ✓', true);
+    }).catch(function (e) { say(e.message); });
+  };
+
+  $('up').onclick = function () {
+    var f = $('file').files[0];
+    if (!f) { say('Elige primero un archivo .json'); return; }
+    if (!confirm('¿Restaurar este respaldo? Se reemplazarán los datos con los del archivo.')) return;
+    f.text().then(function (t) {
+      var j; try { j = JSON.parse(t); } catch (e) { throw new Error('El archivo no es un JSON válido'); }
+      if (!j || !j.data) throw new Error('No parece un respaldo de ArkanaBuilds');
+      return call('/api/backup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ data: j.data }) });
+    }).then(function (o) { say('Restaurado: ' + o.json.restored + ' datos ✓', true); })
+      .catch(function (e) { say(e.message); });
+  };
+
+  $('list').onclick = function () {
+    call('/api/backup?list=1').then(function (o) {
+      var j = o.json || {}, out = $('listout');
+      out.hidden = false;
+      out.textContent = 'Versión anterior disponible:\n' + ((j.previous || []).join('\n') || '(ninguna)') +
+        '\n\nCopias diarias (fecha:clave):\n' + ((j.daily || []).join('\n') || '(ninguna)');
+      say('Listo.', true);
+    }).catch(function (e) { say(e.message); });
+  };
+
+  $('rs').onclick = function () {
+    var k = $('rk').value.trim(), d = $('rd').value.trim();
+    if (!k) { say('Escribe la clave a restaurar, por ejemplo layout:wuwa'); return; }
+    if (!confirm('¿Volver ' + k + (d ? ' a la copia del ' + d : ' a su versión anterior') + '?')) return;
+    var body = { restore: k }; if (d) body.day = d;
+    call('/api/backup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      .then(function () { say('Restaurado ' + k + ' ✓. Recarga la página para verlo.', true); })
+      .catch(function (e) { say(e.message); });
+  };
+})();
+</script>
+</body>
+</html>
