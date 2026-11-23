@@ -8,6 +8,16 @@ const redis = new Redis({
   token: process.env.UPSTASH_REDIS_REST_KV_REST_API_TOKEN,
 });
 
+// Respaldo: guarda la versión anterior (bak:) y una copia por día durante 30 días (bakd:)
+async function backup(key, prev) {
+  if (!prev) return;
+  const day = new Date().toISOString().slice(0, 10);
+  await Promise.all([
+    redis.set('bak:' + key, prev),
+    redis.set('bakd:' + day + ':' + key, prev, { nx: true, ex: 60 * 60 * 24 * 30 }),
+  ]);
+}
+
 const PAGE_RE = /^[a-z0-9-]{1,40}$/;
 const SAFE_PATH = /^\.\/[\w\-.\/#]{1,150}$/;
 const MAX_BODY = 60000;
@@ -75,12 +85,14 @@ export default async function handler(request) {
     let body;
     try { body = JSON.parse(text); } catch { return json({ error: 'JSON inválido' }, 400); }
     if (!valid(body)) return json({ error: 'formato inválido' }, 400);
+    await backup('layout:' + page, await redis.get('layout:' + page));
     await redis.set('layout:' + page, { base: body.base, layout: body.layout });
     return json({ ok: true });
   }
 
   if (request.method === 'DELETE') {
     if (!(await authorized(request))) return json({ error: 'no autorizado' }, 401);
+    await backup('layout:' + page, await redis.get('layout:' + page));
     await redis.del('layout:' + page);
     return json({ ok: true });
   }

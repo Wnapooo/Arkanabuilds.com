@@ -8,6 +8,16 @@ const redis = new Redis({
   token: process.env.UPSTASH_REDIS_REST_KV_REST_API_TOKEN,
 });
 
+// Respaldo: guarda la versión anterior (bak:) y una copia por día durante 30 días (bakd:)
+async function backup(key, prev) {
+  if (!prev) return;
+  const day = new Date().toISOString().slice(0, 10);
+  await Promise.all([
+    redis.set('bak:' + key, prev),
+    redis.set('bakd:' + day + ':' + key, prev, { nx: true, ex: 60 * 60 * 24 * 30 }),
+  ]);
+}
+
 const PAGE_RE = /^[a-z0-9-]{1,40}$/;
 const MAX_BODY = 60000;
 // ruta relativa o URL de nanoka (WuWa guarda la URL completa)
@@ -77,6 +87,7 @@ export default async function handler(request) {
       main: { torso: str(m.torso, 160), botas: str(m.botas, 160), botas2: str(m.botas2, 160), esfera: str(m.esfera, 160), esfera2: str(m.esfera2, 160), cuerda: str(m.cuerda, 160) },
       sub: str(body.sub, 160), talents: str(body.talents, 160), note: str(body.note, 160),
     };
+    await backup('build:' + g + ':' + c, await redis.get('build:' + g + ':' + c));
     await redis.set('build:' + g + ':' + c, out);
     return json({ ok: true });
   }

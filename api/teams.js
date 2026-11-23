@@ -8,6 +8,16 @@ const redis = new Redis({
   token: process.env.UPSTASH_REDIS_REST_KV_REST_API_TOKEN,
 });
 
+// Respaldo: guarda la versión anterior (bak:) y una copia por día durante 30 días (bakd:)
+async function backup(key, prev) {
+  if (!prev) return;
+  const day = new Date().toISOString().slice(0, 10);
+  await Promise.all([
+    redis.set('bak:' + key, prev),
+    redis.set('bakd:' + day + ':' + key, prev, { nx: true, ex: 60 * 60 * 24 * 30 }),
+  ]);
+}
+
 const PAGE_RE = /^[a-z0-9-]{1,40}$/;
 const MAX_BODY = 60000;
 const MAX_TEAMS = 8, MAX_TEAM = 4;
@@ -62,6 +72,7 @@ export default async function handler(request) {
         .filter((s) => typeof s === 'string' && PAGE_RE.test(s))
         .slice(0, MAX_TEAM),
     }));
+    await backup('teams:' + c, await redis.get('teams:' + c));
     await redis.set('teams:' + c, { teams });
     return json({ ok: true });
   }

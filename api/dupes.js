@@ -8,6 +8,16 @@ const redis = new Redis({
   token: process.env.UPSTASH_REDIS_REST_KV_REST_API_TOKEN,
 });
 
+// Respaldo: guarda la versión anterior (bak:) y una copia por día durante 30 días (bakd:)
+async function backup(key, prev) {
+  if (!prev) return;
+  const day = new Date().toISOString().slice(0, 10);
+  await Promise.all([
+    redis.set('bak:' + key, prev),
+    redis.set('bakd:' + day + ':' + key, prev, { nx: true, ex: 60 * 60 * 24 * 30 }),
+  ]);
+}
+
 const PAGE_RE = /^[a-z0-9-]{1,40}$/;
 const MAX_BODY = 60000;
 const MAX_DUPES = 600;
@@ -58,6 +68,7 @@ export default async function handler(request) {
     try { body = JSON.parse(text); } catch { return json({ error: 'JSON inválido' }, 400); }
     if (!body || typeof body.text !== 'string') return json({ error: 'formato inválido' }, 400);
     const clean = body.text.slice(0, MAX_DUPES);
+    await backup('dupes:' + g + ':' + c, await redis.get('dupes:' + g + ':' + c));
     if (clean.trim()) await redis.set('dupes:' + g + ':' + c, { text: clean });
     else await redis.del('dupes:' + g + ':' + c);
     return json({ ok: true });
