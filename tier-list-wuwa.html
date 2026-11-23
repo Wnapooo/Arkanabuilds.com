@@ -431,16 +431,23 @@ body.sm-open .sm-backdrop { opacity: 1; pointer-events: auto; }
     return a;
   }
   function applyLayout(d) {
-    if (!d || d.base !== BASE || !Array.isArray(d.layout) || d.layout.length !== rows.length) return false;
+    if (!d || !Array.isArray(d.layout) || d.layout.length !== rows.length) return false;
     var ok = d.layout.every(function (row) {
       return Array.isArray(row) && row.every(function (it) {
         return it && typeof it.h === 'string' && SAFE.test(it.h) && typeof it.s === 'string' && SAFE_SRC.test(it.s) && typeof it.t === 'string';
       });
     });
     if (!ok) return false;
+    /* Fusión: lo guardado manda; los personajes nuevos del HTML que no estaban guardados se quedan en su celda por defecto */
+    var savedH = {};
+    d.layout.forEach(function (row) { row.forEach(function (it) { savedH[it.h] = 1; }); });
+    var keep = rows.map(function (r) {
+      return Array.prototype.filter.call(r.querySelectorAll('a.char-icon'), function (a) { return !savedH[a.getAttribute('href')]; });
+    });
     rows.forEach(function (r, i) {
       r.innerHTML = '';
       d.layout[i].forEach(function (it) { r.appendChild(build(it)); });
+      keep[i].forEach(function (a) { r.appendChild(a); });
     });
     return true;
   }
@@ -460,8 +467,46 @@ body.sm-open .sm-backdrop { opacity: 1; pointer-events: auto; }
     .catch(function () {})
     .then(function () {
       finish();
+      if (EDIT) recoverPending();
       if (EDIT) initEditor();
     });
+
+  /* ---------- Respaldo local + reintentos: el orden no se pierde si falla el guardado ---------- */
+  var PENDKEY = 'tierlist-pending:' + PAGE;
+  function readPending() { try { var p = JSON.parse(localStorage.getItem(PENDKEY)); return p && Array.isArray(p.layout) ? p : null; } catch (e) { return null; } }
+  function writePending(v) { try { if (v) localStorage.setItem(PENDKEY, JSON.stringify(v)); else localStorage.removeItem(PENDKEY); } catch (e) {} }
+  var retryTimer = null, retryMs = 4000;
+  function clearRetry() { clearTimeout(retryTimer); retryMs = 4000; }
+  function scheduleRetry() { clearTimeout(retryTimer); retryTimer = setTimeout(function () { doSave(false); }, retryMs); retryMs = Math.min(retryMs * 2, 60000); }
+  function showAlert(msg) {
+    var el = document.getElementById('save-alert');
+    if (!el) {
+      el = document.createElement('div'); el.id = 'save-alert';
+      el.style.cssText = 'position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:9999;max-width:90vw;padding:10px 14px;border-radius:10px;background:#7f1d1d;color:#fff;font:600 13px system-ui,sans-serif;box-shadow:0 4px 18px rgba(0,0,0,.5);display:flex;gap:10px;align-items:center';
+      var s = document.createElement('span'); el.appendChild(s);
+      var b = document.createElement('button'); b.textContent = 'Reintentar';
+      b.style.cssText = 'background:#fff;color:#7f1d1d;border:0;border-radius:6px;padding:4px 10px;font:700 12px system-ui,sans-serif;cursor:pointer';
+      b.onclick = function () { doSave(false); };
+      el.appendChild(b); document.body.appendChild(el);
+    }
+    el.firstChild.textContent = msg; el.style.display = 'flex';
+  }
+  function hideAlert() { var el = document.getElementById('save-alert'); if (el) el.style.display = 'none'; }
+  function failSave(msg) {
+    if (typeof lastSent !== 'undefined') lastSent = null;
+    showAlert(msg + '. Tu orden está guardado en este navegador y se reintenta solo.');
+    scheduleRetry();
+  }
+  function recoverPending() {
+    var p = readPending();
+    if (!p) return;
+    if (applyLayout({ base: p.base, layout: p.layout })) { toast('Se recuperó un orden que no se había publicado; publicando…'); doSave(false); }
+    else writePending(null);
+  }
+  if (EDIT) {
+    window.addEventListener('online', function () { if (readPending()) doSave(false); });
+    window.addEventListener('beforeunload', function (e) { if (readPending()) { e.preventDefault(); e.returnValue = ''; } });
+  }
 
   /* ---------- Modo editor ---------- */
   function getKey(force) {
@@ -473,8 +518,9 @@ body.sm-open .sm-backdrop { opacity: 1; pointer-events: auto; }
     return k;
   }
   function doSave(retry) {
+    writePending({ base: BASE, layout: serialize(), ts: Date.now() });
     var key = getKey(retry);
-    if (!key) { toast('Sin clave: no se guardó'); return; }
+    if (!key) { showAlert('Sin clave: el orden quedó solo en este navegador. Recarga con ?edit y escribe la clave.'); return; }
     fetch(API, {
       method: 'PUT',
       headers: { 'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json' },
@@ -483,10 +529,14 @@ body.sm-open .sm-backdrop { opacity: 1; pointer-events: auto; }
       if (r.status === 401) {
         localStorage.removeItem(KEYSTORE);
         if (!retry) return doSave(true);
-        toast('Clave incorrecta'); return;
+        showAlert('Clave incorrecta: el orden quedó solo en este navegador.'); return;
       }
-      toast(r.ok ? 'Guardado para todos ✓' : 'Error al guardar (' + r.status + ')');
-    }).catch(function () { toast('Error de red'); });
+      if (r.ok) { writePending(null); clearRetry(); hideAlert(); toast('Guardado para todos ✓'); return; }
+      return r.text().then(function (t) {
+        var m = ''; try { m = JSON.parse(t).error || ''; } catch (e) { m = String(t).slice(0, 80); }
+        failSave('Error al guardar (' + r.status + ')' + (m ? ': ' + m : ''));
+      });
+    }).catch(function () { failSave('Error de red'); });
   }
   function save() { clearTimeout(saveTimer); saveTimer = setTimeout(function () { doSave(false); }, 300); }
 
