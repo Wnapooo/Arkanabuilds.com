@@ -412,6 +412,16 @@
     border-bottom: 1px solid color-mix(in srgb, var(--e2) 25%, var(--card-border));
     background: linear-gradient(90deg, color-mix(in srgb, var(--e2) 22%, transparent), transparent 70%);
   }
+  .dl-img {
+    margin-left: auto; cursor: pointer;
+    font: 600 12px/1 system-ui, -apple-system, sans-serif; color: var(--heading);
+    padding: 8px 12px; border-radius: 9px;
+    border: 1px solid color-mix(in srgb, var(--e2) 45%, var(--card-border));
+    background: color-mix(in srgb, var(--e2) 18%, rgba(8,9,14,.6));
+  }
+  .dl-img:hover { background: color-mix(in srgb, var(--e2) 32%, rgba(8,9,14,.6)); }
+  .dl-img:disabled { opacity: .55; cursor: progress; }
+  .dl-img:focus-visible { outline: 2px solid var(--e2); outline-offset: 2px; }
   .panel h2::before { content: ""; width: 4px; height: 18px; border-radius: 2px; background: var(--e2); box-shadow: 0 0 10px var(--e2); }
   .panel-body { padding: 16px; }
   .panel-body .shot { border: 0; border-radius: 10px; }
@@ -2567,7 +2577,7 @@ body.sm-open .sm-backdrop { opacity: 1; pointer-events: auto; }
               </div>
             </aside>
             <section class="panel panel-main">
-              <h2>Armas y sets</h2>
+              <h2>Armas y sets<button type="button" class="dl-img" id="dl-build" data-nocap title="Descargar imagen de la build">📷 Descargar imagen</button></h2>
               <div class="panel-body" id="build-body">
                 <img class="shot" src="${buildImg(slug)}" alt="Build de ${c[1]}" onerror="${buildErr(slug)}">
               </div>
@@ -2598,6 +2608,138 @@ body.sm-open .sm-backdrop { opacity: 1; pointer-events: auto; }
     return true;
   }
 
+  /* ---------- Descargar imagen de la build (panel "Armas y sets") ---------- */
+  function blobToDataUrl(b) {
+    return new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = rej; fr.readAsDataURL(b); });
+  }
+  const dataUrlCache = new Map();
+  function toDataUrl(url) {
+    if (!url) return Promise.resolve('');
+    if (url.startsWith('data:')) return Promise.resolve(url);
+    let u; try { u = new URL(url, location.href); } catch (e) { return Promise.resolve(''); }
+    if (dataUrlCache.has(u.href)) return dataUrlCache.get(u.href);
+    // los iconos de otros dominios pasan por /api/img (esos CDN no permiten leerlos desde el navegador)
+    const same = u.origin === location.origin || u.protocol === 'blob:';
+    const target = same ? u.href : '/api/img?u=' + encodeURIComponent(u.href);
+    const p = fetch(target).then(r => r.ok ? r.blob() : Promise.reject()).then(blobToDataUrl).catch(() => '');
+    dataUrlCache.set(u.href, p);
+    return p;
+  }
+  const SKIP_TAGS = new Set(['SCRIPT', 'STYLE', 'NOSCRIPT', 'BUTTON', 'INPUT', 'TEXTAREA', 'SELECT', 'IFRAME', 'VIDEO', 'CANVAS']);
+  function cssText(cs) {
+    let t = '';
+    for (let i = 0; i < cs.length; i++) { const p = cs[i]; if (p.startsWith('--')) continue; t += p + ':' + cs.getPropertyValue(p) + ';'; }
+    return t;
+  }
+  // copia el elemento con todos sus estilos ya calculados (así no depende del CSS de la página)
+  function cloneStyled(src, ctx) {
+    if (src.nodeType === 3) return src.cloneNode(false);
+    if (src.nodeType !== 1 || SKIP_TAGS.has(src.tagName) || src.hasAttribute('data-nocap')) return null;
+    const dst = src.cloneNode(false);
+    Array.from(dst.attributes).forEach(a => { if (/^on/i.test(a.name) || a.name === 'srcset' || a.name === 'loading') dst.removeAttribute(a.name); });
+    const cs = getComputedStyle(src);
+    dst.setAttribute('style', cssText(cs));
+    if (cs.display === 'none') return null;
+    if (/url\(/.test(cs.backgroundImage)) ctx.bgs.push([dst, cs.backgroundImage]);
+    if (src.tagName === 'IMG') ctx.imgs.push([dst, src.currentSrc || src.src]);
+    const before = pseudoEl(src, '::before'), after = pseudoEl(src, '::after');
+    if (before) dst.appendChild(before);
+    src.childNodes.forEach(ch => { const c = cloneStyled(ch, ctx); if (c) dst.appendChild(c); });
+    if (after) dst.appendChild(after);
+    return dst;
+  }
+  function pseudoEl(src, which) {
+    const ps = getComputedStyle(src, which), c = ps.content;
+    if (!c || c === 'none' || c === 'normal') return null;
+    const sp = document.createElement('span');
+    sp.setAttribute('style', cssText(ps));
+    const m = /^"([\s\S]*)"$/.exec(c);
+    if (m && m[1]) sp.textContent = m[1];
+    return sp;
+  }
+  function loadImage(url) {
+    return new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = () => rej(new Error('No se pudo generar la imagen')); im.src = url; });
+  }
+  async function downloadBuildImage(slug) {
+    const btn = $('dl-build');
+    const panel = document.querySelector('#detail .panel-main');
+    const root = document.querySelector('#detail [data-el]');
+    if (!panel || !root) return;
+    if (btn) btn.disabled = true;
+    toast('Generando imagen…');
+    try {
+      const rect = panel.getBoundingClientRect();
+      const ctx = { imgs: [], bgs: [] };
+      const body = cloneStyled(panel, ctx);
+      // imágenes <img> y fondos CSS -> data URLs (dentro de la imagen final no se puede cargar nada externo)
+      await Promise.all(ctx.imgs.map(async ([el, url]) => {
+        const d = await toDataUrl(url);
+        if (d) el.setAttribute('src', d); else el.removeAttribute('src');
+      }));
+      await Promise.all(ctx.bgs.map(async ([el, val]) => {
+        const urls = [...val.matchAll(/url\((?:"([^"]*)"|'([^']*)'|([^)]*))\)/g)];
+        let out = val;
+        for (const m of urls) { const d = await toDataUrl(m[1] || m[2] || m[3]); out = out.replace(m[0], d ? 'url("' + d + '")' : 'none'); }
+        el.style.setProperty('background-image', out);
+      }));
+
+      const rs = getComputedStyle(root);
+      const e2 = rs.getPropertyValue('--e2').trim() || '#7c83ff';
+      const f = findChar(slug);
+      const name = (f && f.char && f.char[1]) || slug;
+      const PAD = 24, HEAD = 64, FOOT = 40;
+      // altura según el contenido real (el panel tiene un alto mínimo y quedaría mucho espacio vacío)
+      let bottom = rect.top;
+      panel.querySelectorAll('.panel-body *').forEach(e => { const r = e.getBoundingClientRect(); if (r.height) bottom = Math.max(bottom, r.bottom); });
+      const ph = Math.round(Math.max(160, Math.min(rect.height, bottom - rect.top + 24)));
+      const W = Math.ceil(rect.width) + PAD * 2, H = ph + PAD * 2 + HEAD + FOOT;
+      const wrap = document.createElement('div');
+      wrap.setAttribute('style',
+        'width:' + W + 'px;height:' + H + 'px;box-sizing:border-box;padding:' + PAD + 'px;display:flex;flex-direction:column;' +
+        'font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#e8eaf2;' +
+        'background:radial-gradient(120% 90% at 0% 0%, color-mix(in srgb, ' + e2 + ' 34%, #090a10), #090a10 72%);');
+      const head = document.createElement('div');
+      head.setAttribute('style', 'height:' + HEAD + 'px;display:flex;align-items:center;justify-content:space-between;');
+      const h = document.createElement('div');
+      h.setAttribute('style', 'font-size:30px;font-weight:800;letter-spacing:.2px;');
+      h.textContent = name + ' — Build';
+      const tag = document.createElement('div');
+      tag.setAttribute('style', 'font-size:14px;font-weight:700;color:' + e2 + ';');
+      tag.textContent = '✦ ArkanaBuilds ✦';
+      head.appendChild(h); head.appendChild(tag);
+      body.style.setProperty('width', rect.width + 'px');
+      body.style.setProperty('height', ph + 'px');
+      body.style.setProperty('min-height', '0');
+      const foot = document.createElement('div');
+      foot.setAttribute('style', 'height:' + FOOT + 'px;display:flex;align-items:flex-end;font-size:13px;color:#8b90a5;');
+      foot.textContent = 'arkanabuilds.vercel.app/builds#' + slug;
+      wrap.appendChild(head); wrap.appendChild(body); wrap.appendChild(foot);
+
+      const xhtml = new XMLSerializer().serializeToString(wrap);
+      const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + W + '" height="' + H + '"><foreignObject x="0" y="0" width="100%" height="100%">' + xhtml + '</foreignObject></svg>';
+      const url = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+      const im = await loadImage(url);
+      const scale = Math.min(2, 8000 / Math.max(W, H));
+      const cv = document.createElement('canvas');
+      cv.width = Math.round(W * scale); cv.height = Math.round(H * scale);
+      const c2 = cv.getContext('2d');
+      c2.fillStyle = '#090a10'; c2.fillRect(0, 0, cv.width, cv.height);
+      c2.drawImage(im, 0, 0, cv.width, cv.height);
+      const blob = await new Promise((res, rej) => cv.toBlob(b => b ? res(b) : rej(new Error('No se pudo crear el PNG')), 'image/png'));
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = slug + '-build-arkanabuilds.png';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+      toast('Imagen descargada ✓');
+    } catch (e) {
+      console.error(e);
+      toast('No se pudo generar la imagen');
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  }
+
   function route() {
     const slug = decodeURIComponent(location.hash.slice(1));
     const showDetail = slug && renderDetail(slug);
@@ -2611,6 +2753,7 @@ body.sm-open .sm-backdrop { opacity: 1; pointer-events: auto; }
     if (f2 && $('teams-body')) initTeams(slug, f2.game);
     if (f2 && $('dupes')) initDupes(slug, f2.game);
     if (f2 && $('build-body') && (f2.game === 'hsr' || f2.game === 'zzz' || f2.game === 'wuwa')) initBuild(slug, f2.game);
+    if ($('dl-build')) $('dl-build').onclick = () => downloadBuildImage(slug);
     document.body.classList.toggle('hsr-open', isHsr);
     document.querySelector('main').classList.toggle('wide', isHsr);
     $('detail').hidden = !showDetail;
