@@ -312,53 +312,53 @@
   .portrait-stage { aspect-ratio: auto; }
   .portrait-stage .portrait { display: block; height: auto; aspect-ratio: auto; object-fit: contain; }
   /* WuWa: imagen libre (sin cuadro), alta, de arriba a abajo del bloque de paneles */
-  :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free { position: relative; }
-  :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free .portrait-stage { background: none; border: 0; box-shadow: none; border-radius: 0; overflow: visible; isolation: auto; margin: 0 0 14px; }
-  :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free .portrait-stage::before { display: none; }
-  :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free .portrait-stage .portrait { width: 100%; height: auto; filter: drop-shadow(0 10px 26px rgba(0,0,0,.55)); }
-  :is(div[data-el="wuwa"], div[data-el="zzz"]) .hsr-grid .panel { position: relative; z-index: 1; }
+  :is(div[data-el="wuwa"], div[data-el="zzz"], div[data-game="hsr"]) aside.hsr-id.free { position: relative; }
+  :is(div[data-el="wuwa"], div[data-el="zzz"], div[data-game="hsr"]) aside.hsr-id.free .portrait-stage { background: none; border: 0; box-shadow: none; border-radius: 0; overflow: visible; isolation: auto; margin: 0 0 14px; }
+  :is(div[data-el="wuwa"], div[data-el="zzz"], div[data-game="hsr"]) aside.hsr-id.free .portrait-stage::before { display: none; }
+  :is(div[data-el="wuwa"], div[data-el="zzz"], div[data-game="hsr"]) aside.hsr-id.free .portrait-stage .portrait { width: 100%; height: auto; filter: drop-shadow(0 10px 26px rgba(0,0,0,.55)); }
+  :is(div[data-el="wuwa"], div[data-el="zzz"], div[data-game="hsr"]) .hsr-grid .panel { position: relative; z-index: 1; }
   @media (min-width: 1101px) {
-    :is(div[data-el="wuwa"], div[data-el="zzz"]) .hsr-grid:has(> aside.free) { grid-template-columns: 280px minmax(0, 1fr) 340px; }
+    :is(div[data-el="wuwa"], div[data-el="zzz"], div[data-game="hsr"]) .hsr-grid:has(> aside.free) { grid-template-columns: 280px minmax(0, 1fr) 340px; }
     /* la columna ocupa todo el alto y llega hasta el borde izquierdo de la pantalla */
-    :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free { align-self: stretch; display: flex; flex-direction: column; margin-left: calc(-1 * (max(0px, (100vw - 1840px) / 2) + 28px)); }
-    :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free .portrait-stage { flex: 1; min-height: 560px; margin: 0; position: relative; }
-    :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free .portrait-stage .portrait { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; object-fit: contain; object-position: center bottom; }
+    :is(div[data-el="wuwa"], div[data-el="zzz"], div[data-game="hsr"]) aside.hsr-id.free { align-self: stretch; display: flex; flex-direction: column; margin-left: calc(-1 * (max(0px, (100vw - 1840px) / 2) + 28px)); }
+    :is(div[data-el="wuwa"], div[data-el="zzz"], div[data-game="hsr"]) aside.hsr-id.free .portrait-stage { flex: 1; min-height: 560px; margin: 0; position: relative; }
+    :is(div[data-el="wuwa"], div[data-el="zzz"], div[data-game="hsr"]) aside.hsr-id.free .portrait-stage .portrait { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; object-fit: contain; object-position: center bottom; }
     /* el nombre va abajo a la izquierda, sobre la imagen */
-    :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free h1 { position: absolute; left: 28px; bottom: 96px; margin: 0; z-index: 3; font-size: 34px; }
-    :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free .el-tag { position: absolute; left: 28px; bottom: 64px; z-index: 3; }
+    :is(div[data-el="wuwa"], div[data-el="zzz"], div[data-game="hsr"]) aside.hsr-id.free h1 { position: absolute; left: 28px; bottom: 96px; margin: 0; z-index: 3; font-size: 34px; }
+    :is(div[data-el="wuwa"], div[data-el="zzz"], div[data-game="hsr"]) aside.hsr-id.free .el-tag { position: absolute; left: 28px; bottom: 64px; z-index: 3; }
   }
   @media (min-width: 1500px) {
-    :is(div[data-el="wuwa"], div[data-el="zzz"]) .hsr-grid:has(> aside.free) { grid-template-columns: clamp(300px, 20vw, 400px) minmax(0, 1fr) 340px; }
-    :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free .portrait-stage .portrait { object-fit: cover; object-position: center top; }
+    :is(div[data-el="wuwa"], div[data-el="zzz"], div[data-game="hsr"]) .hsr-grid:has(> aside.free) { grid-template-columns: clamp(300px, 20vw, 400px) minmax(0, 1fr) 340px; }
+    :is(div[data-el="wuwa"], div[data-el="zzz"], div[data-game="hsr"]) aside.hsr-id.free .portrait-stage .portrait { object-fit: cover; object-position: center top; }
   }
   /* la imagen espera a estar recortada y centrada antes de mostrarse (evita el salto al recargar) */
-  :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free .portrait-stage .portrait { opacity: 0; transition: opacity .25s ease; }
-  :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free .portrait-stage .portrait.ready { opacity: 1; }
+  :is(div[data-el="wuwa"], div[data-el="zzz"], div[data-game="hsr"]) aside.hsr-id.free .portrait-stage .portrait { opacity: 0; transition: opacity .25s ease; }
+  :is(div[data-el="wuwa"], div[data-el="zzz"], div[data-game="hsr"]) aside.hsr-id.free .portrait-stage .portrait.ready { opacity: 1; }
   /* posición personalizada (guardada con ?edit): la imagen se ve entera y se mueve/escala con transform */
   @media (min-width: 1101px) {
-    :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free.custom .portrait-stage img.portrait { object-fit: contain !important; object-position: center center !important; transform: translate(var(--tx, 0%), var(--ty, 0%)) scale(var(--ts, 1)); transform-origin: center center; }
-    :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free .portrait-stage.art-edit { cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
-    :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free .portrait-stage.art-edit.dragging { cursor: grabbing; }
+    :is(div[data-el="wuwa"], div[data-el="zzz"], div[data-game="hsr"]) aside.hsr-id.free.custom .portrait-stage img.portrait { object-fit: contain !important; object-position: center center !important; transform: translate(var(--tx, 0%), var(--ty, 0%)) scale(var(--ts, 1)); transform-origin: center center; }
+    :is(div[data-el="wuwa"], div[data-el="zzz"], div[data-game="hsr"]) aside.hsr-id.free .portrait-stage.art-edit { cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
+    :is(div[data-el="wuwa"], div[data-el="zzz"], div[data-game="hsr"]) aside.hsr-id.free .portrait-stage.art-edit.dragging { cursor: grabbing; }
     .art-bar { position: absolute; top: 10px; right: 10px; z-index: 6; max-width: calc(100% - 64px); display: flex; align-items: center; gap: 8px; padding: 4px 4px 4px 12px; border-radius: 999px; font-size: 11px; line-height: 1.3; color: #fff; background: rgba(8,9,14,.78); border: 1px solid var(--e2); cursor: default; }
     .art-bar button { flex: none; border: 0; border-radius: 999px; padding: 5px 10px; font: inherit; font-weight: 600; color: #fff; background: var(--e2); cursor: pointer; }
   }
   @media (max-width: 1100px) { .art-bar { display: none; } }
   /* WuWa (escritorio): el botón "← Todos los personajes" sube junto a la barra superior, sin mover el resto del diseño */
-  @media (min-width: 1101px) { :is(div[data-el="wuwa"], div[data-el="zzz"]) > a.back { position: relative; top: -70px; z-index: 5; } }
+  @media (min-width: 1101px) { :is(div[data-el="wuwa"], div[data-el="zzz"], div[data-game="hsr"]) > a.back { position: relative; top: -70px; z-index: 5; } }
   /* panel de build: oculto hasta que todo esté cargado, luego aparece con un fundido */
   #build-body { transition: opacity .35s ease; }
   #build-body.bd-hold { opacity: 0; }
   /* ZZZ: mantener siempre visible el retrato Portrait.webp completo, de cabeza a pies */
   @media (min-width: 1101px) {
-    :is(div[data-el="zzz"]) aside.hsr-id.zzz-fullbody:not(.trimmed) .portrait-stage .portrait {
+    :is(div[data-el="zzz"], div[data-game="hsr"]) aside.hsr-id.zzz-fullbody:not(.trimmed) .portrait-stage .portrait {
       object-fit: contain !important;
       object-position: center bottom !important;
     }
-    :is(div[data-el="zzz"]) aside.hsr-id.zzz-fullbody h1 {
+    :is(div[data-el="zzz"], div[data-game="hsr"]) aside.hsr-id.zzz-fullbody h1 {
       top: auto;
       bottom: 96px;
     }
-    :is(div[data-el="zzz"]) aside.hsr-id.zzz-fullbody .el-tag {
+    :is(div[data-el="zzz"], div[data-game="hsr"]) aside.hsr-id.zzz-fullbody .el-tag {
       top: auto;
       bottom: 64px;
     }
@@ -366,21 +366,21 @@
 
   /* Rover (dos figuras): se ve entero y el nombre va arriba */
   @media (min-width: 1101px) {
-    :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free.wide-art.rover-art .portrait-stage .portrait { object-fit: contain; object-position: center bottom; }
-    :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free.wide-art.rover-art h1 { top: 24px; bottom: auto; }
-    :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free.wide-art.rover-art .el-tag { top: 74px; bottom: auto; }
+    :is(div[data-el="wuwa"], div[data-el="zzz"], div[data-game="hsr"]) aside.hsr-id.free.wide-art.rover-art .portrait-stage .portrait { object-fit: contain; object-position: center bottom; }
+    :is(div[data-el="wuwa"], div[data-el="zzz"], div[data-game="hsr"]) aside.hsr-id.free.wide-art.rover-art h1 { top: 24px; bottom: auto; }
+    :is(div[data-el="wuwa"], div[data-el="zzz"], div[data-game="hsr"]) aside.hsr-id.free.wide-art.rover-art .el-tag { top: 74px; bottom: auto; }
   }
   /* card3 recortada: el personaje llena la columna de arriba a abajo, centrado, como Augusta */
   @media (min-width: 1101px) {
-    :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free.trimmed .portrait-stage .portrait { object-fit: cover; object-position: var(--fx, 50%) top; }
-    :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free.trimmed h1 { top: auto; bottom: 96px; }
-    :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free.trimmed .el-tag { top: auto; bottom: 64px; }
+    :is(div[data-el="wuwa"], div[data-el="zzz"], div[data-game="hsr"]) aside.hsr-id.free.trimmed .portrait-stage .portrait { object-fit: cover; object-position: var(--fx, 50%) top; }
+    :is(div[data-el="wuwa"], div[data-el="zzz"], div[data-game="hsr"]) aside.hsr-id.free.trimmed h1 { top: auto; bottom: 96px; }
+    :is(div[data-el="wuwa"], div[data-el="zzz"], div[data-game="hsr"]) aside.hsr-id.free.trimmed .el-tag { top: auto; bottom: 64px; }
   }
   /* Resto de cards3 anchas (p. ej. Jiyan): figura entera, centrada en la columna y nombre abajo como en las altas */
   @media (min-width: 1101px) {
-    :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free.wide-art:not(.rover-art) .portrait-stage .portrait { object-fit: contain; object-position: center center; }
-    :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free.wide-art:not(.rover-art) h1 { top: auto; bottom: 96px; }
-    :is(div[data-el="wuwa"], div[data-el="zzz"]) aside.hsr-id.free.wide-art:not(.rover-art) .el-tag { top: auto; bottom: 64px; }
+    :is(div[data-el="wuwa"], div[data-el="zzz"], div[data-game="hsr"]) aside.hsr-id.free.wide-art:not(.rover-art) .portrait-stage .portrait { object-fit: contain; object-position: center center; }
+    :is(div[data-el="wuwa"], div[data-el="zzz"], div[data-game="hsr"]) aside.hsr-id.free.wide-art:not(.rover-art) h1 { top: auto; bottom: 96px; }
+    :is(div[data-el="wuwa"], div[data-el="zzz"], div[data-game="hsr"]) aside.hsr-id.free.wide-art:not(.rover-art) .el-tag { top: auto; bottom: 64px; }
   }
 
 
@@ -2274,7 +2274,7 @@ body.sm-open .sm-backdrop { opacity: 1; pointer-events: auto; }
     const stage = img.closest('.portrait-stage');
     if (!stage) return;
     const slug = aside.dataset.slug;
-    const game = aside.closest('[data-el="zzz"]') ? 'zzz' : 'wuwa';
+    const game = (aside.closest('[data-game]') || {dataset:{}}).dataset.game === 'hsr' ? 'hsr' : aside.closest('[data-el="zzz"]') ? 'zzz' : 'wuwa';
     stage.classList.add('art-edit');
     img.draggable = false;
     const bar = document.createElement('div');
@@ -2368,7 +2368,7 @@ body.sm-open .sm-backdrop { opacity: 1; pointer-events: auto; }
   window.trimArt = function (img) {
     const aside = img.closest('aside');
     const slug = aside && aside.dataset.slug;
-    const gm = aside && aside.closest('[data-el="zzz"]') ? 'zzz' : 'wuwa';
+    const gm = aside && aside.closest('[data-game="hsr"]') ? 'hsr' : aside && aside.closest('[data-el="zzz"]') ? 'zzz' : 'wuwa';
     const posP = img._posP || (img._posP = slug ? window.getArtPos(slug, gm) : Promise.resolve(null));
     const done = () => posP.then(p => {
       img.classList.add('ready');
@@ -2477,6 +2477,9 @@ body.sm-open .sm-backdrop { opacity: 1; pointer-events: auto; }
     'astra-yao-hsr': 'astra-yao_card.webp',
     'ellen-joe': 'ellen_card.webp'
   };
+  /* HSR: arte de cuerpo completo (<slug>_full.webp), igual que ZZZ y WuWa. Si falta el archivo, se usa la card de siempre. */
+  const HSR_FULL = new Set('acheron aglaea aha anaxa archer argenti ashveil asta aventurine aventurine-waveflair bailu black-swan blade blade-mortenax boothill bronya castorice cerydra cipher clara cyrene dan-heng-permansor-terrae dr-ratio evanescia feixiao firefly fu-xuan gallagher gepard gilgamesh herta himeko himeko-nova huohuo hyacine hysilens imbibitor-lunae jade jiaoqiu jingliu jing-yuan kafka lingsha luocha lynx march-7th-evernight march-7th-swordmaster moze mydei pearl phainon rappa rin-tohsaka robin robin-summeretto ruan-mei saber seele serval silver-wolf silver-wolf-lv-999 sparkle sparxie sunday the-dahlia the-herta tingyun tingyun-fugue topaz trailblazer-elation trailblazer-harmony trailblazer-remembrance tribbie welt yao-guang yunli'.split(' '));
+  HSR_FULL.forEach(k => { DETAIL_FILES.hsr[k] = k + '_full.webp'; });
 
   function imgBig(gameKey, slug) {
     const f = DETAIL_FILES[gameKey] && DETAIL_FILES[gameKey][slug];
@@ -2569,13 +2572,13 @@ body.sm-open .sm-backdrop { opacity: 1; pointer-events: auto; }
 
     if (el || ((isZzz || isWw) && bg)) {
       $('detail').innerHTML = `
-        <div data-el="${el || (isWw ? 'wuwa' : 'zzz')}"${bg ? ` style="--e1:${bg[0]};--e2:${bg[1]};--e3:color-mix(in srgb, ${bg[1]} 45%, #fff)"` : ''}>
+        <div data-game="${game}" data-el="${el || (isWw ? 'wuwa' : 'zzz')}"${bg ? ` style="--e1:${bg[0]};--e2:${bg[1]};--e3:color-mix(in srgb, ${bg[1]} 45%, #fff)"` : ''}>
           <div class="hsr-bg${isZzz ? ' zzz' : ''}${isWw ? ' wuwa' : ''}${bg ? ' fx lay-' + bg[3] : ''}" style="${bg ? `--b1:${bg[0]};--b2:${bg[1]};--b3:${bg[2]};` : ''}--art:url('${img(game, slug)}')">${isZzz ? `${zzzFx(slug, bg)}<span class="zzz-word">${c[1]}</span>` : isWw ? wuwaFx(slug, bg, wb.el) : ''}</div>
           <a class="back" href="#">← Todos los personajes</a>
           <div class="hsr-grid">
-            <aside class="hsr-id${DETAIL_FILES[game] && DETAIL_FILES[game][slug] ? ' free' : ''}${isZzz ? ' zzz-fullbody' : ''}${/^rover/.test(slug) ? ' rover-art' : ''}" data-slug="${slug}">
+            <aside class="hsr-id${DETAIL_FILES[game] && DETAIL_FILES[game][slug] && (game !== 'hsr' || HSR_FULL.has(slug)) ? ' free' : ''}${isZzz || (game === 'hsr' && HSR_FULL.has(slug)) ? ' zzz-fullbody' : ''}${/^rover/.test(slug) ? ' rover-art' : ''}" data-slug="${slug}">
               <div class="portrait-stage">
-                <img class="portrait" src="${imgBig(game, slug)}" alt="${c[1]}" onload="trimArt(this)"${game === 'zzz' ? ` onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src='./${slug}_card.webp'}"` : ''}>
+                <img class="portrait" src="${imgBig(game, slug)}" alt="${c[1]}" onload="trimArt(this)"${game === 'zzz' ? ` onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src='./${slug}_card.webp'}"` : (game === 'hsr' && HSR_FULL.has(slug)) ? ` onerror="if(!this.dataset.fb){this.dataset.fb=1;this.closest('aside').classList.remove('free','zzz-fullbody');this.classList.add('ready');this.src='${img(game, slug)}'}"` : ''}>
                 ${el ? `<img class="el-badge" src="${elIcon(el)}" alt="${EL_LABEL[el]}" onerror="this.remove()">` : (isWw && wb.known) ? `<img class="el-badge" src="./element_${wb.el}.webp" alt="${WUWA_LABEL[wb.el]}" title="${WUWA_LABEL[wb.el]}" onerror="this.remove()">` : zi ? `<img class="el-badge" src="${zzzElIcon(zi[0])}" alt="${zzzElName(slug)}" title="${zzzElName(slug)}" onerror="this.remove()">` : ''}${pa ? `<img class="path-badge" src="${pathIcon(pa)}" alt="${PATH_LABEL[pa]}" title="${PATH_LABEL[pa]}" onerror="this.remove()">` : zi ? `<img class="path-badge" src="${zzzSpecIcon(zi[1])}" alt="${ZZZ_SPEC_LABEL[zi[1]]}" title="${ZZZ_SPEC_LABEL[zi[1]]}" onerror="this.remove()">` : ''}
               </div>
               <h1>${c[1]}</h1>
