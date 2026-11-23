@@ -414,13 +414,16 @@
   }
   .dl-img {
     margin-left: auto; cursor: pointer;
-    font: 600 12px/1 system-ui, -apple-system, sans-serif; color: var(--heading);
-    padding: 8px 12px; border-radius: 9px;
-    border: 1px solid color-mix(in srgb, var(--e2) 45%, var(--card-border));
-    background: color-mix(in srgb, var(--e2) 18%, rgba(8,9,14,.6));
+    display: inline-flex; align-items: center; gap: 7px;
+    font: 500 12.5px/1 system-ui, -apple-system, sans-serif; letter-spacing: .01em; color: var(--heading);
+    padding: 8px 12px; border-radius: 8px;
+    border: 1px solid color-mix(in srgb, var(--heading) 16%, transparent);
+    background: transparent; opacity: .8;
+    transition: opacity .15s, background .15s, border-color .15s;
   }
-  .dl-img:hover { background: color-mix(in srgb, var(--e2) 32%, rgba(8,9,14,.6)); }
-  .dl-img:disabled { opacity: .55; cursor: progress; }
+  .dl-img svg { flex: none; }
+  .dl-img:hover { opacity: 1; background: color-mix(in srgb, var(--heading) 8%, transparent); border-color: color-mix(in srgb, var(--heading) 30%, transparent); }
+  .dl-img:disabled { opacity: .5; cursor: progress; }
   .dl-img:focus-visible { outline: 2px solid var(--e2); outline-offset: 2px; }
   .panel h2::before { content: ""; width: 4px; height: 18px; border-radius: 2px; background: var(--e2); box-shadow: 0 0 10px var(--e2); }
   .panel-body { padding: 16px; }
@@ -2583,7 +2586,7 @@ body.sm-open .sm-backdrop { opacity: 1; pointer-events: auto; }
               </div>
             </aside>
             <section class="panel panel-main">
-              <h2>Armas y sets<button type="button" class="dl-img" id="dl-build" data-nocap title="Descargar imagen de la build">📷 Descargar imagen</button></h2>
+              <h2>Armas y sets<button type="button" class="dl-img" id="dl-build" data-nocap title="Descargar imagen de la build"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="m7 11 5 5 5-5"/><path d="M5 20h14"/></svg>Descargar imagen</button></h2>
               <div class="panel-body" id="build-body">
                 <img class="shot" src="${buildImg(slug)}" alt="Build de ${c[1]}" onerror="${buildErr(slug)}">
               </div>
