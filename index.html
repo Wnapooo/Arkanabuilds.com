@@ -296,7 +296,7 @@
   .side-link { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 10px; color: var(--text-muted); text-decoration: none; font-size: 15px; font-weight: 600; transition: background .15s, color .15s; }
   .side-link:hover { background: rgba(129,140,248,.1); color: var(--text); }
   .side-link.active { background: rgba(129,140,248,.14); color: #818cf8; }
-  .side-ico { width: 22px; text-align: center; font-size: 16px; }
+  .side-ico { width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; flex: none; }
 
   .side-section { border-top: 1px solid var(--border-card); padding-top: 20px; }
   .side-section h3 { margin: 0 0 16px 4px; font-size: 14px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; color: #818cf8; }
@@ -366,10 +366,10 @@
 
   <aside class="sidebar" id="sidebar" aria-label="Barra lateral">
     <nav class="side-nav">
-      <a class="side-link active" href="/"><span class="side-ico">🏠</span>Inicio</a>
-      <a class="side-link" href="/builds"><span class="side-ico">⚔️</span>Builds</a>
-      <a class="side-link" href="/tier-list-zzz-local"><span class="side-ico">🏆</span>Tier List</a>
-      <a class="side-link" href="/banners"><span class="side-ico">🎫</span>Banners</a>
+      <a class="side-link active" href="/"><span class="side-ico"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5a1 1 0 0 0 1 1H10v-5.5h4v5.5h3.5a1 1 0 0 0 1-1V10"/></svg></span>Inicio</a>
+      <a class="side-link" href="/builds"><span class="side-ico"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="7.5" r="3.2"/><path d="M2.5 20.5c0-3.6 2.5-6.2 5.5-6.2s5.5 2.6 5.5 6.2"/><rect x="16.5" y="3.5" width="5" height="4.5" rx="1.2"/><rect x="16.5" y="9.8" width="5" height="4.5" rx="1.2"/><rect x="16.5" y="16.1" width="5" height="4.5" rx="1.2"/></svg></span>Builds</a>
+      <a class="side-link" href="/tier-list-zzz-local"><span class="side-ico"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="3.5" width="4.5" height="5" rx="1.2" fill="currentColor" stroke="none"/><rect x="9.0" y="3.5" width="3.6" height="5" rx="1.2"/><rect x="2.5" y="9.5" width="4.5" height="5" rx="1.2" fill="currentColor" stroke="none"/><rect x="9.0" y="9.5" width="3.6" height="5" rx="1.2"/><rect x="13.4" y="9.5" width="3.6" height="5" rx="1.2"/><rect x="2.5" y="15.5" width="4.5" height="5" rx="1.2" fill="currentColor" stroke="none"/><rect x="9.0" y="15.5" width="3.6" height="5" rx="1.2"/><rect x="13.4" y="15.5" width="3.6" height="5" rx="1.2"/><rect x="17.8" y="15.5" width="3.6" height="5" rx="1.2"/></svg></span>Tier List</a>
+      <a class="side-link" href="/banners"><span class="side-ico"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4z"/><path d="M14.5 6.5v11" stroke-dasharray="2 2.2"/></svg></span>Banners</a>
     </nav>
   </aside>
   <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
